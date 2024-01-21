@@ -3,7 +3,8 @@ pkgdown: 2.0.7
 pkgdown_sha: ~
 articles:
   0-Preprocessing-PDF-docs: 0-Preprocessing-PDF-docs.html
-last_built: 2024-01-21T15:29Z
+  1-Asuntopoliittisten-ohjelmien-teko-kunnissa: 1-Asuntopoliittisten-ohjelmien-teko-kunnissa.html
+last_built: 2024-01-21T16:45Z
 urls:
   reference: https://stranmax.github.io/rfintext/reference
   article: https://stranmax.github.io/rfintext/articles
