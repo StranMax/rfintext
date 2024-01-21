@@ -1,0 +1,174 @@
+---
+title: "2 Tekstianalyysi tidytext-paketilla"
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup, message=FALSE, warning=FALSE}
+library(rfintext)
+# devtools::install_github("StranMax/rfinstats")
+library(rfinstats)
+library(dplyr)
+library(sf)
+library(tidytext)
+library(ggplot2)
+library(stringr)
+library(forcats)
+```
+
+```{r}
+aspol |>
+  count(LEMMA, UPOSTAG, sort = TRUE) |>
+  slice_max(n, n = 20) |>
+  ggplot() +
+  geom_col(aes(x = n, y = fct_reorder(LEMMA, n), fill = UPOSTAG))
+```
+```{r}
+suodatettavat <- c("✓", "", "x", "X", "@", "bostad")
+pattern <- str_c(suodatettavat, collapse = "|")
+aspol <- aspol |>
+  filter(UPOSTAG %in% c("NOUN", "ADJ", "VERB"),  # Vain merkitykselliset sanat
+         !str_detect(FEATS, "Foreign=Yes"),  # Ruotsi- ja englanninkieliset mm.
+         !str_detect(LEMMA, pattern))  
+```
+
+
+```{r}
+sanat_per_luokka <- aspol |>
+  left_join(taantuvat, by = join_by("kunta" == "kunta_nimi")) |>
+  filter(!is.na(luokka)) |>
+  count(luokka, LEMMA, sort = TRUE)
+
+sanat_per_luokka
+```
+
+```{r}
+sanat_yhteensä_per_luokka <-  sanat_per_luokka |>
+  group_by(luokka) |>
+  summarise(total = sum(n))
+
+sanat_yhteensä_per_luokka
+```
+
+
+```{r, message=FALSE}
+sanamäärät <-  left_join(sanat_per_luokka, sanat_yhteensä_per_luokka)
+sanamäärät
+```
+
+```{r, message=FALSE, warning=FALSE}
+ggplot(sanamäärät, aes(n/total, fill = luokka)) +
+  geom_histogram(show.legend = FALSE) +
+  xlim(NA, 0.0009) +
+  facet_wrap(~luokka, ncol = 2, scales = "free_y")
+```
+
+```{r}
+freq_by_rank <- sanamäärät %>% 
+  group_by(luokka) %>% 
+  mutate(rank = row_number(), 
+         `term frequency` = n/total) %>%
+  ungroup()
+freq_by_rank
+```
+
+```{r}
+freq_by_rank %>% 
+  ggplot(aes(rank, `term frequency`, color = luokka)) + 
+  geom_line(linewidth = 1.1, alpha = 0.8, show.legend = TRUE) + 
+  scale_x_log10() +
+  scale_y_log10()
+```
+
+```{r}
+luokka_tf_idf <- sanamäärät %>%
+  bind_tf_idf(LEMMA, luokka, n)
+
+luokka_tf_idf
+```
+
+```{r}
+luokka_tf_idf %>%
+  select(-total) %>%
+  arrange(desc(tf_idf))
+```
+
+```{r}
+luokka_tf_idf %>%
+  group_by(luokka) %>%
+  slice_max(tf_idf, n = 10) %>%
+  ungroup() %>%
+  ggplot(aes(tf_idf, fct_reorder(LEMMA, tf_idf), fill = luokka)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~luokka, ncol = 2, scales = "free") +
+  labs(x = "tf-idf", y = NULL)
+```
+
+```{r, message=FALSE, warning=FALSE}
+library(widyr)
+```
+
+```{r}
+kappaleet <- aspol |>
+  mutate(kappale = paste0(kunta, "-", sent)) |>
+  count(kappale, LEMMA)
+```
+
+```{r}
+word_pairs <- kappaleet |>
+  pairwise_count(LEMMA, kappale, sort = TRUE, upper = FALSE)
+
+word_pairs
+```
+
+```{r}
+word_cors <- kappaleet %>%
+  group_by(LEMMA) %>%
+  filter(n() >= 40) %>%
+  pairwise_cor(LEMMA, kappale, sort = TRUE, upper = FALSE)
+
+word_cors
+```
+
+```{r}
+word_cors |>
+  mutate(sanapari = paste0(item1, " <-> ", item2)) |>
+  slice_max(correlation, n = 20) |>
+ggplot() +
+  geom_col(aes(x = correlation, y = fct_reorder(sanapari, correlation)))
+```
+
+```{r}
+kappaleet_kunta <- aspol |>
+  count(kunta, LEMMA)
+```
+
+```{r}
+word_pairs_kunta <- kappaleet_kunta |>
+  pairwise_count(LEMMA, kunta, sort = TRUE, upper = FALSE)
+
+word_pairs_kunta
+```
+
+```{r}
+word_cors_kunta <- kappaleet_kunta %>%
+  group_by(LEMMA) %>%
+  filter(n() >= 40) %>%
+  pairwise_cor(LEMMA, kunta, sort = TRUE, upper = FALSE)
+
+word_cors_kunta
+```
+
+```{r}
+word_cors_kunta |>
+  mutate(sanapari = paste0(item1, " <-> ", item2)) |>
+  slice_max(correlation, n = 20) |>
+ggplot() +
+  geom_col(aes(x = correlation, y = fct_reorder(sanapari, correlation)))
+```
+

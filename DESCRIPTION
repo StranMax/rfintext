@@ -19,4 +19,7 @@ Suggests:
     devtools,
     dplyr,
     ggplot2,
-    sf
+    sf,
+    stringr,
+    tidytext,
+    widyr
