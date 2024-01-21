@@ -15,3 +15,5 @@ RoxygenNote: 7.2.3
 URL: https://github.com/StranMax/rfintext, https://stranmax.github.io/rfintext/
 BugReports: https://github.com/StranMax/rfintext/issues
 Config/Needs/website: rmarkdown
+Suggests: 
+    devtools
