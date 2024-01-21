@@ -39,3 +39,4 @@ library(rfintext)
 head(aspol)
 ```
 
+Number of documents currently `r length(unique(aspol$kunta))`

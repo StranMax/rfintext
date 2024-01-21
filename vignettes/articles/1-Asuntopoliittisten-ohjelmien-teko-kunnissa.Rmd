@@ -1,0 +1,71 @@
+---
+title: "1 Asuntopoliittisten ohjelmien teko kunnissa"
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup, message=FALSE, warning=FALSE}
+library(rfintext)
+devtools::install_github("StranMax/rfinstats")
+library(rfinstats)
+library(sf)
+library(dplyr)
+library(ggplot2)
+```
+
+```{r}
+aspol
+```
+
+```{r}
+taantuvat <- taantuvat |>
+  mutate(aspol = if_else(kunta_nimi %in% unique(aspol$kunta), "Ohjelma tehty", "Ei ohjelmaa"))
+```
+
+```{r}
+ggplot(taantuvat) +
+  geom_sf(aes(fill = aspol)) +
+  theme_void()
+```
+
+```{r}
+ohjelmat_per_luokka <- taantuvat |>
+  count(luokka, aspol, sort = TRUE)
+```
+
+```{r}
+ggplot(ohjelmat_per_luokka) +
+  geom_col(aes(x = n, y = luokka, fill = aspol))
+```
+
+```{r}
+sanat_per_luokka <- aspol |>
+  left_join(taantuvat, by = join_by("kunta" == "kunta_nimi")) |>
+  filter(!is.na(luokka)) |>
+  group_by(luokka) |>
+  count(luokka, name = "sanamäärä", sort = TRUE)
+```
+
+```{r}
+ggplot(sanat_per_luokka) +
+  geom_col(aes(x = sanamäärä, y = luokka, fill = luokka), show.legend = FALSE)
+```
+
+
+```{r}
+keskim_sanat_per_luokka <- sanat_per_luokka |>
+  left_join(count(taantuvat, aspol, luokka, name = "luokkakoko")) |>
+  filter(aspol == "Ohjelma tehty") |>
+  mutate(keskimäärin = sanamäärä/luokkakoko)
+```
+```{r}
+ggplot(keskim_sanat_per_luokka) +
+  geom_col(aes(x = keskimäärin, y = luokka, fill = luokka), show.legend = FALSE)
+```
+
+

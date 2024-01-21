@@ -46,3 +46,5 @@ head(aspol)
 #> 5    nummod    _ SpacesAfter=\\r\\n\\r\\n
 #> 6       aux    _                        _
 ```
+
+Number of documents currently 65
