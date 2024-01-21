@@ -1,0 +1,136 @@
+---
+title: "0 Preprocessing PDF-docs"
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+This r-package `nlpfin` contains dataset `aspol` which is preprocessed and cleaned version
+of housing policy documents made by Finnish municipalities. (TODO: link to subject)
+
+This article presents in brief all the steps taken to preprocess original pdf-documents
+to analysis ready corpus dataset.
+
+## Data collection
+
+Briefly, all the available policy documents found from the web or received from municipalities
+gathered together in the same folder.
+
+## Preprocessing
+
+Roughly, divided to three parts:
+
+1. Fixing non-readable pdf-format issue  
+2. Converting pdf to plain text file  
+3. Unstructured plain text files to structured corpus with lemmatization  
+
+Lemmatized files are read to single data frame in R and saved as `aspol` dataset.
+
+### 1. PDF problems
+
+Some PDFs were in unreadable form for unknown reason. Maybe they had been scanned 
+from original paper documents? Whatever the reason, it had to be fixed first.
+
+Technique used for that is called OCR or optical character recognition. Tool used
+here is [OCRmyPDF](https://github.com/ocrmypdf/OCRmyPDF). Tool was run via docker
+container. Additionally Finnish language data package was provided for pipeline.
+
+How it was done:
+
+Prequisite:  
+* [Docker](https://www.docker.com/products/docker-desktop/) desktop installed  
+* Tesseract language data file for Finnish downloaded: [fin.traineddata](https://github.com/tesseract-ocr/tessdata_best)  
+
+Steps:  
+1. Create file named `Dockerfile` somewhere on your machine, put 
+`fin.traineddata` file to same location  
+2. Copy paste following to your `Dockerfile`:  
+```
+FROM jbarlow83/ocrmypdf:v16.0.4  
+
+# Example: add a tessdata_best file
+COPY fin.traineddata /usr/share/tesseract-ocr/5/tessdata/  
+```
+3. Build docker image:  
+```
+docker build -t ocrmypdf-fin .
+```
+4. Process all PDFs  
+```
+cd C:\path\to\my\pdf-folder
+Get-ChildItem . -Filter *.pdf | foreach {
+docker run --rm -w /data -v ".:/data" ocrmypdf-fin -l fin $_.Name $_.Name
+}`
+```
+
+> Docker is run here on powershell. Adjust loop syntax to your preferences/toolkit.  
+
+In the same directory you have your, run `ocrmypdf` tool (or actually `ocrmypdf-fin` here). 
+Choose finnish language support with `-l` option. And use same file name for both
+input and output. In that case pdf is updated in place. And even better, only non-
+readable PDFs are processed. If there is already recognizable text in the pdf, it
+is skipped and left as is.
+
+### 2. PDF to plain text
+
+Next we want to extract all text from pdf files. For this task we use [Poppler](https://en.wikipedia.org/wiki/Poppler_(software))
+toolkit. Poppler is the same tool that for example `pdftools::pdf_text()` uses for reading
+PDF files. Reason we use command line version here is that `pdftools::pdf_text()` does not
+allow to define all the options available on command line as far as I understand.
+Most importantly, command line let's us leave out `-layout` option which tries
+to keep original pdf layout in the resulted text file. This creates problems when
+multicolumn pdf is converted to multicolumn text file. 
+
+We use also poppler via docker container. Here is how it's done.
+
+```
+docker pull minidocks/poppler
+
+cd c:Path\To\My\PDF-dir
+
+Get-ChildItem . -Filter *.pdf | foreach {
+docker run --rm -v ".:/app" -w /app minidocks/poppler pdftotext $_.Name
+}
+```
+
+What happens here is that we `cd` to our pdf folder, run the utility `pdftotext`
+and give input file. When output file is not given, it is automatically created 
+with the same name as input pdf file but as a text file.
+
+### 3. Lemmatization
+
+For last, text is tokenized and classified with [Turku-neural-parse-pipeline](https://turkunlp.org/Turku-neural-parser-pipeline/)
+toolkit. 
+
+```
+docker pull turkunlp/turku-neural-parser:latest-fi-en-sv-cpu
+
+$OutputEncoding = [Console]::OutputEncoding = [Text.UTF8Encoding]::UTF8
+
+cd C:\Path\To\Your\txt\files
+
+Get-ChildItem . -Filter *.txt | ForEach-Object -Parallel {
+Get-Content -Encoding utf8 $_.FullName |  docker run --rm -i turkunlp/turku-neural-parser:latest-fi-en-sv-cpu stream fi_tdt parse_plaintext > .\$($_.BaseName)_lemm.txt
+} -ThrottleLimit 3
+```
+What happens here? We use ready made turkunlp docker image. We choose cpu version
+of the image. (TODO: try to get GPU version working) Make sure output is UTF-8 encoded.
+`cd` to directory with the text files. Loop over all the text files and run tool
+`parse_plaintext` with finnish language model `fi_tdt`. Save output with same name but `_lemma.txt`
+added to end.
+
+> NOTE!  
+> `-Parallel` option with `-ThrottleLimit` works only in Powershell 7. Drop if using
+> some other Powershell version.
+
+> NOTE!!  
+> Number of cores best to keep relatively few, maybe two or three depending on
+> how much RAM available.
+
+Output files are text files containing all the words in [CoNLL-U](https://universaldependencies.org/format.html)
+format. These files have been read with `NLP::CoNLLUTextDocument()` into a 
+data frame.
