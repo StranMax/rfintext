@@ -11,6 +11,7 @@ knitr::opts_chunk$set(
 
 ```{r setup, message=FALSE, warning=FALSE}
 library(rfintext)
+# install.packages(devtools)
 devtools::install_github("StranMax/rfinstats")
 library(rfinstats)
 library(sf)
