@@ -6,7 +6,8 @@ articles:
   1-Asuntopoliittisten-ohjelmien-teko-kunnissa: 1-Asuntopoliittisten-ohjelmien-teko-kunnissa.html
   2-Tekstianalyysi-tidytext-paketilla: 2-Tekstianalyysi-tidytext-paketilla.html
   3-Sanapilvet: 3-Sanapilvet.html
-last_built: 2024-01-22T09:31Z
+  4-Sanakorrelaatiot: 4-Sanakorrelaatiot.html
+last_built: 2024-01-22T10:21Z
 urls:
   reference: https://stranmax.github.io/rfintext/reference
   article: https://stranmax.github.io/rfintext/articles
