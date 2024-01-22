@@ -5,7 +5,8 @@ articles:
   0-Preprocessing-PDF-docs: 0-Preprocessing-PDF-docs.html
   1-Asuntopoliittisten-ohjelmien-teko-kunnissa: 1-Asuntopoliittisten-ohjelmien-teko-kunnissa.html
   2-Tekstianalyysi-tidytext-paketilla: 2-Tekstianalyysi-tidytext-paketilla.html
-last_built: 2024-01-21T19:13Z
+  3-Sanapilvet: 3-Sanapilvet.html
+last_built: 2024-01-22T09:31Z
 urls:
   reference: https://stranmax.github.io/rfintext/reference
   article: https://stranmax.github.io/rfintext/articles

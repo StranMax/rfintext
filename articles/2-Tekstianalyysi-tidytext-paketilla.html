@@ -44,6 +44,7 @@
     <a class="dropdown-item" href="../articles/0-Preprocessing-PDF-docs.html">0 Preprocessing PDF-docs</a>
     <a class="dropdown-item" href="../articles/1-Asuntopoliittisten-ohjelmien-teko-kunnissa.html">1 Asuntopoliittisten ohjelmien teko kunnissa</a>
     <a class="dropdown-item" href="../articles/2-Tekstianalyysi-tidytext-paketilla.html">2 Tekstianalyysi tidytext-paketilla</a>
+    <a class="dropdown-item" href="../articles/3-Sanapilvet.html">3 Sanapilvet</a>
   </div>
 </li>
       </ul>
@@ -99,12 +100,12 @@
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">suodatettavat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"✓"</span>, <span class="st">""</span>, <span class="st">"x"</span>, <span class="st">"X"</span>, <span class="st">"@"</span>, <span class="st">"bostad"</span><span class="op">)</span></span>
 <span><span class="va">pattern</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://stringr.tidyverse.org/reference/str_c.html" class="external-link">str_c</a></span><span class="op">(</span><span class="va">suodatettavat</span>, collapse <span class="op">=</span> <span class="st">"|"</span><span class="op">)</span></span>
-<span><span class="va">aspol</span> <span class="op">&lt;-</span> <span class="va">aspol</span> <span class="op">|&gt;</span></span>
+<span><span class="va">noun_adj_verb</span> <span class="op">&lt;-</span> <span class="va">aspol</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">UPOSTAG</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"NOUN"</span>, <span class="st">"ADJ"</span>, <span class="st">"VERB"</span><span class="op">)</span>,  <span class="co"># Vain merkitykselliset sanat</span></span>
 <span>         <span class="op">!</span><span class="fu"><a href="https://stringr.tidyverse.org/reference/str_detect.html" class="external-link">str_detect</a></span><span class="op">(</span><span class="va">FEATS</span>, <span class="st">"Foreign=Yes"</span><span class="op">)</span>,  <span class="co"># Ruotsi- ja englanninkieliset mm.</span></span>
 <span>         <span class="op">!</span><span class="fu"><a href="https://stringr.tidyverse.org/reference/str_detect.html" class="external-link">str_detect</a></span><span class="op">(</span><span class="va">LEMMA</span>, <span class="va">pattern</span><span class="op">)</span><span class="op">)</span>  </span></code></pre></div>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">sanat_per_luokka</span> <span class="op">&lt;-</span> <span class="va">aspol</span> <span class="op">|&gt;</span></span>
+<code class="sourceCode R"><span><span class="va">sanat_per_luokka</span> <span class="op">&lt;-</span> <span class="va">noun_adj_verb</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">left_join</a></span><span class="op">(</span><span class="va">taantuvat</span>, by <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/join_by.html" class="external-link">join_by</a></span><span class="op">(</span><span class="st">"kunta"</span> <span class="op">==</span> <span class="st">"kunta_nimi"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">luokka</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/count.html" class="external-link">count</a></span><span class="op">(</span><span class="va">luokka</span>, <span class="va">LEMMA</span>, sort <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
@@ -241,6 +242,7 @@
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/juliasilge/widyr" class="external-link">widyr</a></span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">kappaleet</span> <span class="op">&lt;-</span> <span class="va">aspol</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>kappale <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">kunta</span>, <span class="st">"-"</span>, <span class="va">sent</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/count.html" class="external-link">count</a></span><span class="op">(</span><span class="va">kappale</span>, <span class="va">LEMMA</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
@@ -248,20 +250,20 @@
 <span>  <span class="fu"><a href="https://juliasilge.github.io/widyr/reference/pairwise_count.html" class="external-link">pairwise_count</a></span><span class="op">(</span><span class="va">LEMMA</span>, <span class="va">kappale</span>, sort <span class="op">=</span> <span class="cn">TRUE</span>, upper <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">word_pairs</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 653,400 × 3</span></span></span>
-<span><span class="co">#&gt;    item1              item2        n</span></span>
-<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> asunto#poliittinen ohjelma    576</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> vuosi              asunto     498</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> alue               kaupunki   371</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> vuosi              kaupunki   362</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> asunto             kaupunki   342</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> tavoite            kaupunki   291</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> asunto             uusi       289</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> vuosi              aika       284</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> asuminen           palvelu    271</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> asuminen           kaupunki   269</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 653,390 more rows</span></span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1,781,755 × 3</span></span></span>
+<span><span class="co">#&gt;    item1 item2        n</span></span>
+<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> .     olla     <span style="text-decoration: underline;">10</span>970</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> .     ja       <span style="text-decoration: underline;">10</span>804</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> ,     .         <span style="text-decoration: underline;">8</span>685</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> ,     ja        <span style="text-decoration: underline;">5</span>786</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> olla  ja        <span style="text-decoration: underline;">5</span>744</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> ,     olla      <span style="text-decoration: underline;">5</span>617</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> .     asunto    <span style="text-decoration: underline;">2</span>707</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> .     vuosi     <span style="text-decoration: underline;">2</span>668</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> .     kaupunki  <span style="text-decoration: underline;">2</span>633</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> (     )         <span style="text-decoration: underline;">2</span>446</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 1,781,745 more rows</span></span></span></code></pre></div>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">word_cors</span> <span class="op">&lt;-</span> <span class="va">kappaleet</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">LEMMA</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
@@ -269,20 +271,20 @@
 <span>  <span class="fu"><a href="https://juliasilge.github.io/widyr/reference/pairwise_cor.html" class="external-link">pairwise_cor</a></span><span class="op">(</span><span class="va">LEMMA</span>, <span class="va">kappale</span>, sort <span class="op">=</span> <span class="cn">TRUE</span>, upper <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">word_cors</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 432,915 × 3</span></span></span>
-<span><span class="co">#&gt;    item1              item2           correlation</span></span>
-<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                 <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> rivi               ketju#talo            0.665</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> asunto#poliittinen ohjelma               0.580</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> rahoitus           kehittää#keskus       0.558</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> palvelu#asuminen   tehostaa              0.557</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> aika#väli          pitkä                 0.546</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> sektori            kolmas                0.542</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> asuin#kerros#talo  ketju#talo            0.530</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> tekninen           lauta#kunta           0.527</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> ottaa              huomio                0.512</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> kävely             pyöräily              0.495</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 432,905 more rows</span></span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 918,690 × 3</span></span></span>
+<span><span class="co">#&gt;    item1   item2            correlation</span></span>
+<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> 11101   www.riihimaki.fi       1    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> FCG     Consulting             0.981</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> Group   Consulting             0.972</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> Finnish Consulting             0.972</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> 125     11101                  0.956</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> 125     www.riihimaki.fi       0.956</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> muun    muassa                 0.956</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> Group   FCG                    0.953</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> Finnish FCG                    0.953</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> Group   Finnish                0.944</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 918,680 more rows</span></span></span></code></pre></div>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">word_cors</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>sanapari <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">item1</span>, <span class="st">" &lt;-&gt; "</span>, <span class="va">item2</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -291,7 +293,7 @@
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_bar.html" class="external-link">geom_col</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">correlation</span>, y <span class="op">=</span> <span class="fu"><a href="https://forcats.tidyverse.org/reference/fct_reorder.html" class="external-link">fct_reorder</a></span><span class="op">(</span><span class="va">sanapari</span>, <span class="va">correlation</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="2-Tekstianalyysi-tidytext-paketilla_files/figure-html/unnamed-chunk-17-1.png" width="700"></p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">kappaleet_kunta</span> <span class="op">&lt;-</span> <span class="va">aspol</span> <span class="op">|&gt;</span></span>
+<code class="sourceCode R"><span><span class="va">kappaleet_kunta</span> <span class="op">&lt;-</span> <span class="va">noun_adj_verb</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/count.html" class="external-link">count</a></span><span class="op">(</span><span class="va">kunta</span>, <span class="va">LEMMA</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">word_pairs_kunta</span> <span class="op">&lt;-</span> <span class="va">kappaleet_kunta</span> <span class="op">|&gt;</span></span>
