@@ -31,7 +31,7 @@ aspol |>
 ```{r}
 suodatettavat <- c("✓", "", "x", "X", "@", "bostad")
 pattern <- str_c(suodatettavat, collapse = "|")
-aspol <- aspol |>
+noun_adj_verb <- aspol |>
   filter(UPOSTAG %in% c("NOUN", "ADJ", "VERB"),  # Vain merkitykselliset sanat
          !str_detect(FEATS, "Foreign=Yes"),  # Ruotsi- ja englanninkieliset mm.
          !str_detect(LEMMA, pattern))  
@@ -39,7 +39,7 @@ aspol <- aspol |>
 
 
 ```{r}
-sanat_per_luokka <- aspol |>
+sanat_per_luokka <- noun_adj_verb |>
   left_join(taantuvat, by = join_by("kunta" == "kunta_nimi")) |>
   filter(!is.na(luokka)) |>
   count(luokka, LEMMA, sort = TRUE)
@@ -115,6 +115,7 @@ library(widyr)
 
 ```{r}
 kappaleet <- aspol |>
+  filter() |>
   mutate(kappale = paste0(kunta, "-", sent)) |>
   count(kappale, LEMMA)
 ```
@@ -144,7 +145,7 @@ ggplot() +
 ```
 
 ```{r}
-kappaleet_kunta <- aspol |>
+kappaleet_kunta <- noun_adj_verb |>
   count(kunta, LEMMA)
 ```
 
