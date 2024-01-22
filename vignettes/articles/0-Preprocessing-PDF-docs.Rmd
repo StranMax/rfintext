@@ -64,7 +64,7 @@ docker build -t ocrmypdf-fin .
 cd C:\path\to\my\pdf-folder
 Get-ChildItem . -Filter *.pdf | foreach {
 docker run --rm -w /data -v ".:/data" ocrmypdf-fin -l fin $_.Name $_.Name
-}`
+}
 ```
 
 > Docker is run here on powershell. Adjust loop syntax to your preferences/toolkit.  
