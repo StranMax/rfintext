@@ -18,8 +18,11 @@ knitr::opts_chunk$set(
 <!-- badges: start -->
 <!-- badges: end -->
 
-This package contains analysis ready data set `aspol` created from Finnish
+This package contains data set `aspol` created from Finnish
 housing policy documents.
+
+Additionally package ships with word list from Institute for the languages of
+Finland `sanalista`.
 
 ## Installation
 
@@ -31,12 +34,43 @@ devtools::install_github("StranMax/rfintext")
 ```
 
 
-```{r example}
+```{r setup, message=FALSE, warning=FALSE}
 library(rfintext)
-```
-
-```{r}
-head(aspol)
+library(tidyverse)
 ```
 
 Number of documents currently `r length(unique(aspol$kunta))`
+
+```{r}
+aspol
+```
+
+```{r}
+sanalista
+```
+
+```{r}
+aspol <-  aspol |>
+  dplyr::mutate(sanalistassa = str_detect(str_to_lower(LEMMA), str_c(sanalista$Hakusana, collapse = "|")))
+```
+
+```{r}
+aspol |>
+  dplyr::count(sanalistassa)
+```
+
+```{r}
+aspol |>
+  dplyr::filter(sanalistassa == FALSE) |>
+  dplyr::count(LEMMA, UPOSTAG, XPOSTAG, sort = TRUE)
+```
+
+
+```{r}
+aspol |>
+  dplyr::filter(sanalistassa,
+                UPOSTAG %in% c("NOUN", "ADJ", "VERB", "ADV")) |>
+  dplyr::count(LEMMA, UPOSTAG, XPOSTAG, sort = TRUE) |>
+  print(n=50)
+```
+
