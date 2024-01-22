@@ -142,7 +142,7 @@ COPY fin.traineddata /usr/share/tesseract-ocr/5/tessdata/  </code></pre>
 <pre><code>cd C:\path\to\my\pdf-folder
 Get-ChildItem . -Filter *.pdf | foreach {
 docker run --rm -w /data -v ".:/data" ocrmypdf-fin -l fin $_.Name $_.Name
-}`</code></pre>
+}</code></pre>
 <blockquote>
 <p>Docker is run here on powershell. Adjust loop syntax to your
 preferences/toolkit.</p>
