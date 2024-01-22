@@ -115,7 +115,9 @@ library(widyr)
 
 ```{r}
 kappaleet <- aspol |>
-  filter() |>
+  filter(UPOSTAG %in% c("NOUN", "VERB"),
+         !str_detect(LEMMA, pattern),
+         nchar(LEMMA) > 2) |>
   mutate(kappale = paste0(kunta, "-", sent)) |>
   count(kappale, LEMMA)
 ```
