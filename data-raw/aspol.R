@@ -29,11 +29,45 @@ aspol <- cbind(doc = gsub("\\.\\d+$", "", rownames(aspol)), aspol)
 # Column is prettier than row name
 rownames(aspol) <- NULL
 
-aspol <- tidyr::as_tibble(aspol)
 aspol <- aspol |>
-  mutate(kunta = str_trim(str_to_title(str_replace_all(str_extract(doc, "[a-ö_-]+"), "_", " "))))
-# kunta first, drop doc column
-aspol <- aspol |>
-  select(kunta, sent:MISC)
+  tidyr::as_tibble() |>
+  mutate(kunta = str_trim(str_to_title(str_replace_all(str_extract(doc, "[a-ö_-]+"), "_", " ")))) |>
+  select(kunta, sent:MISC, doc)  # kunta first, doc last
 
+yhteiset_ohjelmat <- tribble(
+  ~kunta, ~seutu,
+  "Alavus", "K",
+  "Aura", "Turun Seutu",
+  "Harjavalta", "Porin Seutukunta",
+  "Ilmajoki", "K",
+  "Kaarina", "Turun Seutu",
+  "Kangasala", "Tampereen Seutu",
+  "Kuortane", "K",
+  "Kurikka", "K",
+  "Lapua", "K",
+  "Lempäälä", "Tampereen Seutu",
+  "Lieto", "Turun Seutu",
+  "Masku", "Turun Seutu",
+  "Mynämäki", "Turun Seutu",
+  "Naantali", "Turun Seutu",
+  "Nakkila", "Porin Seutukunta",
+  "Nokia", "Tampereen Seutu",
+  "Nousiainen", "Turun Seutu",
+  "Orivesi", "Tampereen Seutu",
+  "Paimio", "Turun Seutu",
+  "Parainen", "Turun Seutu",
+  "Pirkkala", "Tampereen Seutu",
+  "Pomarkku", "Porin Seutukunta",
+  "Pori", "Porin Seutukunta",
+  "Raisio", "Turun Seutu",
+  "Rusko", "Turun Seutu",
+  "Sauvo", "Turun Seutu",
+  "Seinäjoki", "K",
+  "Tampere", "Tampereen Seutu",
+  "Turku", "Turun Seutu",
+  "Ulvila", "Porin Seutukunta",
+  "Vesilahti", "Tampereen Seutu",
+  "Ylöjärvi", "Tampereen Seutu"
+)
+aspol |> distinct(kunta) |> left_join(yhteiset_ohjelmat, by = join_by("kunta" == "seutu")) |> print(n=60)
 usethis::use_data(aspol, overwrite = TRUE)
