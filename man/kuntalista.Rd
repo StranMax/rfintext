@@ -8,7 +8,7 @@
 A data frame with rows and columns:
 \describe{
   \item{Kunta}{Kunta}
-  \item{Asuntopoliittinen ohjelma}{Kyllä, Ei, Ei mukana, Yhteinen}
+  \item{Asuntopoliittinen ohjelma}{Ohjelma laadittu, Ei ohjelmaa, Ei vastausta, Seutukuntaohjelma}
 }
 }
 \usage{

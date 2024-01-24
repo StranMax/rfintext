@@ -24,18 +24,25 @@ aspol
 ```
 
 ```{r}
-taantuvat <- taantuvat |>
-  mutate(aspol = if_else(kunta_nimi %in% unique(aspol$kunta), "Ohjelma tehty", "Ei ohjelmaa"))
+kunnat_aspol <- taantuvat |> 
+  left_join(kuntalista, by = join_by("kunta_nimi" == "Kunta")) |>
+  rename(aspol = `Asuntopoliittinen ohjelma`)
+```
+
+
+```{r}
+# taantuvat <- taantuvat |>
+  # mutate(aspol = if_else(kunta_nimi %in% unique(aspol$kunta), "Ohjelma tehty", "Ei ohjelmaa"))
 ```
 
 ```{r}
-ggplot(taantuvat) +
+ggplot(kunnat_aspol) +
   geom_sf(aes(fill = aspol)) +
   theme_void()
 ```
 
 ```{r}
-ohjelmat_per_luokka <- taantuvat |>
+ohjelmat_per_luokka <- kunnat_aspol |>
   count(luokka, aspol, sort = TRUE)
 ```
 
@@ -60,8 +67,8 @@ ggplot(sanat_per_luokka) +
 
 ```{r}
 keskim_sanat_per_luokka <- sanat_per_luokka |>
-  left_join(count(taantuvat, aspol, luokka, name = "luokkakoko")) |>
-  filter(aspol == "Ohjelma tehty") |>
+  left_join(count(kunnat_aspol, aspol, luokka, name = "luokkakoko")) |>
+  filter(aspol == "Ohjelma laadittu") |>
   mutate(keskimäärin = sanamäärä/luokkakoko)
 ```
 ```{r}
