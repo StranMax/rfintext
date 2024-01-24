@@ -91,7 +91,7 @@
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">aspol</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 479,457 × 12</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 479,457 × 14</span></span></span>
 <span><span class="co">#&gt;    kunta   sent ID    FORM  LEMMA UPOSTAG XPOSTAG FEATS HEAD  DEPREL DEPS  MISC </span></span>
 <span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> Enont…     1 1     ENON… ENon… PROPN   N       Case… 2     nmod:… _     <span style="color: #949494;">"</span>_<span style="color: #949494;">"</span>  </span></span>
@@ -104,7 +104,8 @@
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> Enont…     3 1     1     1     NUM     Num     NumT… 0     root   _     <span style="color: #949494;">"</span>Spa…</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> Enont…     4 1     Sisä… sisä… NOUN    N       Case… 3     compo… _     <span style="color: #949494;">"</span>Spa…</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> Enont…     4 2     1     1     NUM     Num     NumT… 3     nummod _     <span style="color: #949494;">"</span>_<span style="color: #949494;">"</span>  </span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 479,447 more rows</span></span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 479,447 more rows</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 2 more variables: doc &lt;chr&gt;, sanalistassa &lt;lgl&gt;</span></span></span></code></pre></div>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">kunnat_aspol</span> <span class="op">&lt;-</span> <span class="va">taantuvat</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">left_join</a></span><span class="op">(</span><span class="va">kuntalista</span>, by <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/join_by.html" class="external-link">join_by</a></span><span class="op">(</span><span class="st">"kunta_nimi"</span> <span class="op">==</span> <span class="st">"Kunta"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>

@@ -89,7 +89,7 @@
 <p>Number of documents currently 65</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">aspol</span></span>
-<span><span class="co">#&gt; # A tibble: 479,457 × 12</span></span>
+<span><span class="co">#&gt; # A tibble: 479,457 × 14</span></span>
 <span><span class="co">#&gt;    kunta   sent ID    FORM  LEMMA UPOSTAG XPOSTAG FEATS HEAD  DEPREL DEPS  MISC </span></span>
 <span><span class="co">#&gt;    &lt;chr&gt;  &lt;int&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;  &lt;chr&gt; &lt;chr&gt;</span></span>
 <span><span class="co">#&gt;  1 Enont…     1 1     ENON… ENon… PROPN   N       Case… 2     nmod:… _     "_"  </span></span>
@@ -102,27 +102,9 @@
 <span><span class="co">#&gt;  8 Enont…     3 1     1     1     NUM     Num     NumT… 0     root   _     "Spa…</span></span>
 <span><span class="co">#&gt;  9 Enont…     4 1     Sisä… sisä… NOUN    N       Case… 3     compo… _     "Spa…</span></span>
 <span><span class="co">#&gt; 10 Enont…     4 2     1     1     NUM     Num     NumT… 3     nummod _     "_"  </span></span>
-<span><span class="co">#&gt; # ℹ 479,447 more rows</span></span></code></pre></div>
+<span><span class="co">#&gt; # ℹ 479,447 more rows</span></span>
+<span><span class="co">#&gt; # ℹ 2 more variables: doc &lt;chr&gt;, sanalistassa &lt;lgl&gt;</span></span></code></pre></div>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">sanalista</span></span>
-<span><span class="co">#&gt; # A tibble: 104,336 × 4</span></span>
-<span><span class="co">#&gt;    Hakusana        Homonymia Sanaluokka Taivutustiedot</span></span>
-<span><span class="co">#&gt;    &lt;chr&gt;               &lt;dbl&gt; &lt;chr&gt;      &lt;chr&gt;         </span></span>
-<span><span class="co">#&gt;  1 3D-tulostin            NA S          &lt;NA&gt;          </span></span>
-<span><span class="co">#&gt;  2 3D-tulostus            NA S          &lt;NA&gt;          </span></span>
-<span><span class="co">#&gt;  3 4H-kerho               NA S          &lt;NA&gt;          </span></span>
-<span><span class="co">#&gt;  4 4H-kerholainen         NA S          &lt;NA&gt;          </span></span>
-<span><span class="co">#&gt;  5 4H-neuvoja             NA S          &lt;NA&gt;          </span></span>
-<span><span class="co">#&gt;  6 4H-toiminta            NA S          &lt;NA&gt;          </span></span>
-<span><span class="co">#&gt;  7 aah                    NA P          99            </span></span>
-<span><span class="co">#&gt;  8 aakkonen               NA S          38            </span></span>
-<span><span class="co">#&gt;  9 aakkosellinen          NA A          38            </span></span>
-<span><span class="co">#&gt; 10 aakkosellisesti        NA P          99            </span></span>
-<span><span class="co">#&gt; # ℹ 104,326 more rows</span></span></code></pre></div>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">aspol</span> <span class="op">&lt;-</span>  <span class="va">aspol</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>sanalistassa <span class="op">=</span> <span class="fu">str_detect</span><span class="op">(</span><span class="fu">str_to_lower</span><span class="op">(</span><span class="va">LEMMA</span><span class="op">)</span>, <span class="fu">str_c</span><span class="op">(</span><span class="va">sanalista</span><span class="op">$</span><span class="va">Hakusana</span>, collapse <span class="op">=</span> <span class="st">"|"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">aspol</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/count.html" class="external-link">count</a></span><span class="op">(</span><span class="va">sanalistassa</span><span class="op">)</span></span>
 <span><span class="co">#&gt; # A tibble: 2 × 2</span></span>
@@ -130,30 +112,71 @@
 <span><span class="co">#&gt;   &lt;lgl&gt;         &lt;int&gt;</span></span>
 <span><span class="co">#&gt; 1 FALSE        138956</span></span>
 <span><span class="co">#&gt; 2 TRUE         340501</span></span></code></pre></div>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">aspol</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">sanalistassa</span> <span class="op">==</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/count.html" class="external-link">count</a></span><span class="op">(</span><span class="va">LEMMA</span>, <span class="va">UPOSTAG</span>, <span class="va">XPOSTAG</span>, sort <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="co">#&gt; # A tibble: 14,480 × 4</span></span>
-<span><span class="co">#&gt;    LEMMA UPOSTAG XPOSTAG     n</span></span>
-<span><span class="co">#&gt;    &lt;chr&gt; &lt;chr&gt;   &lt;chr&gt;   &lt;int&gt;</span></span>
-<span><span class="co">#&gt;  1 .     PUNCT   Punct   26866</span></span>
-<span><span class="co">#&gt;  2 ,     PUNCT   Punct   15789</span></span>
-<span><span class="co">#&gt;  3 !     PUNCT   Punct    8090</span></span>
-<span><span class="co">#&gt;  4 )     PUNCT   Punct    4108</span></span>
-<span><span class="co">#&gt;  5 (     PUNCT   Punct    3399</span></span>
-<span><span class="co">#&gt;  6 %     SYM     Punct    3061</span></span>
-<span><span class="co">#&gt;  7 •     PUNCT   Punct    2190</span></span>
-<span><span class="co">#&gt;  8 :     PUNCT   Punct    1775</span></span>
-<span><span class="co">#&gt;  9 -     PUNCT   Punct    1740</span></span>
-<span><span class="co">#&gt; 10 1     NUM     Num      1129</span></span>
-<span><span class="co">#&gt; # ℹ 14,470 more rows</span></span></code></pre></div>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">UPOSTAG</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"NOUN"</span>, <span class="st">"VERB"</span>, <span class="st">"ADJ"</span>, <span class="st">"ADV"</span><span class="op">)</span>, <span class="va">sanalistassa</span> <span class="op">==</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/count.html" class="external-link">count</a></span><span class="op">(</span><span class="va">LEMMA</span>, <span class="va">UPOSTAG</span>, <span class="va">XPOSTAG</span>, sort <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">50</span><span class="op">)</span></span>
+<span><span class="co">#&gt; # A tibble: 1,746 × 4</span></span>
+<span><span class="co">#&gt;    LEMMA                                                UPOSTAG XPOSTAG     n</span></span>
+<span><span class="co">#&gt;    &lt;chr&gt;                                                &lt;chr&gt;   &lt;chr&gt;   &lt;int&gt;</span></span>
+<span><span class="co">#&gt;  1 "§"                                                  NOUN    N         776</span></span>
+<span><span class="co">#&gt;  2 "kpl"                                                NOUN    N         356</span></span>
+<span><span class="co">#&gt;  3 "mm."                                                ADV     Adv       287</span></span>
+<span><span class="co">#&gt;  4 "1."                                                 ADJ     Num       212</span></span>
+<span><span class="co">#&gt;  5 "esim."                                              ADV     Adv       210</span></span>
+<span><span class="co">#&gt;  6 "3."                                                 ADJ     Num       186</span></span>
+<span><span class="co">#&gt;  7 "2."                                                 ADJ     Num       171</span></span>
+<span><span class="co">#&gt;  8 "N"                                                  NOUN    N         168</span></span>
+<span><span class="co">#&gt;  9 "4."                                                 ADJ     Num       141</span></span>
+<span><span class="co">#&gt; 10 "ta"                                                 NOUN    N         139</span></span>
+<span><span class="co">#&gt; 11 "n."                                                 ADV     Adv       117</span></span>
+<span><span class="co">#&gt; 12 "A"                                                  NOUN    N         103</span></span>
+<span><span class="co">#&gt; 13 "5."                                                 ADJ     Num       100</span></span>
+<span><span class="co">#&gt; 14 "✓"                                                  NOUN    N          98</span></span>
+<span><span class="co">#&gt; 15 "m"                                                  NOUN    N          97</span></span>
+<span><span class="co">#&gt; 16 "ara"                                                NOUN    N          77</span></span>
+<span><span class="co">#&gt; 17 "T"                                                  NOUN    N          76</span></span>
+<span><span class="co">#&gt; 18 "a"                                                  NOUN    N          76</span></span>
+<span><span class="co">#&gt; 19 "k#m2"                                               NOUN    N          74</span></span>
+<span><span class="co">#&gt; 20 "I"                                                  ADJ     Num        73</span></span>
+<span><span class="co">#&gt; 21 "%"                                                  NOUN    N          69</span></span>
+<span><span class="co">#&gt; 22 "ra"                                                 NOUN    N          63</span></span>
+<span><span class="co">#&gt; 23 "M"                                                  NOUN    N          59</span></span>
+<span><span class="co">#&gt; 24 "PL"                                                 NOUN    N          59</span></span>
+<span><span class="co">#&gt; 25 "si"                                                 NOUN    N          59</span></span>
+<span><span class="co">#&gt; 26 "x"                                                  NOUN    N          56</span></span>
+<span><span class="co">#&gt; 27 "E"                                                  NOUN    N          55</span></span>
+<span><span class="co">#&gt; 28 "6."                                                 ADJ     Num        53</span></span>
+<span><span class="co">#&gt; 29 "7."                                                 ADJ     Num        49</span></span>
+<span><span class="co">#&gt; 30 "kpl."                                               NOUN    N          49</span></span>
+<span><span class="co">#&gt; 31 "W"                                                  NOUN    N          47</span></span>
+<span><span class="co">#&gt; 32 "ns."                                                ADJ     A          47</span></span>
+<span><span class="co">#&gt; 33 "ollen"                                              ADV     Adv        47</span></span>
+<span><span class="co">#&gt; 34 "n"                                                  NOUN    N          46</span></span>
+<span><span class="co">#&gt; 35 "\uf0b7"                                             NOUN    N          45</span></span>
+<span><span class="co">#&gt; 36 "i"                                                  ADJ     Num        44</span></span>
+<span><span class="co">#&gt; 37 "yh"                                                 NOUN    N          43</span></span>
+<span><span class="co">#&gt; 38 "B"                                                  NOUN    N          42</span></span>
+<span><span class="co">#&gt; 39 "e"                                                  NOUN    N          41</span></span>
+<span><span class="co">#&gt; 40 "tarvittava"                                         ADJ     A          41</span></span>
+<span><span class="co">#&gt; 41 "II"                                                 ADJ     Num        40</span></span>
+<span><span class="co">#&gt; 42 "tar"                                                NOUN    N          39</span></span>
+<span><span class="co">#&gt; 43 "U"                                                  NOUN    N          38</span></span>
+<span><span class="co">#&gt; 44 "Y"                                                  NOUN    N          38</span></span>
+<span><span class="co">#&gt; 45 "tus"                                                NOUN    N          38</span></span>
+<span><span class="co">#&gt; 46 ".................................................." NOUN    Num        36</span></span>
+<span><span class="co">#&gt; 47 "kes"                                                NOUN    N          36</span></span>
+<span><span class="co">#&gt; 48 "km"                                                 NOUN    N          35</span></span>
+<span><span class="co">#&gt; 49 "......................."                            NOUN    Num        31</span></span>
+<span><span class="co">#&gt; 50 "D"                                                  NOUN    N          31</span></span>
+<span><span class="co">#&gt; # ℹ 1,696 more rows</span></span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">aspol</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">sanalistassa</span>,</span>
 <span>                <span class="va">UPOSTAG</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"NOUN"</span>, <span class="st">"ADJ"</span>, <span class="st">"VERB"</span>, <span class="st">"ADV"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/count.html" class="external-link">count</a></span><span class="op">(</span><span class="va">LEMMA</span>, <span class="va">UPOSTAG</span>, <span class="va">XPOSTAG</span>, sort <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span>n<span class="op">=</span><span class="fl">50</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">50</span><span class="op">)</span></span>
 <span><span class="co">#&gt; # A tibble: 23,790 × 4</span></span>
 <span><span class="co">#&gt;    LEMMA              UPOSTAG XPOSTAG     n</span></span>
 <span><span class="co">#&gt;    &lt;chr&gt;              &lt;chr&gt;   &lt;chr&gt;   &lt;int&gt;</span></span>
