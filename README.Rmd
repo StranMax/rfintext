@@ -46,23 +46,15 @@ aspol
 ```
 
 ```{r}
-sanalista
-```
-
-```{r}
-aspol <-  aspol |>
-  dplyr::mutate(sanalistassa = str_detect(str_to_lower(LEMMA), str_c(sanalista$Hakusana, collapse = "|")))
-```
-
-```{r}
 aspol |>
   dplyr::count(sanalistassa)
 ```
 
 ```{r}
 aspol |>
-  dplyr::filter(sanalistassa == FALSE) |>
-  dplyr::count(LEMMA, UPOSTAG, XPOSTAG, sort = TRUE)
+  dplyr::filter(UPOSTAG %in% c("NOUN", "VERB", "ADJ", "ADV"), sanalistassa == FALSE) |>
+  dplyr::count(LEMMA, UPOSTAG, XPOSTAG, sort = TRUE) |>
+  print(n = 50)
 ```
 
 
@@ -71,6 +63,6 @@ aspol |>
   dplyr::filter(sanalistassa,
                 UPOSTAG %in% c("NOUN", "ADJ", "VERB", "ADV")) |>
   dplyr::count(LEMMA, UPOSTAG, XPOSTAG, sort = TRUE) |>
-  print(n=50)
+  print(n = 50)
 ```
 

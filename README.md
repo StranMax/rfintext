@@ -30,7 +30,7 @@ Number of documents currently 65
 
 ``` r
 aspol
-#> # A tibble: 479,457 × 12
+#> # A tibble: 479,457 × 14
 #>    kunta   sent ID    FORM  LEMMA UPOSTAG XPOSTAG FEATS HEAD  DEPREL DEPS  MISC 
 #>    <chr>  <int> <chr> <chr> <chr> <chr>   <chr>   <chr> <chr> <chr>  <chr> <chr>
 #>  1 Enont…     1 1     ENON… ENon… PROPN   N       Case… 2     nmod:… _     "_"  
@@ -44,29 +44,7 @@ aspol
 #>  9 Enont…     4 1     Sisä… sisä… NOUN    N       Case… 3     compo… _     "Spa…
 #> 10 Enont…     4 2     1     1     NUM     Num     NumT… 3     nummod _     "_"  
 #> # ℹ 479,447 more rows
-```
-
-``` r
-sanalista
-#> # A tibble: 104,336 × 4
-#>    Hakusana        Homonymia Sanaluokka Taivutustiedot
-#>    <chr>               <dbl> <chr>      <chr>         
-#>  1 3D-tulostin            NA S          <NA>          
-#>  2 3D-tulostus            NA S          <NA>          
-#>  3 4H-kerho               NA S          <NA>          
-#>  4 4H-kerholainen         NA S          <NA>          
-#>  5 4H-neuvoja             NA S          <NA>          
-#>  6 4H-toiminta            NA S          <NA>          
-#>  7 aah                    NA P          99            
-#>  8 aakkonen               NA S          38            
-#>  9 aakkosellinen          NA A          38            
-#> 10 aakkosellisesti        NA P          99            
-#> # ℹ 104,326 more rows
-```
-
-``` r
-aspol <-  aspol |>
-  dplyr::mutate(sanalistassa = str_detect(str_to_lower(LEMMA), str_c(sanalista$Hakusana, collapse = "|")))
+#> # ℹ 2 more variables: doc <chr>, sanalistassa <lgl>
 ```
 
 ``` r
@@ -81,22 +59,63 @@ aspol |>
 
 ``` r
 aspol |>
-  dplyr::filter(sanalistassa == FALSE) |>
-  dplyr::count(LEMMA, UPOSTAG, XPOSTAG, sort = TRUE)
-#> # A tibble: 14,480 × 4
-#>    LEMMA UPOSTAG XPOSTAG     n
-#>    <chr> <chr>   <chr>   <int>
-#>  1 .     PUNCT   Punct   26866
-#>  2 ,     PUNCT   Punct   15789
-#>  3 !     PUNCT   Punct    8090
-#>  4 )     PUNCT   Punct    4108
-#>  5 (     PUNCT   Punct    3399
-#>  6 %     SYM     Punct    3061
-#>  7 •     PUNCT   Punct    2190
-#>  8 :     PUNCT   Punct    1775
-#>  9 -     PUNCT   Punct    1740
-#> 10 1     NUM     Num      1129
-#> # ℹ 14,470 more rows
+  dplyr::filter(UPOSTAG %in% c("NOUN", "VERB", "ADJ", "ADV"), sanalistassa == FALSE) |>
+  dplyr::count(LEMMA, UPOSTAG, XPOSTAG, sort = TRUE) |>
+  print(n = 50)
+#> # A tibble: 1,746 × 4
+#>    LEMMA                                                UPOSTAG XPOSTAG     n
+#>    <chr>                                                <chr>   <chr>   <int>
+#>  1 "§"                                                  NOUN    N         776
+#>  2 "kpl"                                                NOUN    N         356
+#>  3 "mm."                                                ADV     Adv       287
+#>  4 "1."                                                 ADJ     Num       212
+#>  5 "esim."                                              ADV     Adv       210
+#>  6 "3."                                                 ADJ     Num       186
+#>  7 "2."                                                 ADJ     Num       171
+#>  8 "N"                                                  NOUN    N         168
+#>  9 "4."                                                 ADJ     Num       141
+#> 10 "ta"                                                 NOUN    N         139
+#> 11 "n."                                                 ADV     Adv       117
+#> 12 "A"                                                  NOUN    N         103
+#> 13 "5."                                                 ADJ     Num       100
+#> 14 "✓"                                                  NOUN    N          98
+#> 15 "m"                                                  NOUN    N          97
+#> 16 "ara"                                                NOUN    N          77
+#> 17 "T"                                                  NOUN    N          76
+#> 18 "a"                                                  NOUN    N          76
+#> 19 "k#m2"                                               NOUN    N          74
+#> 20 "I"                                                  ADJ     Num        73
+#> 21 "%"                                                  NOUN    N          69
+#> 22 "ra"                                                 NOUN    N          63
+#> 23 "M"                                                  NOUN    N          59
+#> 24 "PL"                                                 NOUN    N          59
+#> 25 "si"                                                 NOUN    N          59
+#> 26 "x"                                                  NOUN    N          56
+#> 27 "E"                                                  NOUN    N          55
+#> 28 "6."                                                 ADJ     Num        53
+#> 29 "7."                                                 ADJ     Num        49
+#> 30 "kpl."                                               NOUN    N          49
+#> 31 "W"                                                  NOUN    N          47
+#> 32 "ns."                                                ADJ     A          47
+#> 33 "ollen"                                              ADV     Adv        47
+#> 34 "n"                                                  NOUN    N          46
+#> 35 "\uf0b7"                                             NOUN    N          45
+#> 36 "i"                                                  ADJ     Num        44
+#> 37 "yh"                                                 NOUN    N          43
+#> 38 "B"                                                  NOUN    N          42
+#> 39 "e"                                                  NOUN    N          41
+#> 40 "tarvittava"                                         ADJ     A          41
+#> 41 "II"                                                 ADJ     Num        40
+#> 42 "tar"                                                NOUN    N          39
+#> 43 "U"                                                  NOUN    N          38
+#> 44 "Y"                                                  NOUN    N          38
+#> 45 "tus"                                                NOUN    N          38
+#> 46 ".................................................." NOUN    Num        36
+#> 47 "kes"                                                NOUN    N          36
+#> 48 "km"                                                 NOUN    N          35
+#> 49 "......................."                            NOUN    Num        31
+#> 50 "D"                                                  NOUN    N          31
+#> # ℹ 1,696 more rows
 ```
 
 ``` r
@@ -104,7 +123,7 @@ aspol |>
   dplyr::filter(sanalistassa,
                 UPOSTAG %in% c("NOUN", "ADJ", "VERB", "ADV")) |>
   dplyr::count(LEMMA, UPOSTAG, XPOSTAG, sort = TRUE) |>
-  print(n=50)
+  print(n = 50)
 #> # A tibble: 23,790 × 4
 #>    LEMMA              UPOSTAG XPOSTAG     n
 #>    <chr>              <chr>   <chr>   <int>

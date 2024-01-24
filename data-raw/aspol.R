@@ -34,6 +34,12 @@ aspol <- aspol |>
   mutate(kunta = str_trim(str_to_title(str_replace_all(str_extract(doc, "[a-ö_-]+"), "_", " ")))) |>
   select(kunta, sent:MISC, doc)  # kunta first, doc last
 
+load("data/sanalista.rda")
+
+aspol <-  aspol |>
+  dplyr::mutate(sanalistassa = str_detect(str_to_lower(LEMMA), str_c(sanalista$Hakusana, collapse = "|")))
+
+# TODO: Deal with shared programs
 yhteiset_ohjelmat <- tribble(
   ~kunta, ~seutu,
   "Alavus", "K",
@@ -69,5 +75,13 @@ yhteiset_ohjelmat <- tribble(
   "Vesilahti", "Tampereen Seutu",
   "Ylöjärvi", "Tampereen Seutu"
 )
-aspol |> distinct(kunta) |> left_join(yhteiset_ohjelmat, by = join_by("kunta" == "seutu")) |> print(n=60)
+# aspol |> distinct(kunta) |> left_join(yhteiset_ohjelmat, by = join_by("kunta" == "seutu")) |> print(n=60)
+
+# Large, over 30Mb file
+# aspol |>
+#   filter(UPOSTAG %in% c("NOUN", "VERB", "ADJ", "ADV"),
+#          sanalistassa,
+#          !str_detect(LEMMA, "x|\\.")) |>
+#   readr::write_csv2("data-raw/aspol.csv")
+
 usethis::use_data(aspol, overwrite = TRUE)
