@@ -79,9 +79,7 @@ yhteiset_ohjelmat <- tribble(
 
 # Large, over 30Mb file
 # aspol |>
-#   filter(UPOSTAG %in% c("NOUN", "VERB", "ADJ", "ADV"),
-#          sanalistassa,
-#          !str_detect(LEMMA, "x|\\.")) |>
+#   select(-sanalistassa, -doc) |>
 #   readr::write_csv2("data-raw/aspol.csv")
 
 usethis::use_data(aspol, overwrite = TRUE)

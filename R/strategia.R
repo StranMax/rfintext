@@ -1,7 +1,6 @@
-
-#' Corpus of Finnish housing policy documents
+#' Corpus of Finnish municipalities strategies
 #'
-#' Analysis ready data set of housing policy documents. More info of format in
+#' Analysis ready data set of strategy documents made by municipalities. More info of format in
 #' \url{https://universaldependencies.org/format.html}
 #'
 #' @source Finnish municipalities
@@ -20,11 +19,10 @@
 #'   \item{DEPREL}{Universal dependency relation to the HEAD}
 #'   \item{DEPS}{Enhanced dependency graph in the form of a list of head-deprel pairs}
 #'   \item{MISC}{Any other annotation}
-#'   \item{sanalistassa}{Finnish word list partial match}
 #'   \item{doc}{Document name read from}
 #' }
 #' @examples
-#' aspol
+#' strategia
 #'
 #'
-"aspol"
+"strategia"
