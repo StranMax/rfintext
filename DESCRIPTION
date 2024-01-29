@@ -21,6 +21,7 @@ Suggests:
     forcats,
     ggplot2,
     ggwordcloud,
+    quanteda,
     sf,
     stringr,
     tidytext,
