@@ -88,7 +88,7 @@ save_data <- function(X, y, dir_out = tempdir()) {
 
 
 ```{r}
-save_data(tf, y, dir_out = "C:/Users/maxs/Documents/data/aspol_scikit-learn/tf")
-save_data(tf_idf, y, dir_out = "C:/Users/maxs/Documents/data/aspol_scikit-learn/tf_idf")
+# save_data(tf, y, dir_out = "C:/Users/maxs/Documents/data/aspol_scikit-learn/tf")
+# save_data(tf_idf, y, dir_out = "C:/Users/maxs/Documents/data/aspol_scikit-learn/tf_idf")
 ```
 
