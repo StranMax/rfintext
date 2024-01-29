@@ -46,23 +46,12 @@ aspol
 ```
 
 ```{r}
-aspol |>
-  dplyr::count(sanalistassa)
+sanalista |> print(n=50)
 ```
 
 ```{r}
 aspol |>
-  dplyr::filter(UPOSTAG %in% c("NOUN", "VERB", "ADJ", "ADV"), sanalistassa == FALSE) |>
+  dplyr::filter(UPOSTAG %in% c("NOUN", "VERB", "ADJ", "ADV")) |>
   dplyr::count(LEMMA, UPOSTAG, XPOSTAG, sort = TRUE) |>
   print(n = 50)
 ```
-
-
-```{r}
-aspol |>
-  dplyr::filter(sanalistassa,
-                UPOSTAG %in% c("NOUN", "ADJ", "VERB", "ADV")) |>
-  dplyr::count(LEMMA, UPOSTAG, XPOSTAG, sort = TRUE) |>
-  print(n = 50)
-```
-

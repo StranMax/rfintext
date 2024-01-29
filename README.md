@@ -26,156 +26,142 @@ library(rfintext)
 library(tidyverse)
 ```
 
-Number of documents currently 65
+Number of documents currently 66
 
 ``` r
 aspol
-#> # A tibble: 479,457 × 14
+#> # A tibble: 468,205 × 13
 #>    kunta   sent ID    FORM  LEMMA UPOSTAG XPOSTAG FEATS HEAD  DEPREL DEPS  MISC 
 #>    <chr>  <int> <chr> <chr> <chr> <chr>   <chr>   <chr> <chr> <chr>  <chr> <chr>
-#>  1 Enont…     1 1     ENON… ENon… PROPN   N       Case… 2     nmod:… _     "_"  
-#>  2 Enont…     1 2     KUNTA kunta NOUN    N       Case… 4     nsubj… _     "Spa…
-#>  3 Enont…     1 3     VUOK… vuok… NOUN    N       Case… 4     nmod:… _     "Spa…
-#>  4 Enont…     1 4     KEHI… kehi… NOUN    N       Case… 0     root   _     "Spa…
-#>  5 Enont…     1 5     2017… 2017… NUM     Num     NumT… 4     nummod _     "Spa…
-#>  6 Enont…     2 1     EN    ei    AUX     V       Numb… 2     aux    _     "_"  
-#>  7 Enont…     2 2     ONTE… ontea VERB    V       Conn… 0     root   _     "Spa…
-#>  8 Enont…     3 1     1     1     NUM     Num     NumT… 0     root   _     "Spa…
-#>  9 Enont…     4 1     Sisä… sisä… NOUN    N       Case… 3     compo… _     "Spa…
-#> 10 Enont…     4 2     1     1     NUM     Num     NumT… 3     nummod _     "_"  
-#> # ℹ 479,447 more rows
-#> # ℹ 2 more variables: doc <chr>, sanalistassa <lgl>
+#>  1 Enont…     1 1     Khall Khall PROPN   _       Case… 0     root   _     "_"  
+#>  2 Enont…     1 2     19.4… 19.4… NUM     _       _     1     nmod   _     "_"  
+#>  3 Enont…     1 3     $     $     PUNCT   _       _     4     punct  _     "_"  
+#>  4 Enont…     1 4     126   126   NUM     _       NumT… 1     nummod _     "Spa…
+#>  5 Enont…     2 1     (     (     PUNCT   _       _     2     punct  _     "Spa…
+#>  6 Enont…     2 2     N     N     NOUN    _       Abbr… 0     root   _     "Spa…
+#>  7 Enont…     3 1     Enon… Enon… PROPN   _       Case… 0     root   _     "Spa…
+#>  8 Enont…     4 1     KUNTA kunta NOUN    _       Case… 0     root   _     "Spa…
+#>  9 Enont…     5 1     VUOK… vuok… NOUN    _       Case… 2     nmod:… _     "Spa…
+#> 10 Enont…     5 2     KEHI… kehi… NOUN    _       Case… 0     root   _     "Spa…
+#> # ℹ 468,195 more rows
+#> # ℹ 1 more variable: doc <chr>
+```
+
+``` r
+sanalista |> print(n=50)
+#> # A tibble: 104,336 × 4
+#>    Hakusana         Homonymia Sanaluokka Taivutustiedot
+#>    <chr>                <dbl> <chr>      <chr>         
+#>  1 3D-tulostin             NA S          <NA>          
+#>  2 3D-tulostus             NA S          <NA>          
+#>  3 4H-kerho                NA S          <NA>          
+#>  4 4H-kerholainen          NA S          <NA>          
+#>  5 4H-neuvoja              NA S          <NA>          
+#>  6 4H-toiminta             NA S          <NA>          
+#>  7 aah                     NA P          99            
+#>  8 aakkonen                NA S          38            
+#>  9 aakkosellinen           NA A          38            
+#> 10 aakkosellisesti         NA P          99            
+#> 11 aakkosellisuus          NA S          40            
+#> 12 aakkosittain            NA P          99            
+#> 13 aakkosjärjestys         NA S          <NA>          
+#> 14 aakkosnimi              NA S          <NA>          
+#> 15 aakkosnumeerinen        NA A          <NA>          
+#> 16 aakkostaa               NA V          53            
+#> 17 aakkosto                NA S          2             
+#> 18 aakkostus               NA S          39            
+#> 19 aalloittain             NA P          99            
+#> 20 aalloittainen           NA A          38            
+#> 21 aalloittaisuus          NA S          40            
+#> 22 aallokas                NA A          41*A          
+#> 23 aallokko                NA S          4*A           
+#> 24 aallonharja             NA S          <NA>          
+#> 25 aallonmurtaja           NA S          <NA>          
+#> 26 aallonpituus            NA S          <NA>          
+#> 27 aallonpohja             NA S          <NA>          
+#> 28 aallota                 NA V          75*I          
+#> 29 aallotar                NA S          32*C          
+#> 30 aallottaa               NA V          53*C          
+#> 31 aallotus                NA S          39            
+#> 32 aaloe                   NA S          3             
+#> 33 aalto                   NA S          1*I           
+#> 34 aaltoallas              NA S          <NA>          
+#> 35 aaltoalue               NA S          <NA>          
+#> 36 aaltoenergia            NA S          <NA>          
+#> 37 aaltoilla               NA V          67            
+#> 38 aaltoilu                NA S          2             
+#> 39 aaltoiluhäiriö          NA S          <NA>          
+#> 40 -aaltoinen              NA A          38            
+#> 41 aaltolevy               NA S          <NA>          
+#> 42 aaltoliike              NA S          <NA>          
+#> 43 aaltomainen             NA A          38            
+#> 44 aaltomaisesti           NA P          99            
+#> 45 aaltopahvi              NA S          <NA>          
+#> 46 aaltopelti              NA S          <NA>          
+#> 47 aaltopituus             NA S          <NA>          
+#> 48 aaltosulje              NA S          <NA>          
+#> 49 aaltosulku              NA S          <NA>          
+#> 50 aaltosulkumerkki        NA S          <NA>          
+#> # ℹ 104,286 more rows
 ```
 
 ``` r
 aspol |>
-  dplyr::count(sanalistassa)
-#> # A tibble: 2 × 2
-#>   sanalistassa      n
-#>   <lgl>         <int>
-#> 1 FALSE        138956
-#> 2 TRUE         340501
-```
-
-``` r
-aspol |>
-  dplyr::filter(UPOSTAG %in% c("NOUN", "VERB", "ADJ", "ADV"), sanalistassa == FALSE) |>
+  dplyr::filter(UPOSTAG %in% c("NOUN", "VERB", "ADJ", "ADV")) |>
   dplyr::count(LEMMA, UPOSTAG, XPOSTAG, sort = TRUE) |>
   print(n = 50)
-#> # A tibble: 1,746 × 4
-#>    LEMMA                                                UPOSTAG XPOSTAG     n
-#>    <chr>                                                <chr>   <chr>   <int>
-#>  1 "§"                                                  NOUN    N         776
-#>  2 "kpl"                                                NOUN    N         356
-#>  3 "mm."                                                ADV     Adv       287
-#>  4 "1."                                                 ADJ     Num       212
-#>  5 "esim."                                              ADV     Adv       210
-#>  6 "3."                                                 ADJ     Num       186
-#>  7 "2."                                                 ADJ     Num       171
-#>  8 "N"                                                  NOUN    N         168
-#>  9 "4."                                                 ADJ     Num       141
-#> 10 "ta"                                                 NOUN    N         139
-#> 11 "n."                                                 ADV     Adv       117
-#> 12 "A"                                                  NOUN    N         103
-#> 13 "5."                                                 ADJ     Num       100
-#> 14 "✓"                                                  NOUN    N          98
-#> 15 "m"                                                  NOUN    N          97
-#> 16 "ara"                                                NOUN    N          77
-#> 17 "T"                                                  NOUN    N          76
-#> 18 "a"                                                  NOUN    N          76
-#> 19 "k#m2"                                               NOUN    N          74
-#> 20 "I"                                                  ADJ     Num        73
-#> 21 "%"                                                  NOUN    N          69
-#> 22 "ra"                                                 NOUN    N          63
-#> 23 "M"                                                  NOUN    N          59
-#> 24 "PL"                                                 NOUN    N          59
-#> 25 "si"                                                 NOUN    N          59
-#> 26 "x"                                                  NOUN    N          56
-#> 27 "E"                                                  NOUN    N          55
-#> 28 "6."                                                 ADJ     Num        53
-#> 29 "7."                                                 ADJ     Num        49
-#> 30 "kpl."                                               NOUN    N          49
-#> 31 "W"                                                  NOUN    N          47
-#> 32 "ns."                                                ADJ     A          47
-#> 33 "ollen"                                              ADV     Adv        47
-#> 34 "n"                                                  NOUN    N          46
-#> 35 "\uf0b7"                                             NOUN    N          45
-#> 36 "i"                                                  ADJ     Num        44
-#> 37 "yh"                                                 NOUN    N          43
-#> 38 "B"                                                  NOUN    N          42
-#> 39 "e"                                                  NOUN    N          41
-#> 40 "tarvittava"                                         ADJ     A          41
-#> 41 "II"                                                 ADJ     Num        40
-#> 42 "tar"                                                NOUN    N          39
-#> 43 "U"                                                  NOUN    N          38
-#> 44 "Y"                                                  NOUN    N          38
-#> 45 "tus"                                                NOUN    N          38
-#> 46 ".................................................." NOUN    Num        36
-#> 47 "kes"                                                NOUN    N          36
-#> 48 "km"                                                 NOUN    N          35
-#> 49 "......................."                            NOUN    Num        31
-#> 50 "D"                                                  NOUN    N          31
-#> # ℹ 1,696 more rows
-```
-
-``` r
-aspol |>
-  dplyr::filter(sanalistassa,
-                UPOSTAG %in% c("NOUN", "ADJ", "VERB", "ADV")) |>
-  dplyr::count(LEMMA, UPOSTAG, XPOSTAG, sort = TRUE) |>
-  print(n = 50)
-#> # A tibble: 23,790 × 4
+#> # A tibble: 20,691 × 4
 #>    LEMMA              UPOSTAG XPOSTAG     n
 #>    <chr>              <chr>   <chr>   <int>
-#>  1 asunto             NOUN    N        4037
-#>  2 kaupunki           NOUN    N        3998
-#>  3 vuosi              NOUN    N        3679
-#>  4 asuminen           NOUN    N        3139
-#>  5 alue               NOUN    N        3017
-#>  6 kunta              NOUN    N        2725
-#>  7 myös               ADV     Adv      2012
-#>  8 tavoite            NOUN    N        1894
-#>  9 uusi               ADJ     A        1560
-#> 10 osa                NOUN    N        1491
-#> 11 tulla              VERB    V        1382
-#> 12 olla               VERB    V        1325
-#> 13 palvelu            NOUN    N        1272
-#> 14 ohjelma            NOUN    N        1251
-#> 15 tontti             NOUN    N        1236
-#> 16 asukas             NOUN    N        1212
-#> 17 määrä              NOUN    N        1116
-#> 18 rakentaminen       NOUN    N        1092
-#> 19 noin               ADV     Adv       983
-#> 20 asunto#tuotanto    NOUN    N         916
-#> 21 tarve              NOUN    N         874
-#> 22 asua               VERB    V         873
-#> 23 suuri              ADJ     A         871
-#> 24 asunto#poliittinen ADJ     A         829
-#> 25 henkilö            NOUN    N         821
-#> 26 vuokra#asunto      NOUN    N         819
-#> 27 tukea              VERB    V         755
-#> 28 hyvä               ADJ     A         741
-#> 29 maa                NOUN    N         734
-#> 30 seutu              NOUN    N         734
-#> 31 väestö             NOUN    N         730
-#> 32 kehittäminen       NOUN    N         717
-#> 33 keskusta           NOUN    N         705
-#> 34 oma                ADJ     A         701
-#> 35 aika               NOUN    N         674
-#> 36 tehdä              VERB    V         673
-#> 37 kasvu              NOUN    N         659
-#> 38 kasvaa             VERB    V         658
-#> 39 eri                ADJ     A         657
-#> 40 saada              VERB    V         655
-#> 41 rakentaa           VERB    V         652
-#> 42 edistää            VERB    V         643
-#> 43 oy                 NOUN    N         636
-#> 44 toimen#pide        NOUN    N         636
-#> 45 osuus              NOUN    N         624
-#> 46 vastata            VERB    V         610
-#> 47 asunto#kunta       NOUN    N         602
-#> 48 asuin#alue         NOUN    N         593
-#> 49 maan#käyttö        NOUN    N         582
-#> 50 tarvita            VERB    V         565
-#> # ℹ 23,740 more rows
+#>  1 kaupunki           NOUN    _        4112
+#>  2 asunto             NOUN    _        3873
+#>  3 vuosi              NOUN    _        3718
+#>  4 asuminen           NOUN    _        3161
+#>  5 alue               NOUN    _        2991
+#>  6 kunta              NOUN    _        2759
+#>  7 myös               ADV     _        2053
+#>  8 tavoite            NOUN    _        1969
+#>  9 uusi               ADJ     _        1588
+#> 10 olla               VERB    _        1536
+#> 11 osa                NOUN    _        1503
+#> 12 tulla              VERB    _        1422
+#> 13 palvelu            NOUN    _        1288
+#> 14 ohjelma            NOUN    _        1268
+#> 15 asukas             NOUN    _        1267
+#> 16 tontti             NOUN    _        1238
+#> 17 rakentaminen       NOUN    _        1140
+#> 18 määrä              NOUN    _        1111
+#> 19 noin               ADV     _        1111
+#> 20 asunto#tuotanto    NOUN    _         961
+#> 21 tarve              NOUN    _         954
+#> 22 suuri              ADJ     _         918
+#> 23 asua               VERB    _         879
+#> 24 asunto#poliittinen ADJ     _         851
+#> 25 henkilö            NOUN    _         833
+#> 26 vuokra#asunto      NOUN    _         831
+#> 27 tukea              VERB    _         801
+#> 28 hyvä               ADJ     _         767
+#> 29 kehittäminen       NOUN    _         756
+#> 30 väestö             NOUN    _         746
+#> 31 seutu              NOUN    _         737
+#> 32 oma                ADJ     _         722
+#> 33 keskusta           NOUN    _         710
+#> 34 kasvaa             VERB    _         692
+#> 35 rakentaa           VERB    _         683
+#> 36 kasvu              NOUN    _         677
+#> 37 aika               NOUN    _         674
+#> 38 maa                NOUN    _         673
+#> 39 edistää            VERB    _         667
+#> 40 eri                ADJ     _         666
+#> 41 tehdä              VERB    _         664
+#> 42 toimen#pide        NOUN    _         662
+#> 43 saada              VERB    _         660
+#> 44 asunto#kunta       NOUN    _         649
+#> 45 asuin#alue         NOUN    _         641
+#> 46 oy                 NOUN    _         634
+#> 47 vastata            VERB    _         628
+#> 48 osuus              NOUN    _         620
+#> 49 maan#käyttö        NOUN    _         607
+#> 50 tarvita            VERB    _         596
+#> # ℹ 20,641 more rows
 ```

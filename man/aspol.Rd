@@ -19,7 +19,6 @@ A data frame with rows and columns:
   \item{DEPREL}{Universal dependency relation to the HEAD}
   \item{DEPS}{Enhanced dependency graph in the form of a list of head-deprel pairs}
   \item{MISC}{Any other annotation}
-  \item{sanalistassa}{Finnish word list partial match}
   \item{doc}{Document name read from}
 }
 }
