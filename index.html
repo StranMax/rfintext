@@ -86,151 +86,139 @@
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/StranMax/rfintext" class="external-link">rfintext</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org" class="external-link">tidyverse</a></span><span class="op">)</span></span></code></pre></div>
-<p>Number of documents currently 65</p>
+<p>Number of documents currently 66</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">aspol</span></span>
-<span><span class="co">#&gt; # A tibble: 479,457 × 14</span></span>
+<span><span class="co">#&gt; # A tibble: 468,205 × 13</span></span>
 <span><span class="co">#&gt;    kunta   sent ID    FORM  LEMMA UPOSTAG XPOSTAG FEATS HEAD  DEPREL DEPS  MISC </span></span>
 <span><span class="co">#&gt;    &lt;chr&gt;  &lt;int&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;  &lt;chr&gt; &lt;chr&gt;</span></span>
-<span><span class="co">#&gt;  1 Enont…     1 1     ENON… ENon… PROPN   N       Case… 2     nmod:… _     "_"  </span></span>
-<span><span class="co">#&gt;  2 Enont…     1 2     KUNTA kunta NOUN    N       Case… 4     nsubj… _     "Spa…</span></span>
-<span><span class="co">#&gt;  3 Enont…     1 3     VUOK… vuok… NOUN    N       Case… 4     nmod:… _     "Spa…</span></span>
-<span><span class="co">#&gt;  4 Enont…     1 4     KEHI… kehi… NOUN    N       Case… 0     root   _     "Spa…</span></span>
-<span><span class="co">#&gt;  5 Enont…     1 5     2017… 2017… NUM     Num     NumT… 4     nummod _     "Spa…</span></span>
-<span><span class="co">#&gt;  6 Enont…     2 1     EN    ei    AUX     V       Numb… 2     aux    _     "_"  </span></span>
-<span><span class="co">#&gt;  7 Enont…     2 2     ONTE… ontea VERB    V       Conn… 0     root   _     "Spa…</span></span>
-<span><span class="co">#&gt;  8 Enont…     3 1     1     1     NUM     Num     NumT… 0     root   _     "Spa…</span></span>
-<span><span class="co">#&gt;  9 Enont…     4 1     Sisä… sisä… NOUN    N       Case… 3     compo… _     "Spa…</span></span>
-<span><span class="co">#&gt; 10 Enont…     4 2     1     1     NUM     Num     NumT… 3     nummod _     "_"  </span></span>
-<span><span class="co">#&gt; # ℹ 479,447 more rows</span></span>
-<span><span class="co">#&gt; # ℹ 2 more variables: doc &lt;chr&gt;, sanalistassa &lt;lgl&gt;</span></span></code></pre></div>
+<span><span class="co">#&gt;  1 Enont…     1 1     Khall Khall PROPN   _       Case… 0     root   _     "_"  </span></span>
+<span><span class="co">#&gt;  2 Enont…     1 2     19.4… 19.4… NUM     _       _     1     nmod   _     "_"  </span></span>
+<span><span class="co">#&gt;  3 Enont…     1 3     $     $     PUNCT   _       _     4     punct  _     "_"  </span></span>
+<span><span class="co">#&gt;  4 Enont…     1 4     126   126   NUM     _       NumT… 1     nummod _     "Spa…</span></span>
+<span><span class="co">#&gt;  5 Enont…     2 1     (     (     PUNCT   _       _     2     punct  _     "Spa…</span></span>
+<span><span class="co">#&gt;  6 Enont…     2 2     N     N     NOUN    _       Abbr… 0     root   _     "Spa…</span></span>
+<span><span class="co">#&gt;  7 Enont…     3 1     Enon… Enon… PROPN   _       Case… 0     root   _     "Spa…</span></span>
+<span><span class="co">#&gt;  8 Enont…     4 1     KUNTA kunta NOUN    _       Case… 0     root   _     "Spa…</span></span>
+<span><span class="co">#&gt;  9 Enont…     5 1     VUOK… vuok… NOUN    _       Case… 2     nmod:… _     "Spa…</span></span>
+<span><span class="co">#&gt; 10 Enont…     5 2     KEHI… kehi… NOUN    _       Case… 0     root   _     "Spa…</span></span>
+<span><span class="co">#&gt; # ℹ 468,195 more rows</span></span>
+<span><span class="co">#&gt; # ℹ 1 more variable: doc &lt;chr&gt;</span></span></code></pre></div>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">aspol</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/count.html" class="external-link">count</a></span><span class="op">(</span><span class="va">sanalistassa</span><span class="op">)</span></span>
-<span><span class="co">#&gt; # A tibble: 2 × 2</span></span>
-<span><span class="co">#&gt;   sanalistassa      n</span></span>
-<span><span class="co">#&gt;   &lt;lgl&gt;         &lt;int&gt;</span></span>
-<span><span class="co">#&gt; 1 FALSE        138956</span></span>
-<span><span class="co">#&gt; 2 TRUE         340501</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">sanalista</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span>n<span class="op">=</span><span class="fl">50</span><span class="op">)</span></span>
+<span><span class="co">#&gt; # A tibble: 104,336 × 4</span></span>
+<span><span class="co">#&gt;    Hakusana         Homonymia Sanaluokka Taivutustiedot</span></span>
+<span><span class="co">#&gt;    &lt;chr&gt;                &lt;dbl&gt; &lt;chr&gt;      &lt;chr&gt;         </span></span>
+<span><span class="co">#&gt;  1 3D-tulostin             NA S          &lt;NA&gt;          </span></span>
+<span><span class="co">#&gt;  2 3D-tulostus             NA S          &lt;NA&gt;          </span></span>
+<span><span class="co">#&gt;  3 4H-kerho                NA S          &lt;NA&gt;          </span></span>
+<span><span class="co">#&gt;  4 4H-kerholainen          NA S          &lt;NA&gt;          </span></span>
+<span><span class="co">#&gt;  5 4H-neuvoja              NA S          &lt;NA&gt;          </span></span>
+<span><span class="co">#&gt;  6 4H-toiminta             NA S          &lt;NA&gt;          </span></span>
+<span><span class="co">#&gt;  7 aah                     NA P          99            </span></span>
+<span><span class="co">#&gt;  8 aakkonen                NA S          38            </span></span>
+<span><span class="co">#&gt;  9 aakkosellinen           NA A          38            </span></span>
+<span><span class="co">#&gt; 10 aakkosellisesti         NA P          99            </span></span>
+<span><span class="co">#&gt; 11 aakkosellisuus          NA S          40            </span></span>
+<span><span class="co">#&gt; 12 aakkosittain            NA P          99            </span></span>
+<span><span class="co">#&gt; 13 aakkosjärjestys         NA S          &lt;NA&gt;          </span></span>
+<span><span class="co">#&gt; 14 aakkosnimi              NA S          &lt;NA&gt;          </span></span>
+<span><span class="co">#&gt; 15 aakkosnumeerinen        NA A          &lt;NA&gt;          </span></span>
+<span><span class="co">#&gt; 16 aakkostaa               NA V          53            </span></span>
+<span><span class="co">#&gt; 17 aakkosto                NA S          2             </span></span>
+<span><span class="co">#&gt; 18 aakkostus               NA S          39            </span></span>
+<span><span class="co">#&gt; 19 aalloittain             NA P          99            </span></span>
+<span><span class="co">#&gt; 20 aalloittainen           NA A          38            </span></span>
+<span><span class="co">#&gt; 21 aalloittaisuus          NA S          40            </span></span>
+<span><span class="co">#&gt; 22 aallokas                NA A          41*A          </span></span>
+<span><span class="co">#&gt; 23 aallokko                NA S          4*A           </span></span>
+<span><span class="co">#&gt; 24 aallonharja             NA S          &lt;NA&gt;          </span></span>
+<span><span class="co">#&gt; 25 aallonmurtaja           NA S          &lt;NA&gt;          </span></span>
+<span><span class="co">#&gt; 26 aallonpituus            NA S          &lt;NA&gt;          </span></span>
+<span><span class="co">#&gt; 27 aallonpohja             NA S          &lt;NA&gt;          </span></span>
+<span><span class="co">#&gt; 28 aallota                 NA V          75*I          </span></span>
+<span><span class="co">#&gt; 29 aallotar                NA S          32*C          </span></span>
+<span><span class="co">#&gt; 30 aallottaa               NA V          53*C          </span></span>
+<span><span class="co">#&gt; 31 aallotus                NA S          39            </span></span>
+<span><span class="co">#&gt; 32 aaloe                   NA S          3             </span></span>
+<span><span class="co">#&gt; 33 aalto                   NA S          1*I           </span></span>
+<span><span class="co">#&gt; 34 aaltoallas              NA S          &lt;NA&gt;          </span></span>
+<span><span class="co">#&gt; 35 aaltoalue               NA S          &lt;NA&gt;          </span></span>
+<span><span class="co">#&gt; 36 aaltoenergia            NA S          &lt;NA&gt;          </span></span>
+<span><span class="co">#&gt; 37 aaltoilla               NA V          67            </span></span>
+<span><span class="co">#&gt; 38 aaltoilu                NA S          2             </span></span>
+<span><span class="co">#&gt; 39 aaltoiluhäiriö          NA S          &lt;NA&gt;          </span></span>
+<span><span class="co">#&gt; 40 -aaltoinen              NA A          38            </span></span>
+<span><span class="co">#&gt; 41 aaltolevy               NA S          &lt;NA&gt;          </span></span>
+<span><span class="co">#&gt; 42 aaltoliike              NA S          &lt;NA&gt;          </span></span>
+<span><span class="co">#&gt; 43 aaltomainen             NA A          38            </span></span>
+<span><span class="co">#&gt; 44 aaltomaisesti           NA P          99            </span></span>
+<span><span class="co">#&gt; 45 aaltopahvi              NA S          &lt;NA&gt;          </span></span>
+<span><span class="co">#&gt; 46 aaltopelti              NA S          &lt;NA&gt;          </span></span>
+<span><span class="co">#&gt; 47 aaltopituus             NA S          &lt;NA&gt;          </span></span>
+<span><span class="co">#&gt; 48 aaltosulje              NA S          &lt;NA&gt;          </span></span>
+<span><span class="co">#&gt; 49 aaltosulku              NA S          &lt;NA&gt;          </span></span>
+<span><span class="co">#&gt; 50 aaltosulkumerkki        NA S          &lt;NA&gt;          </span></span>
+<span><span class="co">#&gt; # ℹ 104,286 more rows</span></span></code></pre></div>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">aspol</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">UPOSTAG</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"NOUN"</span>, <span class="st">"VERB"</span>, <span class="st">"ADJ"</span>, <span class="st">"ADV"</span><span class="op">)</span>, <span class="va">sanalistassa</span> <span class="op">==</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">UPOSTAG</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"NOUN"</span>, <span class="st">"VERB"</span>, <span class="st">"ADJ"</span>, <span class="st">"ADV"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/count.html" class="external-link">count</a></span><span class="op">(</span><span class="va">LEMMA</span>, <span class="va">UPOSTAG</span>, <span class="va">XPOSTAG</span>, sort <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">50</span><span class="op">)</span></span>
-<span><span class="co">#&gt; # A tibble: 1,746 × 4</span></span>
-<span><span class="co">#&gt;    LEMMA                                                UPOSTAG XPOSTAG     n</span></span>
-<span><span class="co">#&gt;    &lt;chr&gt;                                                &lt;chr&gt;   &lt;chr&gt;   &lt;int&gt;</span></span>
-<span><span class="co">#&gt;  1 "§"                                                  NOUN    N         776</span></span>
-<span><span class="co">#&gt;  2 "kpl"                                                NOUN    N         356</span></span>
-<span><span class="co">#&gt;  3 "mm."                                                ADV     Adv       287</span></span>
-<span><span class="co">#&gt;  4 "1."                                                 ADJ     Num       212</span></span>
-<span><span class="co">#&gt;  5 "esim."                                              ADV     Adv       210</span></span>
-<span><span class="co">#&gt;  6 "3."                                                 ADJ     Num       186</span></span>
-<span><span class="co">#&gt;  7 "2."                                                 ADJ     Num       171</span></span>
-<span><span class="co">#&gt;  8 "N"                                                  NOUN    N         168</span></span>
-<span><span class="co">#&gt;  9 "4."                                                 ADJ     Num       141</span></span>
-<span><span class="co">#&gt; 10 "ta"                                                 NOUN    N         139</span></span>
-<span><span class="co">#&gt; 11 "n."                                                 ADV     Adv       117</span></span>
-<span><span class="co">#&gt; 12 "A"                                                  NOUN    N         103</span></span>
-<span><span class="co">#&gt; 13 "5."                                                 ADJ     Num       100</span></span>
-<span><span class="co">#&gt; 14 "✓"                                                  NOUN    N          98</span></span>
-<span><span class="co">#&gt; 15 "m"                                                  NOUN    N          97</span></span>
-<span><span class="co">#&gt; 16 "ara"                                                NOUN    N          77</span></span>
-<span><span class="co">#&gt; 17 "T"                                                  NOUN    N          76</span></span>
-<span><span class="co">#&gt; 18 "a"                                                  NOUN    N          76</span></span>
-<span><span class="co">#&gt; 19 "k#m2"                                               NOUN    N          74</span></span>
-<span><span class="co">#&gt; 20 "I"                                                  ADJ     Num        73</span></span>
-<span><span class="co">#&gt; 21 "%"                                                  NOUN    N          69</span></span>
-<span><span class="co">#&gt; 22 "ra"                                                 NOUN    N          63</span></span>
-<span><span class="co">#&gt; 23 "M"                                                  NOUN    N          59</span></span>
-<span><span class="co">#&gt; 24 "PL"                                                 NOUN    N          59</span></span>
-<span><span class="co">#&gt; 25 "si"                                                 NOUN    N          59</span></span>
-<span><span class="co">#&gt; 26 "x"                                                  NOUN    N          56</span></span>
-<span><span class="co">#&gt; 27 "E"                                                  NOUN    N          55</span></span>
-<span><span class="co">#&gt; 28 "6."                                                 ADJ     Num        53</span></span>
-<span><span class="co">#&gt; 29 "7."                                                 ADJ     Num        49</span></span>
-<span><span class="co">#&gt; 30 "kpl."                                               NOUN    N          49</span></span>
-<span><span class="co">#&gt; 31 "W"                                                  NOUN    N          47</span></span>
-<span><span class="co">#&gt; 32 "ns."                                                ADJ     A          47</span></span>
-<span><span class="co">#&gt; 33 "ollen"                                              ADV     Adv        47</span></span>
-<span><span class="co">#&gt; 34 "n"                                                  NOUN    N          46</span></span>
-<span><span class="co">#&gt; 35 "\uf0b7"                                             NOUN    N          45</span></span>
-<span><span class="co">#&gt; 36 "i"                                                  ADJ     Num        44</span></span>
-<span><span class="co">#&gt; 37 "yh"                                                 NOUN    N          43</span></span>
-<span><span class="co">#&gt; 38 "B"                                                  NOUN    N          42</span></span>
-<span><span class="co">#&gt; 39 "e"                                                  NOUN    N          41</span></span>
-<span><span class="co">#&gt; 40 "tarvittava"                                         ADJ     A          41</span></span>
-<span><span class="co">#&gt; 41 "II"                                                 ADJ     Num        40</span></span>
-<span><span class="co">#&gt; 42 "tar"                                                NOUN    N          39</span></span>
-<span><span class="co">#&gt; 43 "U"                                                  NOUN    N          38</span></span>
-<span><span class="co">#&gt; 44 "Y"                                                  NOUN    N          38</span></span>
-<span><span class="co">#&gt; 45 "tus"                                                NOUN    N          38</span></span>
-<span><span class="co">#&gt; 46 ".................................................." NOUN    Num        36</span></span>
-<span><span class="co">#&gt; 47 "kes"                                                NOUN    N          36</span></span>
-<span><span class="co">#&gt; 48 "km"                                                 NOUN    N          35</span></span>
-<span><span class="co">#&gt; 49 "......................."                            NOUN    Num        31</span></span>
-<span><span class="co">#&gt; 50 "D"                                                  NOUN    N          31</span></span>
-<span><span class="co">#&gt; # ℹ 1,696 more rows</span></span></code></pre></div>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">aspol</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">sanalistassa</span>,</span>
-<span>                <span class="va">UPOSTAG</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"NOUN"</span>, <span class="st">"ADJ"</span>, <span class="st">"VERB"</span>, <span class="st">"ADV"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/count.html" class="external-link">count</a></span><span class="op">(</span><span class="va">LEMMA</span>, <span class="va">UPOSTAG</span>, <span class="va">XPOSTAG</span>, sort <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">50</span><span class="op">)</span></span>
-<span><span class="co">#&gt; # A tibble: 23,790 × 4</span></span>
+<span><span class="co">#&gt; # A tibble: 20,691 × 4</span></span>
 <span><span class="co">#&gt;    LEMMA              UPOSTAG XPOSTAG     n</span></span>
 <span><span class="co">#&gt;    &lt;chr&gt;              &lt;chr&gt;   &lt;chr&gt;   &lt;int&gt;</span></span>
-<span><span class="co">#&gt;  1 asunto             NOUN    N        4037</span></span>
-<span><span class="co">#&gt;  2 kaupunki           NOUN    N        3998</span></span>
-<span><span class="co">#&gt;  3 vuosi              NOUN    N        3679</span></span>
-<span><span class="co">#&gt;  4 asuminen           NOUN    N        3139</span></span>
-<span><span class="co">#&gt;  5 alue               NOUN    N        3017</span></span>
-<span><span class="co">#&gt;  6 kunta              NOUN    N        2725</span></span>
-<span><span class="co">#&gt;  7 myös               ADV     Adv      2012</span></span>
-<span><span class="co">#&gt;  8 tavoite            NOUN    N        1894</span></span>
-<span><span class="co">#&gt;  9 uusi               ADJ     A        1560</span></span>
-<span><span class="co">#&gt; 10 osa                NOUN    N        1491</span></span>
-<span><span class="co">#&gt; 11 tulla              VERB    V        1382</span></span>
-<span><span class="co">#&gt; 12 olla               VERB    V        1325</span></span>
-<span><span class="co">#&gt; 13 palvelu            NOUN    N        1272</span></span>
-<span><span class="co">#&gt; 14 ohjelma            NOUN    N        1251</span></span>
-<span><span class="co">#&gt; 15 tontti             NOUN    N        1236</span></span>
-<span><span class="co">#&gt; 16 asukas             NOUN    N        1212</span></span>
-<span><span class="co">#&gt; 17 määrä              NOUN    N        1116</span></span>
-<span><span class="co">#&gt; 18 rakentaminen       NOUN    N        1092</span></span>
-<span><span class="co">#&gt; 19 noin               ADV     Adv       983</span></span>
-<span><span class="co">#&gt; 20 asunto#tuotanto    NOUN    N         916</span></span>
-<span><span class="co">#&gt; 21 tarve              NOUN    N         874</span></span>
-<span><span class="co">#&gt; 22 asua               VERB    V         873</span></span>
-<span><span class="co">#&gt; 23 suuri              ADJ     A         871</span></span>
-<span><span class="co">#&gt; 24 asunto#poliittinen ADJ     A         829</span></span>
-<span><span class="co">#&gt; 25 henkilö            NOUN    N         821</span></span>
-<span><span class="co">#&gt; 26 vuokra#asunto      NOUN    N         819</span></span>
-<span><span class="co">#&gt; 27 tukea              VERB    V         755</span></span>
-<span><span class="co">#&gt; 28 hyvä               ADJ     A         741</span></span>
-<span><span class="co">#&gt; 29 maa                NOUN    N         734</span></span>
-<span><span class="co">#&gt; 30 seutu              NOUN    N         734</span></span>
-<span><span class="co">#&gt; 31 väestö             NOUN    N         730</span></span>
-<span><span class="co">#&gt; 32 kehittäminen       NOUN    N         717</span></span>
-<span><span class="co">#&gt; 33 keskusta           NOUN    N         705</span></span>
-<span><span class="co">#&gt; 34 oma                ADJ     A         701</span></span>
-<span><span class="co">#&gt; 35 aika               NOUN    N         674</span></span>
-<span><span class="co">#&gt; 36 tehdä              VERB    V         673</span></span>
-<span><span class="co">#&gt; 37 kasvu              NOUN    N         659</span></span>
-<span><span class="co">#&gt; 38 kasvaa             VERB    V         658</span></span>
-<span><span class="co">#&gt; 39 eri                ADJ     A         657</span></span>
-<span><span class="co">#&gt; 40 saada              VERB    V         655</span></span>
-<span><span class="co">#&gt; 41 rakentaa           VERB    V         652</span></span>
-<span><span class="co">#&gt; 42 edistää            VERB    V         643</span></span>
-<span><span class="co">#&gt; 43 oy                 NOUN    N         636</span></span>
-<span><span class="co">#&gt; 44 toimen#pide        NOUN    N         636</span></span>
-<span><span class="co">#&gt; 45 osuus              NOUN    N         624</span></span>
-<span><span class="co">#&gt; 46 vastata            VERB    V         610</span></span>
-<span><span class="co">#&gt; 47 asunto#kunta       NOUN    N         602</span></span>
-<span><span class="co">#&gt; 48 asuin#alue         NOUN    N         593</span></span>
-<span><span class="co">#&gt; 49 maan#käyttö        NOUN    N         582</span></span>
-<span><span class="co">#&gt; 50 tarvita            VERB    V         565</span></span>
-<span><span class="co">#&gt; # ℹ 23,740 more rows</span></span></code></pre></div>
+<span><span class="co">#&gt;  1 kaupunki           NOUN    _        4112</span></span>
+<span><span class="co">#&gt;  2 asunto             NOUN    _        3873</span></span>
+<span><span class="co">#&gt;  3 vuosi              NOUN    _        3718</span></span>
+<span><span class="co">#&gt;  4 asuminen           NOUN    _        3161</span></span>
+<span><span class="co">#&gt;  5 alue               NOUN    _        2991</span></span>
+<span><span class="co">#&gt;  6 kunta              NOUN    _        2759</span></span>
+<span><span class="co">#&gt;  7 myös               ADV     _        2053</span></span>
+<span><span class="co">#&gt;  8 tavoite            NOUN    _        1969</span></span>
+<span><span class="co">#&gt;  9 uusi               ADJ     _        1588</span></span>
+<span><span class="co">#&gt; 10 olla               VERB    _        1536</span></span>
+<span><span class="co">#&gt; 11 osa                NOUN    _        1503</span></span>
+<span><span class="co">#&gt; 12 tulla              VERB    _        1422</span></span>
+<span><span class="co">#&gt; 13 palvelu            NOUN    _        1288</span></span>
+<span><span class="co">#&gt; 14 ohjelma            NOUN    _        1268</span></span>
+<span><span class="co">#&gt; 15 asukas             NOUN    _        1267</span></span>
+<span><span class="co">#&gt; 16 tontti             NOUN    _        1238</span></span>
+<span><span class="co">#&gt; 17 rakentaminen       NOUN    _        1140</span></span>
+<span><span class="co">#&gt; 18 määrä              NOUN    _        1111</span></span>
+<span><span class="co">#&gt; 19 noin               ADV     _        1111</span></span>
+<span><span class="co">#&gt; 20 asunto#tuotanto    NOUN    _         961</span></span>
+<span><span class="co">#&gt; 21 tarve              NOUN    _         954</span></span>
+<span><span class="co">#&gt; 22 suuri              ADJ     _         918</span></span>
+<span><span class="co">#&gt; 23 asua               VERB    _         879</span></span>
+<span><span class="co">#&gt; 24 asunto#poliittinen ADJ     _         851</span></span>
+<span><span class="co">#&gt; 25 henkilö            NOUN    _         833</span></span>
+<span><span class="co">#&gt; 26 vuokra#asunto      NOUN    _         831</span></span>
+<span><span class="co">#&gt; 27 tukea              VERB    _         801</span></span>
+<span><span class="co">#&gt; 28 hyvä               ADJ     _         767</span></span>
+<span><span class="co">#&gt; 29 kehittäminen       NOUN    _         756</span></span>
+<span><span class="co">#&gt; 30 väestö             NOUN    _         746</span></span>
+<span><span class="co">#&gt; 31 seutu              NOUN    _         737</span></span>
+<span><span class="co">#&gt; 32 oma                ADJ     _         722</span></span>
+<span><span class="co">#&gt; 33 keskusta           NOUN    _         710</span></span>
+<span><span class="co">#&gt; 34 kasvaa             VERB    _         692</span></span>
+<span><span class="co">#&gt; 35 rakentaa           VERB    _         683</span></span>
+<span><span class="co">#&gt; 36 kasvu              NOUN    _         677</span></span>
+<span><span class="co">#&gt; 37 aika               NOUN    _         674</span></span>
+<span><span class="co">#&gt; 38 maa                NOUN    _         673</span></span>
+<span><span class="co">#&gt; 39 edistää            VERB    _         667</span></span>
+<span><span class="co">#&gt; 40 eri                ADJ     _         666</span></span>
+<span><span class="co">#&gt; 41 tehdä              VERB    _         664</span></span>
+<span><span class="co">#&gt; 42 toimen#pide        NOUN    _         662</span></span>
+<span><span class="co">#&gt; 43 saada              VERB    _         660</span></span>
+<span><span class="co">#&gt; 44 asunto#kunta       NOUN    _         649</span></span>
+<span><span class="co">#&gt; 45 asuin#alue         NOUN    _         641</span></span>
+<span><span class="co">#&gt; 46 oy                 NOUN    _         634</span></span>
+<span><span class="co">#&gt; 47 vastata            VERB    _         628</span></span>
+<span><span class="co">#&gt; 48 osuus              NOUN    _         620</span></span>
+<span><span class="co">#&gt; 49 maan#käyttö        NOUN    _         607</span></span>
+<span><span class="co">#&gt; 50 tarvita            VERB    _         596</span></span>
+<span><span class="co">#&gt; # ℹ 20,641 more rows</span></span></code></pre></div>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">
