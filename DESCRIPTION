@@ -22,6 +22,7 @@ Suggests:
     ggplot2,
     ggwordcloud,
     quanteda,
+    readr,
     sf,
     stringr,
     tidytext,
