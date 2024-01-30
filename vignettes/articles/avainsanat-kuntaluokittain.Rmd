@@ -1,0 +1,54 @@
+---
+title: "avainsanat kuntaluokittain"
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup, message=FALSE, warning=FALSE}
+library(rfintext)
+library(rfinstats)
+library(dplyr)
+library(sf)
+library(tidytext)
+library(ggplot2)
+library(stringr)
+library(forcats)
+```
+
+```{r}
+sanat_per_luokka <- aspol |>
+  filter(UPOSTAG %in% c("NOUN", "ADJ", "VERB")) |>
+  left_join(taantuvat) |>
+  filter(!is.na(luokka)) |>
+  count(luokka, LEMMA, name = "dtf", sort = TRUE) |>
+  bind_tf_idf(LEMMA, luokka, dtf)
+
+sanat_per_luokka
+```
+
+```{r}
+avainsanat <- c("asunto#tuotanto", "purkaa", "kohtuuhintainen", "ohjata", 
+                "tarjota", "MAL#sopimus", "ikä#ihminen", "vanhus", "strategia", 
+                "edellytys", "toteuttaa")
+```
+
+```{r}
+# sanat_per_luokka |>
+#   filter(LEMMA %in% avainsanat) |>
+# ggplot() +
+#   geom_bar(aes(x = LEMMA, fill = luokka), position = "fill")
+```
+
+
+```{r}
+sanat_per_luokka |>
+  filter(LEMMA %in% avainsanat) |>
+ggplot() +
+  geom_col(aes(x = tf, y = fct_reorder(LEMMA, tf, .fun = sum), fill = luokka))
+```
+

@@ -15,5 +15,6 @@ kuntalista$`Asuntopoliittinen ohjelma`[kuntalista$`Asuntopoliittinen ohjelma` ==
 kuntalista$`Asuntopoliittinen ohjelma`[kuntalista$`Asuntopoliittinen ohjelma` == "Ei"] <- "Ei ohjelmaa"
 
 kuntalista$Kunta[kuntalista$Kunta == "Maarianhamina - Mariehamn"] <- "Maarianhamina"
+colnames(kuntalista) <- c("kunta", "aspol")
 
 usethis::use_data(kuntalista, overwrite = TRUE)

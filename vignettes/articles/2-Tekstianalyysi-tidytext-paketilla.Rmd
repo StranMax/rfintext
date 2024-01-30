@@ -40,7 +40,7 @@ noun_adj_verb <- aspol |>
 
 ```{r}
 sanat_per_luokka <- noun_adj_verb |>
-  left_join(taantuvat, by = join_by("kunta" == "kunta_nimi")) |>
+  left_join(taantuvat) |>
   filter(!is.na(luokka)) |>
   count(luokka, LEMMA, sort = TRUE)
 
@@ -111,7 +111,7 @@ word_cors <- kappaleet %>%
   filter(n() >= 40) %>%
   pairwise_cor(LEMMA, kappale, sort = TRUE, upper = FALSE)
 
-word_cors
+word_cors |> print(n = 50)
 ```
 
 ```{r}

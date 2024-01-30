@@ -30,24 +30,24 @@ lemmas <- aspol |>
          !str_detect(LEMMA, "[0-9]"), 
          !kunta %in% c("Enontekiö", "Salla", "Hattula")) |>  # OCR docs problematic
   count(kunta, LEMMA, UPOSTAG, name = "dtf") |>
-  filter(dtf > 1) |>
+  # filter(dtf > 1) |>
   bind_tf_idf(LEMMA, kunta, dtf)
 ```
 
 Let's create variable `y` we are trying to explain with word frequencies.
 
 ```{r}
-taantuvat <- sf::st_drop_geometry(taantuvat)
-y <- taantuvat[c("kunta_nimi", "suht_muutos_2010_2022")] |>
-  inner_join(lemmas[c("kunta")], by = join_by("kunta_nimi" == "kunta")) |>
-  group_by(kunta_nimi) |>
+taantuvat <- taantuvat
+y <- taantuvat[c("kunta", "suht_muutos_2010_2022")] |>
+  inner_join(lemmas[c("kunta")]) |>
+  group_by(kunta) |>
   slice(1)
 ```
 
 We create data with only those docs we have y value
 
 ```{r}
-data <- left_join(lemmas, y, by = join_by("kunta" == "kunta_nimi")) |>
+data <- left_join(lemmas, y) |>
   filter(!is.na(LEMMA), !is.na(suht_muutos_2010_2022)) |>
   select(kunta, LEMMA, dtf, tf, tf_idf, suht_muutos_2010_2022)
 

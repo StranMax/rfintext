@@ -52,6 +52,21 @@ sanalista |> print(n=50)
 ```{r}
 aspol |>
   dplyr::filter(UPOSTAG %in% c("NOUN", "VERB", "ADJ", "ADV")) |>
-  dplyr::count(LEMMA, UPOSTAG, XPOSTAG, sort = TRUE) |>
+  dplyr::count(LEMMA, UPOSTAG, sort = TRUE) |>
   print(n = 50)
 ```
+
+```{r}
+aspol |>
+  group_by(LEMMA) |>
+  summarise(taivutusmuodot = length(unique(FORM))) |>
+  arrange(desc(taivutusmuodot))
+```
+
+```{r}
+aspol |>
+  filter(LEMMA == "suuri") |>
+  count(FORM, sort = TRUE) |>
+  print(n = 50)
+```
+

@@ -1,11 +1,11 @@
 #' Housing policy documents in municipalities
 #'
-#' A dataset containing list municipalities and housing policy documents
+#' Manually made list of municipalities and their housing policy documents
 #'
 #' @format A data frame with rows and columns:
 #' \describe{
-#'   \item{Kunta}{Kunta}
-#'   \item{Asuntopoliittinen ohjelma}{Ohjelma laadittu, Ei ohjelmaa, Ei vastausta, Seutukuntaohjelma}
+#'   \item{kunta}{Kunta}
+#'   \item{aspol}{Asuntopoliittinen ohjelma: Ohjelma laadittu, Ei ohjelmaa, Ei vastausta, Seutukuntaohjelma}
 #' }
 #' @examples
 #' kuntalista

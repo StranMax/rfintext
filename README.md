@@ -108,60 +108,142 @@ sanalista |> print(n=50)
 ``` r
 aspol |>
   dplyr::filter(UPOSTAG %in% c("NOUN", "VERB", "ADJ", "ADV")) |>
-  dplyr::count(LEMMA, UPOSTAG, XPOSTAG, sort = TRUE) |>
+  dplyr::count(LEMMA, UPOSTAG, sort = TRUE) |>
   print(n = 50)
-#> # A tibble: 20,691 × 4
-#>    LEMMA              UPOSTAG XPOSTAG     n
-#>    <chr>              <chr>   <chr>   <int>
-#>  1 kaupunki           NOUN    _        4112
-#>  2 asunto             NOUN    _        3873
-#>  3 vuosi              NOUN    _        3718
-#>  4 asuminen           NOUN    _        3161
-#>  5 alue               NOUN    _        2991
-#>  6 kunta              NOUN    _        2759
-#>  7 myös               ADV     _        2053
-#>  8 tavoite            NOUN    _        1969
-#>  9 uusi               ADJ     _        1588
-#> 10 olla               VERB    _        1536
-#> 11 osa                NOUN    _        1503
-#> 12 tulla              VERB    _        1422
-#> 13 palvelu            NOUN    _        1288
-#> 14 ohjelma            NOUN    _        1268
-#> 15 asukas             NOUN    _        1267
-#> 16 tontti             NOUN    _        1238
-#> 17 rakentaminen       NOUN    _        1140
-#> 18 määrä              NOUN    _        1111
-#> 19 noin               ADV     _        1111
-#> 20 asunto#tuotanto    NOUN    _         961
-#> 21 tarve              NOUN    _         954
-#> 22 suuri              ADJ     _         918
-#> 23 asua               VERB    _         879
-#> 24 asunto#poliittinen ADJ     _         851
-#> 25 henkilö            NOUN    _         833
-#> 26 vuokra#asunto      NOUN    _         831
-#> 27 tukea              VERB    _         801
-#> 28 hyvä               ADJ     _         767
-#> 29 kehittäminen       NOUN    _         756
-#> 30 väestö             NOUN    _         746
-#> 31 seutu              NOUN    _         737
-#> 32 oma                ADJ     _         722
-#> 33 keskusta           NOUN    _         710
-#> 34 kasvaa             VERB    _         692
-#> 35 rakentaa           VERB    _         683
-#> 36 kasvu              NOUN    _         677
-#> 37 aika               NOUN    _         674
-#> 38 maa                NOUN    _         673
-#> 39 edistää            VERB    _         667
-#> 40 eri                ADJ     _         666
-#> 41 tehdä              VERB    _         664
-#> 42 toimen#pide        NOUN    _         662
-#> 43 saada              VERB    _         660
-#> 44 asunto#kunta       NOUN    _         649
-#> 45 asuin#alue         NOUN    _         641
-#> 46 oy                 NOUN    _         634
-#> 47 vastata            VERB    _         628
-#> 48 osuus              NOUN    _         620
-#> 49 maan#käyttö        NOUN    _         607
-#> 50 tarvita            VERB    _         596
+#> # A tibble: 20,691 × 3
+#>    LEMMA              UPOSTAG     n
+#>    <chr>              <chr>   <int>
+#>  1 kaupunki           NOUN     4112
+#>  2 asunto             NOUN     3873
+#>  3 vuosi              NOUN     3718
+#>  4 asuminen           NOUN     3161
+#>  5 alue               NOUN     2991
+#>  6 kunta              NOUN     2759
+#>  7 myös               ADV      2053
+#>  8 tavoite            NOUN     1969
+#>  9 uusi               ADJ      1588
+#> 10 olla               VERB     1536
+#> 11 osa                NOUN     1503
+#> 12 tulla              VERB     1422
+#> 13 palvelu            NOUN     1288
+#> 14 ohjelma            NOUN     1268
+#> 15 asukas             NOUN     1267
+#> 16 tontti             NOUN     1238
+#> 17 rakentaminen       NOUN     1140
+#> 18 määrä              NOUN     1111
+#> 19 noin               ADV      1111
+#> 20 asunto#tuotanto    NOUN      961
+#> 21 tarve              NOUN      954
+#> 22 suuri              ADJ       918
+#> 23 asua               VERB      879
+#> 24 asunto#poliittinen ADJ       851
+#> 25 henkilö            NOUN      833
+#> 26 vuokra#asunto      NOUN      831
+#> 27 tukea              VERB      801
+#> 28 hyvä               ADJ       767
+#> 29 kehittäminen       NOUN      756
+#> 30 väestö             NOUN      746
+#> 31 seutu              NOUN      737
+#> 32 oma                ADJ       722
+#> 33 keskusta           NOUN      710
+#> 34 kasvaa             VERB      692
+#> 35 rakentaa           VERB      683
+#> 36 kasvu              NOUN      677
+#> 37 aika               NOUN      674
+#> 38 maa                NOUN      673
+#> 39 edistää            VERB      667
+#> 40 eri                ADJ       666
+#> 41 tehdä              VERB      664
+#> 42 toimen#pide        NOUN      662
+#> 43 saada              VERB      660
+#> 44 asunto#kunta       NOUN      649
+#> 45 asuin#alue         NOUN      641
+#> 46 oy                 NOUN      634
+#> 47 vastata            VERB      628
+#> 48 osuus              NOUN      620
+#> 49 maan#käyttö        NOUN      607
+#> 50 tarvita            VERB      596
 #> # ℹ 20,641 more rows
+```
+
+``` r
+aspol |>
+  group_by(LEMMA) |>
+  summarise(taivutusmuodot = length(unique(FORM))) |>
+  arrange(desc(taivutusmuodot))
+#> # A tibble: 35,454 × 2
+#>    LEMMA    taivutusmuodot
+#>    <chr>             <int>
+#>  1 suuri                83
+#>  2 olla                 82
+#>  3 asunto               74
+#>  4 tehdä                72
+#>  5 hyvä                 71
+#>  6 saada                70
+#>  7 tavoite              69
+#>  8 rakentaa             67
+#>  9 tämä                 63
+#> 10 tukea                62
+#> # ℹ 35,444 more rows
+```
+
+``` r
+aspol |>
+  filter(LEMMA == "suuri") |>
+  count(FORM, sort = TRUE) |>
+  print(n = 50)
+#> # A tibble: 83 × 2
+#>    FORM              n
+#>    <chr>         <int>
+#>  1 "suuri"         136
+#>  2 "suurin"        129
+#>  3 "suurempi"       78
+#>  4 "Suurin"         55
+#>  5 "suuria"         53
+#>  6 "suurempia"      32
+#>  7 "suurten"        32
+#>  8 "suurta"         31
+#>  9 "suuret"         30
+#> 10 "suurempien"     20
+#> 11 "suuren"         20
+#> 12 "suurelta"       16
+#> 13 "suurempaa"      16
+#> 14 "suurimmat"      16
+#> 15 "suurimman"      15
+#> 16 "Suuri"          13
+#> 17 "Suurimmat"      13
+#> 18 "suuremman"       9
+#> 19 "suuremmat"       9
+#> 20 "suuriin"         9
+#> 21 "suureksi"        8
+#> 22 "suurinta"        8
+#> 23 "suurissa"        8
+#> 24 "suurempaan"      7
+#> 25 "suurimpana"      7
+#> 26 "Suurimmassa"     6
+#> 27 "suurimmaksi"     6
+#> 28 "suurimmista"     6
+#> 29 "suurista"        6
+#> 30 "suurimmassa"     5
+#> 31 "suurimpien"      5
+#> 32 "suurimpiin"      5
+#> 33 "\fSuurin"        4
+#> 34 "Suuren"          4
+#> 35 "Suuria"          4
+#> 36 "Suurten"         4
+#> 37 "suurella"        4
+#> 38 "suuremmaksi"     4
+#> 39 "suuremmissa"     4
+#> 40 "Suuremmissa"     3
+#> 41 "Suurempi"        3
+#> 42 "Suurempien"      3
+#> 43 "suureen"         3
+#> 44 "suuremmasta"     3
+#> 45 "suuressa"        3
+#> 46 "suuresta"        3
+#> 47 "suurien"         3
+#> 48 "suurilla"        3
+#> 49 "suurille"        3
+#> 50 "suurilta"        3
+#> # ℹ 33 more rows
 ```

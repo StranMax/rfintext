@@ -12,7 +12,7 @@ knitr::opts_chunk$set(
 ```{r setup, message=FALSE, warning=FALSE}
 library(rfintext)
 # install.packages(devtools)
-# devtools::install_github("StranMax/rfinstats")
+devtools::install_github("StranMax/rfinstats")
 library(rfinstats)
 library(sf)
 library(dplyr)
@@ -24,27 +24,30 @@ aspol
 ```
 
 ```{r}
-kunnat_aspol <- taantuvat |> 
-  left_join(kuntalista, by = join_by("kunta_nimi" == "Kunta")) |>
-  rename(aspol = `Asuntopoliittinen ohjelma`)
+kunnat_aspol_sf <- taantuvat |>
+  left_join(kuntalista) |>
+  left_join(kunnat) |>
+  st_as_sf()
 ```
 
 
 ```{r}
-# taantuvat <- taantuvat |>
-  # mutate(aspol = if_else(kunta_nimi %in% unique(aspol$kunta), "Ohjelma tehty", "Ei ohjelmaa"))
-```
-
-```{r}
-ggplot(kunnat_aspol) +
+ggplot(kunnat_aspol_sf) +
   geom_sf(aes(fill = aspol)) +
   theme_void()
 ```
 
 ```{r}
-ohjelmat_per_luokka <- kunnat_aspol |>
+ohjelmat_per_luokka <- kunnat_aspol_sf |>
   count(luokka, aspol, sort = TRUE)
 ```
+
+```{r}
+ggplot(kunnat_aspol_sf) +
+  geom_bar(aes(x = aspol, fill = luokka), position = "fill") +
+  coord_flip()
+```
+
 
 ```{r}
 ggplot(ohjelmat_per_luokka) +
@@ -53,7 +56,7 @@ ggplot(ohjelmat_per_luokka) +
 
 ```{r}
 sanat_per_luokka <- aspol |>
-  left_join(taantuvat, by = join_by("kunta" == "kunta_nimi")) |>
+  left_join(taantuvat) |>
   filter(!is.na(luokka)) |>
   group_by(luokka) |>
   count(luokka, name = "sanamäärä", sort = TRUE)
@@ -67,7 +70,7 @@ ggplot(sanat_per_luokka) +
 
 ```{r}
 keskim_sanat_per_luokka <- sanat_per_luokka |>
-  left_join(count(kunnat_aspol, aspol, luokka, name = "luokkakoko")) |>
+  left_join(count(kunnat_aspol_sf, aspol, luokka, name = "luokkakoko")) |>
   filter(aspol == "Ohjelma laadittu") |>
   mutate(keskimäärin = sanamäärä/luokkakoko)
 ```

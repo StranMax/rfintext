@@ -23,16 +23,18 @@ library(widyr)
 ```
 
 ```{r}
-aspol_luokat <- left_join(aspol, taantuvat, by = join_by("kunta" == "kunta_nimi"))
+aspol_luokat <- left_join(aspol, taantuvat)
 ```
 
 ```{r}
-pattern <- str_c(c("✓", "", "x", "X", "@", "bostad", "\\."), collapse = "|")
+# pattern <- str_c(c("✓", "", "x", "X", "@", "bostad", "\\."), collapse = "|")
 aspol_luokat_suod <- aspol_luokat |>
-  filter(!str_detect(LEMMA, pattern),
-         FEATS != "Foreign",
-         nchar(LEMMA) > 2,
-         !is.na(luokka))
+  filter(
+    #!str_detect(LEMMA, pattern),
+    FEATS != "Foreign",
+    nchar(LEMMA) > 2,
+    !is.na(luokka)
+  )
 ```
 
 ```{r}
