@@ -8,7 +8,8 @@ articles:
   3-Sanapilvet: 3-Sanapilvet.html
   4-Sanakorrelaatiot: 4-Sanakorrelaatiot.html
   Document-term-matrix: Document-term-matrix.html
-last_built: 2024-01-29T13:21Z
+  avainsanat-kuntaluokittain: avainsanat-kuntaluokittain.html
+last_built: 2024-01-30T11:15Z
 urls:
   reference: https://stranmax.github.io/rfintext/reference
   article: https://stranmax.github.io/rfintext/articles

@@ -49,6 +49,7 @@
     <a class="dropdown-item" href="articles/3-Sanapilvet.html">3 Sanapilvet</a>
     <a class="dropdown-item" href="articles/4-Sanakorrelaatiot.html">4 Sanakorrelaatiot</a>
     <a class="dropdown-item" href="articles/Document-term-matrix.html">Document term matrix</a>
+    <a class="dropdown-item" href="articles/avainsanat-kuntaluokittain.html">avainsanat kuntaluokittain</a>
   </div>
 </li>
       </ul>
@@ -164,62 +165,140 @@
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">aspol</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">UPOSTAG</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"NOUN"</span>, <span class="st">"VERB"</span>, <span class="st">"ADJ"</span>, <span class="st">"ADV"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/count.html" class="external-link">count</a></span><span class="op">(</span><span class="va">LEMMA</span>, <span class="va">UPOSTAG</span>, <span class="va">XPOSTAG</span>, sort <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/count.html" class="external-link">count</a></span><span class="op">(</span><span class="va">LEMMA</span>, <span class="va">UPOSTAG</span>, sort <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">50</span><span class="op">)</span></span>
-<span><span class="co">#&gt; # A tibble: 20,691 × 4</span></span>
-<span><span class="co">#&gt;    LEMMA              UPOSTAG XPOSTAG     n</span></span>
-<span><span class="co">#&gt;    &lt;chr&gt;              &lt;chr&gt;   &lt;chr&gt;   &lt;int&gt;</span></span>
-<span><span class="co">#&gt;  1 kaupunki           NOUN    _        4112</span></span>
-<span><span class="co">#&gt;  2 asunto             NOUN    _        3873</span></span>
-<span><span class="co">#&gt;  3 vuosi              NOUN    _        3718</span></span>
-<span><span class="co">#&gt;  4 asuminen           NOUN    _        3161</span></span>
-<span><span class="co">#&gt;  5 alue               NOUN    _        2991</span></span>
-<span><span class="co">#&gt;  6 kunta              NOUN    _        2759</span></span>
-<span><span class="co">#&gt;  7 myös               ADV     _        2053</span></span>
-<span><span class="co">#&gt;  8 tavoite            NOUN    _        1969</span></span>
-<span><span class="co">#&gt;  9 uusi               ADJ     _        1588</span></span>
-<span><span class="co">#&gt; 10 olla               VERB    _        1536</span></span>
-<span><span class="co">#&gt; 11 osa                NOUN    _        1503</span></span>
-<span><span class="co">#&gt; 12 tulla              VERB    _        1422</span></span>
-<span><span class="co">#&gt; 13 palvelu            NOUN    _        1288</span></span>
-<span><span class="co">#&gt; 14 ohjelma            NOUN    _        1268</span></span>
-<span><span class="co">#&gt; 15 asukas             NOUN    _        1267</span></span>
-<span><span class="co">#&gt; 16 tontti             NOUN    _        1238</span></span>
-<span><span class="co">#&gt; 17 rakentaminen       NOUN    _        1140</span></span>
-<span><span class="co">#&gt; 18 määrä              NOUN    _        1111</span></span>
-<span><span class="co">#&gt; 19 noin               ADV     _        1111</span></span>
-<span><span class="co">#&gt; 20 asunto#tuotanto    NOUN    _         961</span></span>
-<span><span class="co">#&gt; 21 tarve              NOUN    _         954</span></span>
-<span><span class="co">#&gt; 22 suuri              ADJ     _         918</span></span>
-<span><span class="co">#&gt; 23 asua               VERB    _         879</span></span>
-<span><span class="co">#&gt; 24 asunto#poliittinen ADJ     _         851</span></span>
-<span><span class="co">#&gt; 25 henkilö            NOUN    _         833</span></span>
-<span><span class="co">#&gt; 26 vuokra#asunto      NOUN    _         831</span></span>
-<span><span class="co">#&gt; 27 tukea              VERB    _         801</span></span>
-<span><span class="co">#&gt; 28 hyvä               ADJ     _         767</span></span>
-<span><span class="co">#&gt; 29 kehittäminen       NOUN    _         756</span></span>
-<span><span class="co">#&gt; 30 väestö             NOUN    _         746</span></span>
-<span><span class="co">#&gt; 31 seutu              NOUN    _         737</span></span>
-<span><span class="co">#&gt; 32 oma                ADJ     _         722</span></span>
-<span><span class="co">#&gt; 33 keskusta           NOUN    _         710</span></span>
-<span><span class="co">#&gt; 34 kasvaa             VERB    _         692</span></span>
-<span><span class="co">#&gt; 35 rakentaa           VERB    _         683</span></span>
-<span><span class="co">#&gt; 36 kasvu              NOUN    _         677</span></span>
-<span><span class="co">#&gt; 37 aika               NOUN    _         674</span></span>
-<span><span class="co">#&gt; 38 maa                NOUN    _         673</span></span>
-<span><span class="co">#&gt; 39 edistää            VERB    _         667</span></span>
-<span><span class="co">#&gt; 40 eri                ADJ     _         666</span></span>
-<span><span class="co">#&gt; 41 tehdä              VERB    _         664</span></span>
-<span><span class="co">#&gt; 42 toimen#pide        NOUN    _         662</span></span>
-<span><span class="co">#&gt; 43 saada              VERB    _         660</span></span>
-<span><span class="co">#&gt; 44 asunto#kunta       NOUN    _         649</span></span>
-<span><span class="co">#&gt; 45 asuin#alue         NOUN    _         641</span></span>
-<span><span class="co">#&gt; 46 oy                 NOUN    _         634</span></span>
-<span><span class="co">#&gt; 47 vastata            VERB    _         628</span></span>
-<span><span class="co">#&gt; 48 osuus              NOUN    _         620</span></span>
-<span><span class="co">#&gt; 49 maan#käyttö        NOUN    _         607</span></span>
-<span><span class="co">#&gt; 50 tarvita            VERB    _         596</span></span>
+<span><span class="co">#&gt; # A tibble: 20,691 × 3</span></span>
+<span><span class="co">#&gt;    LEMMA              UPOSTAG     n</span></span>
+<span><span class="co">#&gt;    &lt;chr&gt;              &lt;chr&gt;   &lt;int&gt;</span></span>
+<span><span class="co">#&gt;  1 kaupunki           NOUN     4112</span></span>
+<span><span class="co">#&gt;  2 asunto             NOUN     3873</span></span>
+<span><span class="co">#&gt;  3 vuosi              NOUN     3718</span></span>
+<span><span class="co">#&gt;  4 asuminen           NOUN     3161</span></span>
+<span><span class="co">#&gt;  5 alue               NOUN     2991</span></span>
+<span><span class="co">#&gt;  6 kunta              NOUN     2759</span></span>
+<span><span class="co">#&gt;  7 myös               ADV      2053</span></span>
+<span><span class="co">#&gt;  8 tavoite            NOUN     1969</span></span>
+<span><span class="co">#&gt;  9 uusi               ADJ      1588</span></span>
+<span><span class="co">#&gt; 10 olla               VERB     1536</span></span>
+<span><span class="co">#&gt; 11 osa                NOUN     1503</span></span>
+<span><span class="co">#&gt; 12 tulla              VERB     1422</span></span>
+<span><span class="co">#&gt; 13 palvelu            NOUN     1288</span></span>
+<span><span class="co">#&gt; 14 ohjelma            NOUN     1268</span></span>
+<span><span class="co">#&gt; 15 asukas             NOUN     1267</span></span>
+<span><span class="co">#&gt; 16 tontti             NOUN     1238</span></span>
+<span><span class="co">#&gt; 17 rakentaminen       NOUN     1140</span></span>
+<span><span class="co">#&gt; 18 määrä              NOUN     1111</span></span>
+<span><span class="co">#&gt; 19 noin               ADV      1111</span></span>
+<span><span class="co">#&gt; 20 asunto#tuotanto    NOUN      961</span></span>
+<span><span class="co">#&gt; 21 tarve              NOUN      954</span></span>
+<span><span class="co">#&gt; 22 suuri              ADJ       918</span></span>
+<span><span class="co">#&gt; 23 asua               VERB      879</span></span>
+<span><span class="co">#&gt; 24 asunto#poliittinen ADJ       851</span></span>
+<span><span class="co">#&gt; 25 henkilö            NOUN      833</span></span>
+<span><span class="co">#&gt; 26 vuokra#asunto      NOUN      831</span></span>
+<span><span class="co">#&gt; 27 tukea              VERB      801</span></span>
+<span><span class="co">#&gt; 28 hyvä               ADJ       767</span></span>
+<span><span class="co">#&gt; 29 kehittäminen       NOUN      756</span></span>
+<span><span class="co">#&gt; 30 väestö             NOUN      746</span></span>
+<span><span class="co">#&gt; 31 seutu              NOUN      737</span></span>
+<span><span class="co">#&gt; 32 oma                ADJ       722</span></span>
+<span><span class="co">#&gt; 33 keskusta           NOUN      710</span></span>
+<span><span class="co">#&gt; 34 kasvaa             VERB      692</span></span>
+<span><span class="co">#&gt; 35 rakentaa           VERB      683</span></span>
+<span><span class="co">#&gt; 36 kasvu              NOUN      677</span></span>
+<span><span class="co">#&gt; 37 aika               NOUN      674</span></span>
+<span><span class="co">#&gt; 38 maa                NOUN      673</span></span>
+<span><span class="co">#&gt; 39 edistää            VERB      667</span></span>
+<span><span class="co">#&gt; 40 eri                ADJ       666</span></span>
+<span><span class="co">#&gt; 41 tehdä              VERB      664</span></span>
+<span><span class="co">#&gt; 42 toimen#pide        NOUN      662</span></span>
+<span><span class="co">#&gt; 43 saada              VERB      660</span></span>
+<span><span class="co">#&gt; 44 asunto#kunta       NOUN      649</span></span>
+<span><span class="co">#&gt; 45 asuin#alue         NOUN      641</span></span>
+<span><span class="co">#&gt; 46 oy                 NOUN      634</span></span>
+<span><span class="co">#&gt; 47 vastata            VERB      628</span></span>
+<span><span class="co">#&gt; 48 osuus              NOUN      620</span></span>
+<span><span class="co">#&gt; 49 maan#käyttö        NOUN      607</span></span>
+<span><span class="co">#&gt; 50 tarvita            VERB      596</span></span>
 <span><span class="co">#&gt; # ℹ 20,641 more rows</span></span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">aspol</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">group_by</span><span class="op">(</span><span class="va">LEMMA</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">summarise</span><span class="op">(</span>taivutusmuodot <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">FORM</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">arrange</span><span class="op">(</span><span class="fu">desc</span><span class="op">(</span><span class="va">taivutusmuodot</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; # A tibble: 35,454 × 2</span></span>
+<span><span class="co">#&gt;    LEMMA    taivutusmuodot</span></span>
+<span><span class="co">#&gt;    &lt;chr&gt;             &lt;int&gt;</span></span>
+<span><span class="co">#&gt;  1 suuri                83</span></span>
+<span><span class="co">#&gt;  2 olla                 82</span></span>
+<span><span class="co">#&gt;  3 asunto               74</span></span>
+<span><span class="co">#&gt;  4 tehdä                72</span></span>
+<span><span class="co">#&gt;  5 hyvä                 71</span></span>
+<span><span class="co">#&gt;  6 saada                70</span></span>
+<span><span class="co">#&gt;  7 tavoite              69</span></span>
+<span><span class="co">#&gt;  8 rakentaa             67</span></span>
+<span><span class="co">#&gt;  9 tämä                 63</span></span>
+<span><span class="co">#&gt; 10 tukea                62</span></span>
+<span><span class="co">#&gt; # ℹ 35,444 more rows</span></span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">aspol</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">LEMMA</span> <span class="op">==</span> <span class="st">"suuri"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">count</span><span class="op">(</span><span class="va">FORM</span>, sort <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">50</span><span class="op">)</span></span>
+<span><span class="co">#&gt; # A tibble: 83 × 2</span></span>
+<span><span class="co">#&gt;    FORM              n</span></span>
+<span><span class="co">#&gt;    &lt;chr&gt;         &lt;int&gt;</span></span>
+<span><span class="co">#&gt;  1 "suuri"         136</span></span>
+<span><span class="co">#&gt;  2 "suurin"        129</span></span>
+<span><span class="co">#&gt;  3 "suurempi"       78</span></span>
+<span><span class="co">#&gt;  4 "Suurin"         55</span></span>
+<span><span class="co">#&gt;  5 "suuria"         53</span></span>
+<span><span class="co">#&gt;  6 "suurempia"      32</span></span>
+<span><span class="co">#&gt;  7 "suurten"        32</span></span>
+<span><span class="co">#&gt;  8 "suurta"         31</span></span>
+<span><span class="co">#&gt;  9 "suuret"         30</span></span>
+<span><span class="co">#&gt; 10 "suurempien"     20</span></span>
+<span><span class="co">#&gt; 11 "suuren"         20</span></span>
+<span><span class="co">#&gt; 12 "suurelta"       16</span></span>
+<span><span class="co">#&gt; 13 "suurempaa"      16</span></span>
+<span><span class="co">#&gt; 14 "suurimmat"      16</span></span>
+<span><span class="co">#&gt; 15 "suurimman"      15</span></span>
+<span><span class="co">#&gt; 16 "Suuri"          13</span></span>
+<span><span class="co">#&gt; 17 "Suurimmat"      13</span></span>
+<span><span class="co">#&gt; 18 "suuremman"       9</span></span>
+<span><span class="co">#&gt; 19 "suuremmat"       9</span></span>
+<span><span class="co">#&gt; 20 "suuriin"         9</span></span>
+<span><span class="co">#&gt; 21 "suureksi"        8</span></span>
+<span><span class="co">#&gt; 22 "suurinta"        8</span></span>
+<span><span class="co">#&gt; 23 "suurissa"        8</span></span>
+<span><span class="co">#&gt; 24 "suurempaan"      7</span></span>
+<span><span class="co">#&gt; 25 "suurimpana"      7</span></span>
+<span><span class="co">#&gt; 26 "Suurimmassa"     6</span></span>
+<span><span class="co">#&gt; 27 "suurimmaksi"     6</span></span>
+<span><span class="co">#&gt; 28 "suurimmista"     6</span></span>
+<span><span class="co">#&gt; 29 "suurista"        6</span></span>
+<span><span class="co">#&gt; 30 "suurimmassa"     5</span></span>
+<span><span class="co">#&gt; 31 "suurimpien"      5</span></span>
+<span><span class="co">#&gt; 32 "suurimpiin"      5</span></span>
+<span><span class="co">#&gt; 33 "\fSuurin"        4</span></span>
+<span><span class="co">#&gt; 34 "Suuren"          4</span></span>
+<span><span class="co">#&gt; 35 "Suuria"          4</span></span>
+<span><span class="co">#&gt; 36 "Suurten"         4</span></span>
+<span><span class="co">#&gt; 37 "suurella"        4</span></span>
+<span><span class="co">#&gt; 38 "suuremmaksi"     4</span></span>
+<span><span class="co">#&gt; 39 "suuremmissa"     4</span></span>
+<span><span class="co">#&gt; 40 "Suuremmissa"     3</span></span>
+<span><span class="co">#&gt; 41 "Suurempi"        3</span></span>
+<span><span class="co">#&gt; 42 "Suurempien"      3</span></span>
+<span><span class="co">#&gt; 43 "suureen"         3</span></span>
+<span><span class="co">#&gt; 44 "suuremmasta"     3</span></span>
+<span><span class="co">#&gt; 45 "suuressa"        3</span></span>
+<span><span class="co">#&gt; 46 "suuresta"        3</span></span>
+<span><span class="co">#&gt; 47 "suurien"         3</span></span>
+<span><span class="co">#&gt; 48 "suurilla"        3</span></span>
+<span><span class="co">#&gt; 49 "suurille"        3</span></span>
+<span><span class="co">#&gt; 50 "suurilta"        3</span></span>
+<span><span class="co">#&gt; # ℹ 33 more rows</span></span></code></pre></div>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">

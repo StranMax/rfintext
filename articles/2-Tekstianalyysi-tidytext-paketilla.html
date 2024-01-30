@@ -47,6 +47,7 @@
     <a class="dropdown-item" href="../articles/3-Sanapilvet.html">3 Sanapilvet</a>
     <a class="dropdown-item" href="../articles/4-Sanakorrelaatiot.html">4 Sanakorrelaatiot</a>
     <a class="dropdown-item" href="../articles/Document-term-matrix.html">Document term matrix</a>
+    <a class="dropdown-item" href="../articles/avainsanat-kuntaluokittain.html">avainsanat kuntaluokittain</a>
   </div>
 </li>
       </ul>
@@ -108,9 +109,10 @@
 <span>         <span class="op">!</span><span class="fu"><a href="https://stringr.tidyverse.org/reference/str_detect.html" class="external-link">str_detect</a></span><span class="op">(</span><span class="va">LEMMA</span>, <span class="va">pattern</span><span class="op">)</span><span class="op">)</span>  </span></code></pre></div>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sanat_per_luokka</span> <span class="op">&lt;-</span> <span class="va">noun_adj_verb</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">left_join</a></span><span class="op">(</span><span class="va">taantuvat</span>, by <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/join_by.html" class="external-link">join_by</a></span><span class="op">(</span><span class="st">"kunta"</span> <span class="op">==</span> <span class="st">"kunta_nimi"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">left_join</a></span><span class="op">(</span><span class="va">taantuvat</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">luokka</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/count.html" class="external-link">count</a></span><span class="op">(</span><span class="va">luokka</span>, <span class="va">LEMMA</span>, sort <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Joining with `by = join_by(kunta)`</span></span>
 <span></span>
 <span><span class="va">sanat_per_luokka</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 34,499 × 3</span></span></span>
@@ -240,21 +242,61 @@
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/context.html" class="external-link">n</a></span><span class="op">(</span><span class="op">)</span> <span class="op">&gt;=</span> <span class="fl">40</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://juliasilge.github.io/widyr/reference/pairwise_cor.html" class="external-link">pairwise_cor</a></span><span class="op">(</span><span class="va">LEMMA</span>, <span class="va">kappale</span>, sort <span class="op">=</span> <span class="cn">TRUE</span>, upper <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">word_cors</span></span>
+<span><span class="va">word_cors</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">50</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 310,866 × 3</span></span></span>
-<span><span class="co">#&gt;    item1                  item2                    correlation</span></span>
-<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> Rivi                   ketju#talo                     0.703</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> rahoitus               kehittämis#keskus              0.595</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> huomio                 ottaa                          0.578</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> huomio                 kiinnittää                     0.544</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> kävely                 pyöräily                       0.512</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> hallinta               rahoitus#muoto                 0.453</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> mielen#terveys#kuutuja päihde                         0.443</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> kaksio                 yksiö                          0.439</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> vyöhyke                joukko#liikenne#kaupunki       0.432</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> palvelu#asuminen       tehostaa                       0.410</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 310,856 more rows</span></span></span></code></pre></div>
+<span><span class="co">#&gt;    item1                   item2                    correlation</span></span>
+<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> Rivi                    ketju#talo                     0.703</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> rahoitus                kehittämis#keskus              0.595</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> huomio                  ottaa                          0.578</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> huomio                  kiinnittää                     0.544</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> kävely                  pyöräily                       0.512</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> hallinta                rahoitus#muoto                 0.453</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> mielen#terveys#kuutuja  päihde                         0.443</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> kaksio                  yksiö                          0.439</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> vyöhyke                 joukko#liikenne#kaupunki       0.432</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> palvelu#asuminen        tehostaa                       0.410</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">11</span> koulu                   päivä#koti                     0.384</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">12</span> ilmoittaa               maan#vuokra#sopimus            0.355</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">13</span> toimi#ala               kaupunki#ympäristö             0.353</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">14</span> kunnan#hallitus         lauta#kunta                    0.337</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">15</span> hyväksyä                kaupungin#valtuusto            0.333</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">16</span> kaupunki#rakenne        2030#luku                      0.332</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">17</span> maan#käyttö             rakennus#laki                  0.329</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">18</span> kustannus               aiheutua                       0.329</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">19</span> luoda                   edellytys                      0.320</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">20</span> kunnan#valtuusto        kunnan#hallitus                0.315</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">21</span> asuin#kerros#talo       ketju#talo                     0.306</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">22</span> kunnan#valtuusto        lauta#kunta                    0.295</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">23</span> kustannus               yhdyskunta#rakentaminen        0.294</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">24</span> kerros#talo#asunto      rivi#talo#asunto               0.284</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">25</span> väestö                  ikääntyminen                   0.283</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">26</span> rivi                    ketju#talo                     0.278</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">27</span> avustus                 myöntää                        0.275</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">28</span> yhdyskunta#rakentaminen kaava#alue                     0.273</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">29</span> aloittaa                maan#vuokra#sopimus            0.273</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">30</span> tontti                  luovuttaa                      0.266</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">31</span> periä                   sopimus#sakko                  0.264</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">32</span> pien#talo               ketju#talo                     0.261</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">33</span> ympäristö#ministeriö    raportti                       0.257</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">34</span> palvella                kaava#alue                     0.256</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">35</span> määrätä                 maan#vuokra#sopimus            0.252</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">36</span> yhdyskunta#rakentaminen periä                          0.249</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">37</span> kustannus               maan#omistaja                  0.249</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">38</span> yhdyskunta#rakentaminen maan#omistaja                  0.246</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">39</span> vammainen               kehitys#vammainen              0.243</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">40</span> kaupunki#seutu          rakenne#malli                  0.243</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">41</span> joukko#liikenne         palvelu#taso                   0.239</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">42</span> korvaus                 periä                          0.237</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">43</span> sopimus#sakko           maan#vuokra#sopimus            0.232</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">44</span> hyöty                   maan#omistaja                  0.231</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">45</span> ehto                    määrätä                        0.230</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">46</span> kunnan#valtuusto        hyväksyä                       0.229</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">47</span> katu                    puisto                         0.228</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">48</span> asuin#kerros#talo       Rivi                           0.226</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">49</span> määrätä                 sopimus#sakko                  0.221</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">50</span> aloittaa                ilmoittaa                      0.220</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 310,816 more rows</span></span></span></code></pre></div>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">word_cors</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>sanapari <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">item1</span>, <span class="st">" &lt;-&gt; "</span>, <span class="va">item2</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
