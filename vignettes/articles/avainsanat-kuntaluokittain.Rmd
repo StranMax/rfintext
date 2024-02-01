@@ -21,27 +21,56 @@ library(forcats)
 ```
 
 ```{r}
-sanat_per_luokka <- aspol |>
-  filter(UPOSTAG %in% c("NOUN", "ADJ", "VERB")) |>
-  left_join(taantuvat) |>
-  filter(!is.na(luokka)) |>
-  count(luokka, LEMMA, name = "dtf", sort = TRUE) |>
-  bind_tf_idf(LEMMA, luokka, dtf)
-
-sanat_per_luokka
+# avainsanat <- c("asunto#tuotanto", "purkaa", "kohtuuhintainen", "ohjata", 
+#                 "tarjota", "MAL#sopimus", "ikä#ihminen", "vanhus", "strategia", 
+#                 "edellytys", "toteuttaa")
+avainsanat_tf_idf <- c("tontin#luovutus", "monipuolinen", "vanhus", "tavoite", "taajama",
+                "ylittää", "kilpailu", "laatu", "selvitys", "pien#talo#alue",
+                "tuleva", "tarve", "seutu", "riittävyys", "MAL#sopimus",
+                "tieto", "väestö", "vakituinen", "yhdyskuntarakenne")
 ```
 
 ```{r}
-avainsanat <- c("asunto#tuotanto", "purkaa", "kohtuuhintainen", "ohjata", 
-                "tarjota", "MAL#sopimus", "ikä#ihminen", "vanhus", "strategia", 
-                "edellytys", "toteuttaa")
+lemma_avain <- aspol |>
+  filter(LEMMA %in% avainsanat_tf_idf) |>
+  inner_join(taantuvat)
+
+lemma_avain
 ```
 
 ```{r}
-# sanat_per_luokka |>
-#   filter(LEMMA %in% avainsanat) |>
-# ggplot() +
-#   geom_bar(aes(x = LEMMA, fill = luokka), position = "fill")
+lemma_total <- lemma_avain |>
+  count(LEMMA, name = "LEMMA_total")
+
+lemma_luokka <- lemma_avain |>
+  count(LEMMA, luokka, name = "LEMMA_luokka")
+```
+
+```{r}
+lemma_osuus <- left_join(lemma_total, lemma_luokka) |>
+  mutate(luokka = fct_collapse(luokka,
+                      taantuva = c("Voimakkaasti taantuva", "Taantuva"),
+                      vakaa = c("Hieman taantuva", "Hieman kasvava"),
+                      kasvava = c("Kasvava", "Voimakkaasti kasvava")),
+         osuus = LEMMA_luokka / LEMMA_total)
+```
+
+
+```{r}
+lemma_osuus |>
+  ggplot() +
+  geom_col(aes(x = osuus, y = LEMMA, fill = luokka), position = "fill")
+```
+
+
+```{r}
+lemma_avain |>
+  add_count(luokka, name = "sanatyhteensä") |>
+  add_count(LEMMA, luokka, name = "sanatperluokka") |>
+  mutate(sanatperluokka/sanatyhteensä)
+ggplot() +
+  geom_bar(aes(x = fct_reorder(LEMMA/sanatluokittain, luokka, .fun = length), fill = luokka), position = "fill") +
+  coord_flip()
 ```
 
 

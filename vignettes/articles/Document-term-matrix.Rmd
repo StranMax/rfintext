@@ -32,6 +32,7 @@ aspol_filtered <- aspol |>
     lemma > kunta_lemma,  # Termi pitää esiintyä vähintään kahdessa eri dokumentissa
          lemma > 10,  # Pitää esiintyä yhteensä yli 10 kertaa (voi olla ehkä isompikin)
          UPOSTAG %in% c("NOUN", "VERB", "ADJ"),  # Substantiivit, verbit ja adjektiivit
+         !FORM %in% ("m2"),  # m2:n LEMMA on 'memrer#mammen'!?
          nchar(FORM) > 1,  # Yksittäiset merkit pois
          nchar(LEMMA) > 1,  # Yksittäiset merkit pois
          !str_detect(FEATS, "Abbr=Yes|NumType=Ord")  # Lyhenteet ja järjestysnumerot (adj) pois
