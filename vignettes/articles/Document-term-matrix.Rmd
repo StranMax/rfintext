@@ -23,14 +23,22 @@ library(dplyr)
 library(readr)
 ```
 
+
 ```{r}
-lemmas <- aspol |>
-  filter(UPOSTAG %in% c("NOUN", "VERB", "ADJ"), 
-         nchar(LEMMA) > 1,
-         !str_detect(LEMMA, "[0-9]"), 
-         !kunta %in% c("Enontekiö", "Salla", "Hattula")) |>  # OCR docs problematic
-  count(kunta, LEMMA, UPOSTAG, name = "dtf") |>
-  # filter(dtf > 1) |>
+aspol_filtered <- aspol |> 
+  add_count(kunta, LEMMA, name = "kunta_lemma") |> 
+  add_count(LEMMA, name = "lemma") |> 
+  filter(
+    lemma > kunta_lemma,  # Termi pitää esiintyä vähintään kahdessa eri dokumentissa
+         lemma > 10,  # Pitää esiintyä yhteensä yli 10 kertaa (voi olla ehkä isompikin)
+         UPOSTAG %in% c("NOUN", "VERB", "ADJ"),  # Substantiivit, verbit ja adjektiivit
+         nchar(FORM) > 1,  # Yksittäiset merkit pois
+         nchar(LEMMA) > 1,  # Yksittäiset merkit pois
+         !str_detect(FEATS, "Abbr=Yes|NumType=Ord")  # Lyhenteet ja järjestysnumerot (adj) pois
+         )  
+
+lemma <- aspol_filtered |>
+  count(kunta, LEMMA, name = "dtf") |>
   bind_tf_idf(LEMMA, kunta, dtf)
 ```
 
@@ -39,7 +47,7 @@ Let's create variable `y` we are trying to explain with word frequencies.
 ```{r}
 taantuvat <- taantuvat
 y <- taantuvat[c("kunta", "suht_muutos_2010_2022")] |>
-  inner_join(lemmas[c("kunta")]) |>
+  inner_join(lemma[c("kunta")]) |>
   group_by(kunta) |>
   slice(1)
 ```
@@ -47,7 +55,7 @@ y <- taantuvat[c("kunta", "suht_muutos_2010_2022")] |>
 We create data with only those docs we have y value
 
 ```{r}
-data <- left_join(lemmas, y) |>
+data <- left_join(lemma, y) |>
   filter(!is.na(LEMMA), !is.na(suht_muutos_2010_2022)) |>
   select(kunta, LEMMA, dtf, tf, tf_idf, suht_muutos_2010_2022)
 
@@ -55,6 +63,7 @@ stopifnot(y$kunta_nimi == unique(data$kunta))
 ```
 
 ```{r}
+n <- cast_dfm(data = data, document = kunta, term = LEMMA, value = dtf) 
 tf <- cast_dfm(data = data, document = kunta, term = LEMMA, value = tf)
 tf_idf <- cast_dfm(data = data, document = kunta, term = LEMMA, value = tf_idf)
 ```
@@ -88,6 +97,7 @@ save_data <- function(X, y, dir_out = tempdir()) {
 
 
 ```{r}
+# save_data(n, y, dir_out = "C:/Users/maxs/Documents/data/aspol_scikit-learn/n")
 # save_data(tf, y, dir_out = "C:/Users/maxs/Documents/data/aspol_scikit-learn/tf")
 # save_data(tf_idf, y, dir_out = "C:/Users/maxs/Documents/data/aspol_scikit-learn/tf_idf")
 ```
