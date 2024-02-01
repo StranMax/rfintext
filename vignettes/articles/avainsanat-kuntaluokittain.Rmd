@@ -62,22 +62,3 @@ lemma_osuus |>
   geom_col(aes(x = osuus, y = LEMMA, fill = luokka), position = "fill")
 ```
 
-
-```{r}
-lemma_avain |>
-  add_count(luokka, name = "sanatyhteensä") |>
-  add_count(LEMMA, luokka, name = "sanatperluokka") |>
-  mutate(sanatperluokka/sanatyhteensä)
-ggplot() +
-  geom_bar(aes(x = fct_reorder(LEMMA/sanatluokittain, luokka, .fun = length), fill = luokka), position = "fill") +
-  coord_flip()
-```
-
-
-```{r}
-sanat_per_luokka |>
-  filter(LEMMA %in% avainsanat) |>
-ggplot() +
-  geom_col(aes(x = tf, y = fct_reorder(LEMMA, tf, .fun = sum), fill = luokka))
-```
-
