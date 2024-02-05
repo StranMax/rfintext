@@ -9,19 +9,16 @@ knitr::opts_chunk$set(
 )
 ```
 
+Aim is to filter out uninteresting, and potentially false terms. Already filtered
+version of `aspol` is saved with name `aspol_filtered`.
+
 ```{r setup, message=FALSE, warning=FALSE}
 library(rfintext)
-# library(quanteda)
-# library(tidytext)
 library(stringr)
 library(dplyr)
-library(readr)
 library(ggplot2)
 library(ggwordcloud)
 ```
-
-Aim is to filter out uninteresting, and potentially false terms. Already filtered
-version of `aspol` is saved with name `aspol_filtered`.
 
 
 From [UPOSTAG](https://turkunlp.org/docs/u/pos/index.html) class we can see

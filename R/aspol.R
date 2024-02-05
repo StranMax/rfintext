@@ -1,8 +1,8 @@
 
-#' Corpus of Finnish housing policy documents
+#' Document term table in tidy format of Finnish housing policy documents
 #'
-#' Analysis ready data set of housing policy documents. More info of format in
-#' \url{https://universaldependencies.org/format.html}
+#' aspol and aspol_filtered which is analysis ready data set of housing policy
+#' documents. More info of format in \url{https://universaldependencies.org/format.html}
 #'
 #' @source Finnish municipalities
 #'
@@ -27,3 +27,6 @@
 #'
 #'
 "aspol"
+
+#' @rdname aspol
+"aspol_filtered"

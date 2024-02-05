@@ -1,0 +1,107 @@
+---
+title: "2 Document term matrix"
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+Converting tidytext format to numerical matrix form.
+
+```{r setup, message=FALSE, warning=FALSE}
+library(rfintext)
+# devtools::install_github("StranMax/rfinstats")
+library(rfinstats)
+# library(sf)
+library(quanteda)
+library(tidytext)
+library(stringr)
+library(dplyr)
+library(readr)
+```
+
+
+```{r}
+lemma <- aspol_filtered |>
+  count(kunta, LEMMA, name = "dtf") |>
+  bind_tf_idf(LEMMA, kunta, dtf)
+```
+
+Let's create variable `y` we are trying to explain with word frequencies.
+
+```{r}
+taantuvat <- taantuvat
+y <- taantuvat[c("kunta", "suht_muutos_2010_2022", "luokka")] |>
+  inner_join(lemma[c("kunta")]) |>
+  group_by(kunta) |>
+  slice(1)
+```
+
+We create data with only those docs we have y value
+
+```{r}
+data <- left_join(lemma, y) |>
+  filter(!is.na(LEMMA), !is.na(suht_muutos_2010_2022), !is.na(luokka)) |>
+  select(kunta, LEMMA, dtf, tf, tf_idf, suht_muutos_2010_2022, luokka)
+
+stopifnot(y$kunta == unique(data$kunta))
+```
+Three different document-term-matrices:
+
+* n = with word counts  
+* tf = with term frequencies  
+*tf_idf = with term frequency weighted by document count [tf-idf](https://en.wikipedia.org/wiki/Tf%E2%80%93idf)
+
+```{r}
+n <- cast_dfm(data = data, document = kunta, term = LEMMA, value = dtf)
+docvars(n, c("suht_muutos", "luokka")) <- c(y$suht_muutos_2010_2022, y$luokka)
+tf <- cast_dfm(data = data, document = kunta, term = LEMMA, value = tf)
+docvars(tf, c("suht_muutos", "luokka")) <- c(y$suht_muutos_2010_2022, y$luokka)
+tf_idf <- cast_dfm(data = data, document = kunta, term = LEMMA, value = tf_idf)
+docvars(tf_idf, c("suht_muutos", "luokka")) <- c(y$suht_muutos_2010_2022, y$luokka)
+```
+
+
+```{r}
+# usethis::use_data(n, overwrite = TRUE)
+# usethis::use_data(tf, overwrite = TRUE)
+# usethis::use_data(tf_idf, overwrite = TRUE)
+```
+
+
+We save 4 objects for playing with Python Scikit-learn package:
+
+1. ID_labels (kunnat)  
+2. Feature_names (LEMMA)  
+3. Data (doc-term-matrix)  
+4. y-variable (väkiluvun muutos)
+
+```{r}
+# save_data <- function(X, y, dir_out = tempdir()) {
+#   
+#   id_label <-  X |> as.matrix() |> row.names()
+#   readr::write_lines(id_label, file.path(dir_out, "id_label.txt"), sep = ";")
+#   
+#   feature_name <- X |> as.matrix() |> colnames()
+#   readr::write_lines(feature_name, file.path(dir_out, "feature_name.txt"), sep = ";")
+#   
+#   data <- X |> as.matrix() |> as.data.frame()
+#   readr::write_csv(data, file.path(dir_out, "data.csv"))
+#   
+#   label <- y$suht_muutos_2010_2022
+#   readr::write_lines(label, file.path(dir_out, "label.txt"), sep = ";")
+#   
+#   unlink(dir_out)
+# }
+```
+
+
+```{r}
+# save_data(n, y, dir_out = "C:/Users/maxs/Documents/data/aspol_scikit-learn/n")
+# save_data(tf, y, dir_out = "C:/Users/maxs/Documents/data/aspol_scikit-learn/tf")
+# save_data(tf_idf, y, dir_out = "C:/Users/maxs/Documents/data/aspol_scikit-learn/tf_idf")
+```
+
