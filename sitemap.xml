@@ -19,6 +19,9 @@
     <loc>https://stranmax.github.io/rfintext/articles/1-Data-filtering.html</loc>
   </url>
   <url>
+    <loc>https://stranmax.github.io/rfintext/articles/2-Document-term-matrix.html</loc>
+  </url>
+  <url>
     <loc>https://stranmax.github.io/rfintext/articles/2-Tekstianalyysi-tidytext-paketilla.html</loc>
   </url>
   <url>
@@ -26,9 +29,6 @@
   </url>
   <url>
     <loc>https://stranmax.github.io/rfintext/articles/4-Sanakorrelaatiot.html</loc>
-  </url>
-  <url>
-    <loc>https://stranmax.github.io/rfintext/articles/Document-term-matrix.html</loc>
   </url>
   <url>
     <loc>https://stranmax.github.io/rfintext/articles/avainsanat-kuntaluokittain.html</loc>
@@ -44,6 +44,9 @@
   </url>
   <url>
     <loc>https://stranmax.github.io/rfintext/reference/aspol.html</loc>
+  </url>
+  <url>
+    <loc>https://stranmax.github.io/rfintext/reference/dtm.html</loc>
   </url>
   <url>
     <loc>https://stranmax.github.io/rfintext/reference/index.html</loc>

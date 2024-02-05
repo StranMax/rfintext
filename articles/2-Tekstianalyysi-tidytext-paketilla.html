@@ -44,10 +44,10 @@
     <a class="dropdown-item" href="../articles/0-Preprocessing-PDF-docs.html">0 Preprocessing PDF-docs</a>
     <a class="dropdown-item" href="../articles/1-Asuntopoliittisten-ohjelmien-teko-kunnissa.html">1 Asuntopoliittisten ohjelmien teko kunnissa</a>
     <a class="dropdown-item" href="../articles/1-Data-filtering.html">1 Data filtering</a>
+    <a class="dropdown-item" href="../articles/2-Document-term-matrix.html">2 Document term matrix</a>
     <a class="dropdown-item" href="../articles/2-Tekstianalyysi-tidytext-paketilla.html">2 Tekstianalyysi tidytext-paketilla</a>
     <a class="dropdown-item" href="../articles/3-Sanapilvet.html">3 Sanapilvet</a>
     <a class="dropdown-item" href="../articles/4-Sanakorrelaatiot.html">4 Sanakorrelaatiot</a>
-    <a class="dropdown-item" href="../articles/Document-term-matrix.html">Document term matrix</a>
     <a class="dropdown-item" href="../articles/avainsanat-kuntaluokittain.html">avainsanat kuntaluokittain</a>
   </div>
 </li>
@@ -240,7 +240,7 @@
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">word_cors</span> <span class="op">&lt;-</span> <span class="va">kappaleet</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">LEMMA</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/context.html" class="external-link">n</a></span><span class="op">(</span><span class="op">)</span> <span class="op">&gt;=</span> <span class="fl">40</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="fu"><a href="../reference/dtm.html">n</a></span><span class="op">(</span><span class="op">)</span> <span class="op">&gt;=</span> <span class="fl">40</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://juliasilge.github.io/widyr/reference/pairwise_cor.html" class="external-link">pairwise_cor</a></span><span class="op">(</span><span class="va">LEMMA</span>, <span class="va">kappale</span>, sort <span class="op">=</span> <span class="cn">TRUE</span>, upper <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">word_cors</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">50</span><span class="op">)</span></span>
@@ -330,7 +330,7 @@
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">word_cors_kunta</span> <span class="op">&lt;-</span> <span class="va">kappaleet_kunta</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">LEMMA</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/context.html" class="external-link">n</a></span><span class="op">(</span><span class="op">)</span> <span class="op">&gt;=</span> <span class="fl">40</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="fu"><a href="../reference/dtm.html">n</a></span><span class="op">(</span><span class="op">)</span> <span class="op">&gt;=</span> <span class="fl">40</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://juliasilge.github.io/widyr/reference/pairwise_cor.html" class="external-link">pairwise_cor</a></span><span class="op">(</span><span class="va">LEMMA</span>, <span class="va">kunta</span>, sort <span class="op">=</span> <span class="cn">TRUE</span>, upper <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">word_cors_kunta</span></span>

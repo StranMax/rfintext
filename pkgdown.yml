@@ -5,12 +5,12 @@ articles:
   0-Preprocessing-PDF-docs: 0-Preprocessing-PDF-docs.html
   1-Asuntopoliittisten-ohjelmien-teko-kunnissa: 1-Asuntopoliittisten-ohjelmien-teko-kunnissa.html
   1-Data-filtering: 1-Data-filtering.html
+  2-Document-term-matrix: 2-Document-term-matrix.html
   2-Tekstianalyysi-tidytext-paketilla: 2-Tekstianalyysi-tidytext-paketilla.html
   3-Sanapilvet: 3-Sanapilvet.html
   4-Sanakorrelaatiot: 4-Sanakorrelaatiot.html
-  Document-term-matrix: Document-term-matrix.html
   avainsanat-kuntaluokittain: avainsanat-kuntaluokittain.html
-last_built: 2024-02-05T10:26Z
+last_built: 2024-02-05T14:01Z
 urls:
   reference: https://stranmax.github.io/rfintext/reference
   article: https://stranmax.github.io/rfintext/articles
