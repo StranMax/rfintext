@@ -8,7 +8,7 @@ NULL
 #> NULL
 
 #' @rdname dtm
-"n"
+"tc"
 
 #' @rdname dtm
 "tf"

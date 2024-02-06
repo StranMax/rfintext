@@ -26,4 +26,5 @@ Suggests:
     sf,
     stringr,
     tidytext,
+    topicmodels,
     widyr

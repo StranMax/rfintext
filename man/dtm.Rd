@@ -3,7 +3,7 @@
 \docType{data}
 \name{dtm}
 \alias{dtm}
-\alias{n}
+\alias{tc}
 \alias{tf}
 \alias{tf_idf}
 \title{Document term matrices of aspol_filtered data set}
@@ -15,7 +15,7 @@ An object of class \code{dfm} with 61 rows and 4859 columns.
 An object of class \code{dfm} with 61 rows and 4859 columns.
 }
 \usage{
-n
+tc
 
 tf
 

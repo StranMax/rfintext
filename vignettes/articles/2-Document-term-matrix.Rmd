@@ -9,20 +9,21 @@ knitr::opts_chunk$set(
 )
 ```
 
-Converting tidytext format to numerical matrix form.
+Converting tidytext format to numerical matrix form ready to fed different analysis.
 
 ```{r setup, message=FALSE, warning=FALSE}
 library(rfintext)
 # devtools::install_github("StranMax/rfinstats")
 library(rfinstats)
-# library(sf)
 library(quanteda)
 library(tidytext)
 library(stringr)
 library(dplyr)
-library(readr)
 ```
 
+Turn word data frame into document term count data frame where each row is giving
+term count in single document. Then we use `tidytext::bind_tf_idf()` to add also 
+term frequency and term frequency weighted by document frequency.
 
 ```{r}
 lemma <- aspol_filtered |>
@@ -40,7 +41,8 @@ y <- taantuvat[c("kunta", "suht_muutos_2010_2022", "luokka")] |>
   slice(1)
 ```
 
-We create data with only those docs we have y value
+We create data with only those docs we have y value. Some documents include multiple
+municipalities and for now we leave those out.
 
 ```{r}
 data <- left_join(lemma, y) |>
@@ -49,6 +51,7 @@ data <- left_join(lemma, y) |>
 
 stopifnot(y$kunta == unique(data$kunta))
 ```
+
 Three different document-term-matrices:
 
 * n = with word counts  
@@ -56,8 +59,8 @@ Three different document-term-matrices:
 *tf_idf = with term frequency weighted by document count [tf-idf](https://en.wikipedia.org/wiki/Tf%E2%80%93idf)
 
 ```{r}
-n <- cast_dfm(data = data, document = kunta, term = LEMMA, value = dtf)
-docvars(n, c("suht_muutos", "luokka")) <- c(y$suht_muutos_2010_2022, y$luokka)
+tc <- cast_dfm(data = data, document = kunta, term = LEMMA, value = dtf)
+docvars(tc, c("suht_muutos", "luokka")) <- c(y$suht_muutos_2010_2022, y$luokka)
 tf <- cast_dfm(data = data, document = kunta, term = LEMMA, value = tf)
 docvars(tf, c("suht_muutos", "luokka")) <- c(y$suht_muutos_2010_2022, y$luokka)
 tf_idf <- cast_dfm(data = data, document = kunta, term = LEMMA, value = tf_idf)
@@ -66,7 +69,7 @@ docvars(tf_idf, c("suht_muutos", "luokka")) <- c(y$suht_muutos_2010_2022, y$luok
 
 
 ```{r}
-# usethis::use_data(n, overwrite = TRUE)
+# usethis::use_data(tc, overwrite = TRUE)
 # usethis::use_data(tf, overwrite = TRUE)
 # usethis::use_data(tf_idf, overwrite = TRUE)
 ```
