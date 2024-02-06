@@ -1,5 +1,5 @@
 ---
-title: "2 Tekstianalyysi tidytext-paketilla"
+title: "5 Tidytext format"
 ---
 
 ```{r, include = FALSE}
@@ -14,7 +14,6 @@ library(rfintext)
 # devtools::install_github("StranMax/rfinstats")
 library(rfinstats)
 library(dplyr)
-library(sf)
 library(tidytext)
 library(ggplot2)
 library(stringr)
@@ -22,60 +21,56 @@ library(forcats)
 ```
 
 ```{r}
+plot_max_terms <- function(df, .by, .n) {
+  df |>
+    slice_max(order_by = {{.by}}, n = {{.n}}) |>
+    ggplot() +
+    geom_col(aes(x = n, y = reorder(LEMMA, n), fill = UPOSTAG)) +
+    scale_x_continuous(labels = function(x) format(x, big.mark = " ", scientific = FALSE))
+}
+```
+
+
+```{r}
 aspol |>
   count(LEMMA, UPOSTAG, sort = TRUE) |>
-  slice_max(n, n = 20) |>
-  ggplot() +
-  geom_col(aes(x = n, y = fct_reorder(LEMMA, n), fill = UPOSTAG))
-```
-```{r}
-suodatettavat <- c("✓", "", "x", "X", "@", "bostad")
-pattern <- str_c(suodatettavat, collapse = "|")
-noun_adj_verb <- aspol |>
-  filter(UPOSTAG %in% c("NOUN", "ADJ", "VERB"),  # Vain merkitykselliset sanat
-         !str_detect(FEATS, "Foreign=Yes"),  # Ruotsi- ja englanninkieliset mm.
-         !str_detect(LEMMA, pattern))  
-```
-
-
-```{r}
-sanat_per_luokka <- noun_adj_verb |>
-  left_join(taantuvat) |>
-  filter(!is.na(luokka)) |>
-  count(luokka, LEMMA, sort = TRUE)
-
-sanat_per_luokka
+  plot_max_terms(.by = n, .n = 20)
 ```
 
 ```{r}
-sanat_yhteensä_per_luokka <-  sanat_per_luokka |>
-  group_by(luokka) |>
-  summarise(total = sum(n))
-
-sanat_yhteensä_per_luokka
-```
-
-
-```{r, message=FALSE}
-sanamäärät <-  left_join(sanat_per_luokka, sanat_yhteensä_per_luokka)
-sanamäärät
+aspol_filtered |>
+  count(LEMMA, UPOSTAG, sort = TRUE) |>
+  plot_max_terms(.by = n, .n = 20)
 ```
 
 ```{r}
-luokka_tf_idf <- sanamäärät %>%
-  bind_tf_idf(LEMMA, luokka, n)
+count_doc_size <- function(df, group) {
+  group_size <- df |> count({{group}}, name = "group_term_count")
+  
+  suppressMessages(
+  df |>
+    count({{group}}, LEMMA, sort = TRUE, name = "dtc") |>
+    left_join(group_size)
+  )
+}
+```
 
-luokka_tf_idf
+
+```{r}
+tidy_tf_idf <- aspol_filtered |>
+  inner_join(taantuvat) |>
+  count_doc_size(luokka) |>
+  bind_tf_idf(LEMMA, luokka, dtc)
 ```
 
 ```{r}
-luokka_tf_idf %>%
-  select(-total) %>%
+tidy_tf_idf %>%
+  select(-group_term_count) %>%
   arrange(desc(tf_idf))
 ```
 
 ```{r}
-luokka_tf_idf %>%
+tidy_tf_idf %>%
   group_by(luokka) %>%
   slice_max(tf_idf, n = 10) %>%
   ungroup() %>%
@@ -90,10 +85,7 @@ library(widyr)
 ```
 
 ```{r}
-kappaleet <- aspol |>
-  filter(UPOSTAG %in% c("NOUN", "VERB"),
-         !str_detect(LEMMA, pattern),
-         nchar(LEMMA) > 2) |>
+kappaleet <- aspol_filtered |>
   mutate(kappale = paste0(kunta, "-", sent)) |>
   count(kappale, LEMMA)
 ```
@@ -123,7 +115,7 @@ ggplot() +
 ```
 
 ```{r}
-kappaleet_kunta <- noun_adj_verb |>
+kappaleet_kunta <- aspol_filtered |>
   count(kunta, LEMMA)
 ```
 
