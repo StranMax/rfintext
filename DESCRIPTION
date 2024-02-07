@@ -17,7 +17,6 @@ BugReports: https://github.com/StranMax/rfintext/issues
 Config/Needs/website: rmarkdown
 Suggests: 
     devtools,
-    dplyr,
     forcats,
     ggplot2,
     ggwordcloud,
@@ -28,3 +27,5 @@ Suggests:
     tidytext,
     topicmodels,
     widyr
+Imports: 
+    dplyr
