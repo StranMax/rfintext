@@ -18,9 +18,12 @@ Config/Needs/website: rmarkdown
 Suggests: 
     caret,
     devtools,
+    doParallel,
     forcats,
+    foreach,
     ggplot2,
     ggwordcloud,
+    parallel,
     quanteda,
     readr,
     sf,
