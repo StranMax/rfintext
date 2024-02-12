@@ -15,33 +15,114 @@ calculate_doc <- function(df, doc = .data$kunta) {
     length()
 }
 
-filter_common_terms <- function(df, doc = .data$kunta, ratio = 0.5) {
-  total_doc <- calculate_doc(df)
-
-  df |> calculate_doc_freq() |> dplyr::filter((.data$dc_n / total_doc) < ratio)
+log_dropped <- function(df_old, df_new, print.message = TRUE) {
+  if (print.message) message("Dropped ", nrow(df_old) - nrow(df_new), " rows")
 }
 
-filter_uncommon_terms <- function(df, doc = .data$kunta, ratio = 0.05) {
+#' Title
+#'
+#' @param df
+#' @param doc
+#' @param ratio
+#'
+#' @return
+#' @export
+#'
+#' @examples
+remove_common_terms <- function(df, doc = .data$kunta, ratio = 0.99) {
+  total_doc <- calculate_doc(df)
+
+  df_new <-  df |> calculate_doc_freq() |> dplyr::filter((.data$dc_n / total_doc) < ratio)
+  log_dropped(df, df_new)
+
+  df_new
+}
+
+#' Title
+#'
+#' @param df
+#' @param doc
+#' @param ratio
+#'
+#' @return
+#' @export
+#'
+#' @examples
+remove_uncommon_terms <- function(df, doc = .data$kunta, ratio = 0.05) {
   total_doc <- calculate_doc(df)
 
   limit <- max(c(5, total_doc * ratio))
 
-  df |> calculate_doc_freq() |> dplyr::filter(.data$dc_n >= limit)
+  df_new <- df |> calculate_doc_freq() |> dplyr::filter(.data$dc_n >= limit)
+  log_dropped(df, df_new)
 
+  df_new
 }
 
-filter_short_term <- function(df, len = 2) {
-  df |> dplyr::filter(nchar(.data$FORM) > len, nchar(.data$LEMMA) > len)
+#' Title
+#'
+#' @param df
+#' @param len
+#'
+#' @return
+#' @export
+#'
+#' @examples
+remove_short_term <- function(df, len = 2) {
+  df_new <- df |> dplyr::filter(nchar(.data$FORM) > len, nchar(.data$LEMMA) > len)
+  log_dropped(df, df_new)
+
+  df_new
 }
 
+#' Title
+#'
+#' @param df
+#'
+#' @return
+#' @export
+#'
+#' @examples
+remove_numbers <- function(df) {
+  df_new <- df |> dplyr::filter(!stringr::str_detect(.data$FORM, "[0-9]"))
+  log_dropped(df, df_new)
+
+  df_new
+}
+
+#' Title
+#'
+#' @param df
+#'
+#' @return
+#' @export
+#'
+#' @examples
+remove_foreign <- function(df) {
+  df_new <- df |> dplyr::filter(.data$UPOSTAG != "X", !stringr::str_detect(.data$FEATS, "Foreign=Yes"))
+  log_dropped(df, df_new)
+
+  df_new
+}
+
+#' Title
+#'
+#' @param df
+#' @param upostag
+#'
+#' @return
+#' @export
+#'
+#' @examples
 filter_upostag <- function(df, upostag) {
-  function(df) {
-    df |> dplyr::filter(.data$UPOSTAG %in% upostag)
-  }
+  # function(df) {
+  df_new <- df |> dplyr::filter(.data$UPOSTAG %in% upostag)
+  log_dropped(df, df_new)
+
+  df_new
+  # }
 }
-filter_noun <- filter_upostag(df, "NOUN")
-filter_verb <- filter_upostag(df, "VERB")
-filter_adj <- filter_upostag(df, "ADJ")
+# filter_noun_adj_verb <- filter_upostag(df, c("NOUN", "VERB", "ADJ"))
 
 #' Preprocess corpus object
 #'
@@ -59,11 +140,14 @@ filter_adj <- filter_upostag(df, "ADJ")
 #' @importFrom dplyr .data
 #'
 #' @examples
+#' preprocess_corpus(aspol)
 #'
 preprocess_corpus <- function(df) {
   df |>
-    filter_short_term() |>
-    filter_common_terms() |>
-    filter_uncommon_terms() |>
-    filter_noun()
+    filter_upostag(c("NOUN", "VERB", "ADJ")) |>
+    remove_numbers() |>
+    remove_foreign() |>
+    remove_uncommon_terms() |>
+    remove_common_terms() |>
+    remove_short_term()
 }

@@ -27,6 +27,3 @@
 #'
 #'
 "aspol"
-
-#' @rdname aspol
-"aspol_filtered"

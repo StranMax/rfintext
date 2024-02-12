@@ -1,0 +1,45 @@
+---
+title: "4 LDA model"
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(rfintext)
+library(quanteda)
+library(topicmodels)
+library(topicdoc)
+library(dplyr)
+```
+
+```{r}
+dtm <- aspol |>
+  preprocess_corpus() |>
+  corpus_to_dtm(kunta, LEMMA)
+```
+Optimal values for k are 6 and 15.
+
+```{r}
+lda1 <- topicmodels::LDA(quanteda::convert(dtm, to = "tm"), k = 6, control = list(seed = 1234))
+lda2 <- topicmodels::LDA(quanteda::convert(dtm, to = "tm"), k = 15, control = list(seed = 1234))
+```
+
+```{r}
+topic_diagnostics(lda1, dtm)
+topic_diagnostics(lda2, dtm)
+```
+
+```{r}
+terms(lda1, 25)
+```
+
+```{r}
+terms(lda2, 25)
+```
+
+

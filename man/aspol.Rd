@@ -3,7 +3,6 @@
 \docType{data}
 \name{aspol}
 \alias{aspol}
-\alias{aspol_filtered}
 \title{Document term table in tidy format of Finnish housing policy documents}
 \format{
 A data frame with rows and columns:
@@ -22,16 +21,12 @@ A data frame with rows and columns:
   \item{MISC}{Any other annotation}
   \item{doc}{Document name read from}
 }
-
-An object of class \code{tbl_df} (inherits from \code{tbl}, \code{data.frame}) with 215957 rows and 14 columns.
 }
 \source{
 Finnish municipalities
 }
 \usage{
 aspol
-
-aspol_filtered
 }
 \description{
 aspol and aspol_filtered which is analysis ready data set of housing policy

@@ -1,0 +1,88 @@
+---
+title: "5 XGBoost classification"
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup, message=FALSE, warning=FALSE}
+library(rfintext)
+library(rfinstats)
+library(dplyr)
+library(xgboost)
+library(caret)
+library(topicmodels)
+library(quanteda)
+```
+
+
+```{r}
+aspol_y <- aspol |>
+  preprocess_corpus() |>
+  left_join(taantuvat)
+```
+
+
+```{r}
+split_data_test <- function(data, variable) {
+  y = dplyr::pull(data, {{variable}})
+  trainIndex <- caret::createDataPartition(y, p = .8, 
+                                           list = FALSE, times = 1)
+  
+  dataTrain <- data[trainIndex, ]
+  dataTest <- data[-trainIndex, ]
+  
+  list("Train" = dataTrain, "Test" = dataTest)
+}
+```
+
+
+```{r}
+aspol_data <- split_data_test(aspol_y, luokka)
+```
+
+```{r}
+fit_lda <- function(dtm, k) {
+  lda <- topicmodels::LDA(quanteda::convert(dtm, to = "tm"), k = k, control = list(seed = 1234))
+  lda
+}
+```
+
+```{r}
+lda6 <- aspol_data$Train |>
+  corpus_to_dtm(doc = kunta, term = LEMMA) |>
+  fit_lda(6)
+```
+
+```{r}
+aspol_data$Train |>
+  corpus_to_dtm(kunta, LEMMA) |>
+  dfm_select(terms(lda6, 25)) |>
+  as.matrix()
+```
+
+```{r}
+# dtrain <- aspol_data$Train |>
+#   corpus_to_dtm(kunta, LEMMA) |>
+#   dfm_select(terms(lda6, 25)) |>
+#   as.matrix() |>
+#   xgb.DMatrix(data = asp, label=train$label)
+# 
+# dtest <- xgb.DMatrix(data = test$data, label=test$label)
+```
+
+
+```{r}
+# bstSparse <- xgboost(data = train$data, label = train$label, max.depth = 2, eta = 1, nthread = 2, nrounds = 2, objective = "binary:logistic")
+```
+
+
+```{r}
+terms(lda6, 25)
+```
+
+

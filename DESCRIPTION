@@ -16,6 +16,7 @@ URL: https://github.com/StranMax/rfintext, https://stranmax.github.io/rfintext/
 BugReports: https://github.com/StranMax/rfintext/issues
 Config/Needs/website: rmarkdown
 Suggests: 
+    caret,
     devtools,
     forcats,
     ggplot2,
@@ -25,7 +26,9 @@ Suggests:
     sf,
     stringr,
     tidytext,
+    topicdoc,
     topicmodels,
-    widyr
+    widyr,
+    xgboost
 Imports: 
     dplyr

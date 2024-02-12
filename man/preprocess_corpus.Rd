@@ -19,3 +19,7 @@ Preprocessing pipeline:
 3. Filter terms appearing in few documents
 4. Filter only nouns
 }
+\examples{
+preprocess_corpus(aspol)
+
+}

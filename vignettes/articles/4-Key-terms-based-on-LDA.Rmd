@@ -78,7 +78,7 @@ plot_lemma_prop <- function(df, x, group) {
 
 ```{r}
 lapply(list(avainsanat_1_2, avainsanat_2_3, avainsanat_1_3), function(x) {
-  aspol_filtered |>
+  preprocess_corpus(aspol) |>
     filter_municipality() |>
     filter_key_lemma(x) |>
     calc_lemma_prop(luokka) |>

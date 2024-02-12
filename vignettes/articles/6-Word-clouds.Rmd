@@ -22,7 +22,7 @@ library(ggwordcloud)
 ```
 
 ```{r}
-aspol_f <- inner_join(aspol_filtered, taantuvat)
+aspol_f <- inner_join(preprocess_corpus(aspol), taantuvat)
 ```
 
 ```{r}

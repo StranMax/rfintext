@@ -38,7 +38,7 @@ aspol |>
 ```
 
 ```{r}
-aspol_filtered |>
+preprocess_corpus(aspol) |>
   count(LEMMA, UPOSTAG, sort = TRUE) |>
   plot_max_terms(.by = n, .n = 20)
 ```
@@ -57,7 +57,7 @@ count_doc_size <- function(df, group) {
 
 
 ```{r}
-tidy_tf_idf <- aspol_filtered |>
+tidy_tf_idf <- preprocess_corpus(aspol) |>
   inner_join(taantuvat) |>
   count_doc_size(luokka) |>
   bind_tf_idf(LEMMA, luokka, dtc)
@@ -85,7 +85,7 @@ library(widyr)
 ```
 
 ```{r}
-kappaleet <- aspol_filtered |>
+kappaleet <- preprocess_corpus(aspol) |>
   mutate(kappale = paste0(kunta, "-", sent)) |>
   count(kappale, LEMMA)
 ```
@@ -115,7 +115,7 @@ ggplot() +
 ```
 
 ```{r}
-kappaleet_kunta <- aspol_filtered |>
+kappaleet_kunta <- preprocess_corpus(aspol) |>
   count(kunta, LEMMA)
 ```
 

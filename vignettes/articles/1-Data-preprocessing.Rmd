@@ -1,0 +1,45 @@
+---
+title: "1 Data preprocessing"
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+Aim is to filter out uninteresting, and potentially false terms.
+This data preprocessing article leans much on two articles:  
+* Ristilä A. & K. Elo (2023). Observing political and societal changes in Finnish 
+parliamentary speech data, 1980–2010, with topic modelling. 
+*Parliaments, Estates and Representation*, 43:2, 149–176.  
+* Matthew J. D. & A. Spirling (2018). Text Preprocessing For Unsupervised Learning:
+Why It Matters, When It Misleads, And What To Do About It. *Political Analysis*
+vol. 26:168–189.
+
+```{r setup, message=FALSE, warning=FALSE}
+library(rfintext)
+library(stringr)
+library(dplyr)
+```
+
+**Common preprocessing steps include:**  
+1. Select only nouns verbs and adjectives  
+2. Remove words which contain numbers  
+3. Filter out foreign terms  
+4. Drop terms which appear in less than 0.5% of documents  
+5. Drop terms which appear in more than 99% of documents
+
+Original terms total `r nrow(aspol)`
+
+```{r}
+aspol |>
+  filter_upostag(c("NOUN", "VERB", "ADJ")) |>
+  remove_numbers() |>
+  remove_foreign() |>
+  remove_uncommon_terms() |>
+  remove_common_terms() |>
+  remove_short_term()
+```
+
