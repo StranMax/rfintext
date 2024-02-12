@@ -43,11 +43,13 @@
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
     <a class="dropdown-item" href="../articles/0-Preprocessing-PDF-docs.html">0 Preprocessing PDF-docs</a>
     <a class="dropdown-item" href="../articles/1-Asuntopoliittisten-ohjelmien-teko-kunnissa.html">1 Asuntopoliittisten ohjelmien teko kunnissa</a>
-    <a class="dropdown-item" href="../articles/1-Data-filtering.html">1 Data filtering</a>
+    <a class="dropdown-item" href="../articles/1-Data-preprocessing.html">1 Data preprocessing</a>
     <a class="dropdown-item" href="../articles/2-Document-term-matrix.html">2 Document term matrix</a>
-    <a class="dropdown-item" href="../articles/3-LDA.html">3 LDA</a>
+    <a class="dropdown-item" href="../articles/3-LDA-parameter-tuning.html">3 LDA parameter tuning</a>
     <a class="dropdown-item" href="../articles/4-Key-terms-based-on-LDA.html">4 Key terms based on LDA</a>
+    <a class="dropdown-item" href="../articles/4-LDA-model.html">4 LDA model</a>
     <a class="dropdown-item" href="../articles/5-Tidytext-format.html">5 Tidytext format</a>
+    <a class="dropdown-item" href="../articles/5-XGBoost-classification.html">5 XGBoost classification</a>
     <a class="dropdown-item" href="../articles/6-Word-clouds.html">6 Word clouds</a>
     <a class="dropdown-item" href="../articles/avainsanat-kuntaluokittain.html">avainsanat kuntaluokittain</a>
   </div>
@@ -85,92 +87,40 @@
 
     
     
-<p>Converting tidytext format to numerical matrix form ready to fed
-different analysis.</p>
+<p>Analysis expects input data to be in numerical form.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/StranMax/rfintext" class="external-link">rfintext</a></span><span class="op">)</span></span>
 <span><span class="co"># devtools::install_github("StranMax/rfinstats")</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/StranMax/rfinstats" class="external-link">rfinstats</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://quanteda.io" class="external-link">quanteda</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/juliasilge/tidytext" class="external-link">tidytext</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://stringr.tidyverse.org" class="external-link">stringr</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span></code></pre></div>
-<p>Turn word data frame into document term count data frame where each
-row is giving term count in single document. Then we use
-<code><a href="https://rdrr.io/pkg/tidytext/man/bind_tf_idf.html" class="external-link">tidytext::bind_tf_idf()</a></code> to add also term frequency and term
-frequency weighted by document frequency.</p>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://quanteda.io" class="external-link">quanteda</a></span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">lemma</span> <span class="op">&lt;-</span> <span class="va">aspol_filtered</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/count.html" class="external-link">count</a></span><span class="op">(</span><span class="va">kunta</span>, <span class="va">LEMMA</span>, name <span class="op">=</span> <span class="st">"dtf"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/pkg/tidytext/man/bind_tf_idf.html" class="external-link">bind_tf_idf</a></span><span class="op">(</span><span class="va">LEMMA</span>, <span class="va">kunta</span>, <span class="va">dtf</span><span class="op">)</span></span></code></pre></div>
-<p>Let’s create variable <code>y</code> we are trying to explain with
-word frequencies.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">taantuvat</span> <span class="op">&lt;-</span> <span class="va">taantuvat</span></span>
-<span><span class="va">y</span> <span class="op">&lt;-</span> <span class="va">taantuvat</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"kunta"</span>, <span class="st">"suht_muutos_2010_2022"</span>, <span class="st">"luokka"</span><span class="op">)</span><span class="op">]</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">inner_join</a></span><span class="op">(</span><span class="va">lemma</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"kunta"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">kunta</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/slice.html" class="external-link">slice</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Joining with `by = join_by(kunta)`</span></span></code></pre></div>
-<p>We create data with only those docs we have y value. Some documents
-include multiple municipalities and for now we leave those out.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">left_join</a></span><span class="op">(</span><span class="va">lemma</span>, <span class="va">y</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">LEMMA</span><span class="op">)</span>, <span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">suht_muutos_2010_2022</span><span class="op">)</span>, <span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">luokka</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">kunta</span>, <span class="va">LEMMA</span>, <span class="va">dtf</span>, <span class="va">tf</span>, <span class="va">tf_idf</span>, <span class="va">suht_muutos_2010_2022</span>, <span class="va">luokka</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Joining with `by = join_by(kunta)`</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/stopifnot.html" class="external-link">stopifnot</a></span><span class="op">(</span><span class="va">y</span><span class="op">$</span><span class="va">kunta</span> <span class="op">==</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">data</span><span class="op">$</span><span class="va">kunta</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p>Three different document-term-matrices:</p>
-<ul>
-<li>n = with word counts<br>
-</li>
-<li>tf = with term frequencies<br>
-*tf_idf = with term frequency weighted by document count <a href="https://en.wikipedia.org/wiki/Tf%E2%80%93idf" class="external-link">tf-idf</a>
-</li>
-</ul>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">tc</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/tidytext/man/document_term_casters.html" class="external-link">cast_dfm</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">data</span>, document <span class="op">=</span> <span class="va">kunta</span>, term <span class="op">=</span> <span class="va">LEMMA</span>, value <span class="op">=</span> <span class="va">dtf</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://quanteda.io/reference/docvars.html" class="external-link">docvars</a></span><span class="op">(</span><span class="va">tc</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"suht_muutos"</span>, <span class="st">"luokka"</span><span class="op">)</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">y</span><span class="op">$</span><span class="va">suht_muutos_2010_2022</span>, <span class="va">y</span><span class="op">$</span><span class="va">luokka</span><span class="op">)</span></span>
-<span><span class="va">tf</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/tidytext/man/document_term_casters.html" class="external-link">cast_dfm</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">data</span>, document <span class="op">=</span> <span class="va">kunta</span>, term <span class="op">=</span> <span class="va">LEMMA</span>, value <span class="op">=</span> <span class="va">tf</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://quanteda.io/reference/docvars.html" class="external-link">docvars</a></span><span class="op">(</span><span class="va">tf</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"suht_muutos"</span>, <span class="st">"luokka"</span><span class="op">)</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">y</span><span class="op">$</span><span class="va">suht_muutos_2010_2022</span>, <span class="va">y</span><span class="op">$</span><span class="va">luokka</span><span class="op">)</span></span>
-<span><span class="va">tf_idf</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/tidytext/man/document_term_casters.html" class="external-link">cast_dfm</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">data</span>, document <span class="op">=</span> <span class="va">kunta</span>, term <span class="op">=</span> <span class="va">LEMMA</span>, value <span class="op">=</span> <span class="va">tf_idf</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://quanteda.io/reference/docvars.html" class="external-link">docvars</a></span><span class="op">(</span><span class="va">tf_idf</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"suht_muutos"</span>, <span class="st">"luokka"</span><span class="op">)</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">y</span><span class="op">$</span><span class="va">suht_muutos_2010_2022</span>, <span class="va">y</span><span class="op">$</span><span class="va">luokka</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># usethis::use_data(tc, overwrite = TRUE)</span></span>
-<span><span class="co"># usethis::use_data(tf, overwrite = TRUE)</span></span>
-<span><span class="co"># usethis::use_data(tf_idf, overwrite = TRUE)</span></span></code></pre></div>
-<p>We save 4 objects for playing with Python Scikit-learn package:</p>
-<ol style="list-style-type: decimal">
-<li>ID_labels (kunnat)<br>
-</li>
-<li>Feature_names (LEMMA)<br>
-</li>
-<li>Data (doc-term-matrix)<br>
-</li>
-<li>y-variable (väkiluvun muutos)</li>
-</ol>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># save_data &lt;- function(X, y, dir_out = tempdir()) {</span></span>
-<span><span class="co">#   </span></span>
-<span><span class="co">#   id_label &lt;-  X |&gt; as.matrix() |&gt; row.names()</span></span>
-<span><span class="co">#   readr::write_lines(id_label, file.path(dir_out, "id_label.txt"), sep = ";")</span></span>
-<span><span class="co">#   </span></span>
-<span><span class="co">#   feature_name &lt;- X |&gt; as.matrix() |&gt; colnames()</span></span>
-<span><span class="co">#   readr::write_lines(feature_name, file.path(dir_out, "feature_name.txt"), sep = ";")</span></span>
-<span><span class="co">#   </span></span>
-<span><span class="co">#   data &lt;- X |&gt; as.matrix() |&gt; as.data.frame()</span></span>
-<span><span class="co">#   readr::write_csv(data, file.path(dir_out, "data.csv"))</span></span>
-<span><span class="co">#   </span></span>
-<span><span class="co">#   label &lt;- y$suht_muutos_2010_2022</span></span>
-<span><span class="co">#   readr::write_lines(label, file.path(dir_out, "label.txt"), sep = ";")</span></span>
-<span><span class="co">#   </span></span>
-<span><span class="co">#   unlink(dir_out)</span></span>
-<span><span class="co"># }</span></span></code></pre></div>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># save_data(n, y, dir_out = "C:/Users/maxs/Documents/data/aspol_scikit-learn/n")</span></span>
-<span><span class="co"># save_data(tf, y, dir_out = "C:/Users/maxs/Documents/data/aspol_scikit-learn/tf")</span></span>
-<span><span class="co"># save_data(tf_idf, y, dir_out = "C:/Users/maxs/Documents/data/aspol_scikit-learn/tf_idf")</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">aspol</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/preprocess_corpus.html">preprocess_corpus</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/corpus_to_dtm.html">corpus_to_dtm</a></span><span class="op">(</span><span class="va">kunta</span>, <span class="va">LEMMA</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Dropped 222659 rows</span></span>
+<span><span class="co">#&gt; Dropped 2309 rows</span></span>
+<span><span class="co">#&gt; Dropped 19 rows</span></span>
+<span><span class="co">#&gt; Dropped 33047 rows</span></span>
+<span><span class="co">#&gt; Dropped 9180 rows</span></span>
+<span><span class="co">#&gt; Dropped 3076 rows</span></span>
+<span><span class="co">#&gt; Document-feature matrix of: 66 documents, 3,136 features (75.63% sparse) and 0 docvars.</span></span>
+<span><span class="co">#&gt;                  features</span></span>
+<span><span class="co">#&gt; docs              III Vapaa#aika aiheuttaa aika aika#väli ajatella ala alhainen</span></span>
+<span><span class="co">#&gt;   Enontekiö         2          1         3    7         1        1   1        1</span></span>
+<span><span class="co">#&gt;   Espoo             0          0         1   18         3        0   3        4</span></span>
+<span><span class="co">#&gt;   Eura              0          0         1    5         0        0   0        1</span></span>
+<span><span class="co">#&gt;   Hattula           0          0         0    6         0        0   0        0</span></span>
+<span><span class="co">#&gt;   Helsingin Seutu   4          0        10    9        12        0   0        2</span></span>
+<span><span class="co">#&gt;   Helsinki          4          0         3   46         4        0   5        5</span></span>
+<span><span class="co">#&gt;                  features</span></span>
+<span><span class="co">#&gt; docs              alku alku#peräinen</span></span>
+<span><span class="co">#&gt;   Enontekiö          1             1</span></span>
+<span><span class="co">#&gt;   Espoo              1             1</span></span>
+<span><span class="co">#&gt;   Eura               0             0</span></span>
+<span><span class="co">#&gt;   Hattula            1             0</span></span>
+<span><span class="co">#&gt;   Helsingin Seutu    1             1</span></span>
+<span><span class="co">#&gt;   Helsinki          12             0</span></span>
+<span><span class="co">#&gt; [ reached max_ndoc ... 60 more documents, reached max_nfeat ... 3,126 more features ]</span></span></code></pre></div>
   </main>
 </div>
 

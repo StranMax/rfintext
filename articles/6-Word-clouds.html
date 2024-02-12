@@ -43,11 +43,13 @@
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
     <a class="dropdown-item" href="../articles/0-Preprocessing-PDF-docs.html">0 Preprocessing PDF-docs</a>
     <a class="dropdown-item" href="../articles/1-Asuntopoliittisten-ohjelmien-teko-kunnissa.html">1 Asuntopoliittisten ohjelmien teko kunnissa</a>
-    <a class="dropdown-item" href="../articles/1-Data-filtering.html">1 Data filtering</a>
+    <a class="dropdown-item" href="../articles/1-Data-preprocessing.html">1 Data preprocessing</a>
     <a class="dropdown-item" href="../articles/2-Document-term-matrix.html">2 Document term matrix</a>
-    <a class="dropdown-item" href="../articles/3-LDA.html">3 LDA</a>
+    <a class="dropdown-item" href="../articles/3-LDA-parameter-tuning.html">3 LDA parameter tuning</a>
     <a class="dropdown-item" href="../articles/4-Key-terms-based-on-LDA.html">4 Key terms based on LDA</a>
+    <a class="dropdown-item" href="../articles/4-LDA-model.html">4 LDA model</a>
     <a class="dropdown-item" href="../articles/5-Tidytext-format.html">5 Tidytext format</a>
+    <a class="dropdown-item" href="../articles/5-XGBoost-classification.html">5 XGBoost classification</a>
     <a class="dropdown-item" href="../articles/6-Word-clouds.html">6 Word clouds</a>
     <a class="dropdown-item" href="../articles/avainsanat-kuntaluokittain.html">avainsanat kuntaluokittain</a>
   </div>
@@ -96,7 +98,13 @@
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://forcats.tidyverse.org/" class="external-link">forcats</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/lepennec/ggwordcloud" class="external-link">ggwordcloud</a></span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">aspol_f</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">inner_join</a></span><span class="op">(</span><span class="va">aspol_filtered</span>, <span class="va">taantuvat</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">aspol_f</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">inner_join</a></span><span class="op">(</span><span class="fu"><a href="../reference/preprocess_corpus.html">preprocess_corpus</a></span><span class="op">(</span><span class="va">aspol</span><span class="op">)</span>, <span class="va">taantuvat</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Dropped 222659 rows</span></span>
+<span><span class="co">#&gt; Dropped 2309 rows</span></span>
+<span><span class="co">#&gt; Dropped 19 rows</span></span>
+<span><span class="co">#&gt; Dropped 33047 rows</span></span>
+<span><span class="co">#&gt; Dropped 9180 rows</span></span>
+<span><span class="co">#&gt; Dropped 3076 rows</span></span>
 <span><span class="co">#&gt; Joining with `by = join_by(kunta)`</span></span></code></pre></div>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">count_doc_size</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">df</span>, <span class="va">group</span><span class="op">)</span> <span class="op">{</span></span>
@@ -116,20 +124,20 @@
 <code class="sourceCode R"><span><span class="va">tidy_tf_idf</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="op">-</span><span class="va">group_term_count</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html" class="external-link">arrange</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/desc.html" class="external-link">desc</a></span><span class="op">(</span><span class="va">tf_idf</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 19,690 × 6</span></span></span>
-<span><span class="co">#&gt;    luokka                LEMMA                 dtc       tf   idf   tf_idf</span></span>
-<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>                 <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>               <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> Hieman kasvava        kanta#kaupunki        144 0.008<span style="text-decoration: underline;">25</span>  0.405 0.003<span style="text-decoration: underline;">35</span> </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> Voimakkaasti taantuva luokitus               39 0.001<span style="text-decoration: underline;">19</span>  1.79  0.002<span style="text-decoration: underline;">14</span> </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> Hieman kasvava        maan#vuokra#sopimus    40 0.002<span style="text-decoration: underline;">29</span>  0.693 0.001<span style="text-decoration: underline;">59</span> </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> Taantuva              pl                     37 0.001<span style="text-decoration: underline;">29</span>  1.10  0.001<span style="text-decoration: underline;">42</span> </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> Taantuva              puhelin                36 0.001<span style="text-decoration: underline;">26</span>  1.10  0.001<span style="text-decoration: underline;">38</span> </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> Hieman kasvava        ruutu                  33 0.001<span style="text-decoration: underline;">89</span>  0.693 0.001<span style="text-decoration: underline;">31</span> </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> Hieman kasvava        sopimus#sakko          31 0.001<span style="text-decoration: underline;">78</span>  0.693 0.001<span style="text-decoration: underline;">23</span> </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> Hieman kasvava        heikkous               29 0.001<span style="text-decoration: underline;">66</span>  0.693 0.001<span style="text-decoration: underline;">15</span> </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> Voimakkaasti taantuva kehys#alue             42 0.001<span style="text-decoration: underline;">28</span>  0.693 0.000<span style="text-decoration: underline;">889</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> Hieman kasvava        lähtö                  14 0.000<span style="text-decoration: underline;">802</span> 1.10  0.000<span style="text-decoration: underline;">882</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 19,680 more rows</span></span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 15,293 × 6</span></span></span>
+<span><span class="co">#&gt;    luokka                LEMMA                      dtc       tf   idf   tf_idf</span></span>
+<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>                 <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                    <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> Hieman kasvava        kanta#kaupunki             144 0.008<span style="text-decoration: underline;">98</span>  0.405 0.003<span style="text-decoration: underline;">64</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> Hieman kasvava        ruutu                       33 0.002<span style="text-decoration: underline;">06</span>  0.693 0.001<span style="text-decoration: underline;">43</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> Hieman kasvava        heikkous                    29 0.001<span style="text-decoration: underline;">81</span>  0.693 0.001<span style="text-decoration: underline;">25</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> Voimakkaasti taantuva kehys#alue                  42 0.001<span style="text-decoration: underline;">40</span>  0.693 0.000<span style="text-decoration: underline;">974</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> Voimakkaasti taantuva keskustamainen              22 0.000<span style="text-decoration: underline;">736</span> 1.10  0.000<span style="text-decoration: underline;">808</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> Voimakkaasti taantuva korjaus#toimen#pide         20 0.000<span style="text-decoration: underline;">669</span> 1.10  0.000<span style="text-decoration: underline;">735</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> Kasvava               kuvio                       40 0.000<span style="text-decoration: underline;">930</span> 0.693 0.000<span style="text-decoration: underline;">644</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> Voimakkaasti kasvava  huoneisto#tyyppija#kauma    36 0.000<span style="text-decoration: underline;">917</span> 0.693 0.000<span style="text-decoration: underline;">636</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> Hieman kasvava        eteläinen                   25 0.001<span style="text-decoration: underline;">56</span>  0.405 0.000<span style="text-decoration: underline;">632</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> Voimakkaasti kasvava  rahoitus#muotoja#kauma      22 0.000<span style="text-decoration: underline;">560</span> 1.10  0.000<span style="text-decoration: underline;">616</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 15,283 more rows</span></span></span></code></pre></div>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">tidy_tf_idf</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/slice.html" class="external-link">slice_max</a></span><span class="op">(</span><span class="va">tf_idf</span>, n <span class="op">=</span> <span class="fl">30</span>, by <span class="op">=</span> <span class="va">luokka</span><span class="op">)</span> <span class="op">|&gt;</span></span>
