@@ -1,11 +1,11 @@
 Package: rfintext
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Text mining of finnish housing policy documents
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
+Author: Max Strandén
+Maintainer: Max Strandén <max.stranden@gmail.com>
+Description: This package contains all text mining tasks deployed
+    as part of research on finnish housing policy documents.  
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
@@ -18,20 +18,19 @@ Config/Needs/website: rmarkdown
 Suggests: 
     caret,
     devtools,
-    doParallel,
+    doFuture,
     forcats,
-    foreach,
     ggplot2,
     ggwordcloud,
-    parallel,
     quanteda,
     readr,
     sf,
     stringr,
+    testthat (>= 3.0.0),
     tidytext,
     topicdoc,
     topicmodels,
-    widyr,
     xgboost
 Imports: 
     dplyr
+Config/testthat/edition: 3

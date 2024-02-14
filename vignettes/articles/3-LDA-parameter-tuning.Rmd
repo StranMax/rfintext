@@ -19,9 +19,8 @@ library(topicmodels)
 library(topicdoc)
 library(dplyr)
 library(ggplot2)
-library(doParallel)
-library(parallel)
-library(foreach)
+library(doFuture)
+plan(multisession)
 ```
 
 ```{r}
@@ -35,40 +34,9 @@ topfeatures(dtm)
 ```
 
 ```{r}
-get_coherence <- function(k) {
-  lda <- topicmodels::LDA(quanteda::convert(dtm, to = "tm"), k = k, control = list(seed = 1234))
-  coherence <- mean(topicdoc::topic_coherence(lda, dtm))
-  c(k, coherence)
-}
-```
-
-```{r}
-initialize_cluster <- function(...) {
-  no_cores <- parallel::detectCores(logical = FALSE)
-  cl <- parallel::makeCluster(no_cores-1, type='PSOCK')  # Works on windows
-  doParallel::registerDoParallel(cl)
-  clusterExport(cl,list(...))  # Exported objects to cluster
-  return(cl)
-}
-```
-
-
-```{r}
-cl <- initialize_cluster('get_coherence', 'dtm')
-k_values <- seq(20, 200, by = 10)
-print(Sys.time())
-results <- foreach(i = k_values, .combine = 'rbind', .inorder=FALSE) %dopar% {
-    get_coherence(i)
-}
-parallel::stopCluster(cl)
-print(Sys.time())
-```
-
-```{r}
-plot_coherence <- function(mx) {
-  ggplot(as.data.frame(mx)) +
-    geom_line(aes(x = V1, y = V2)) +
-    labs(x = "k", y = "Avg coherence")
+k_values <- c(seq(2, 20, by = 1), seq(20, 200, by = 10))
+results <- foreach(k = k_values, .combine = 'rbind', .inorder = FALSE) %dofuture% {
+  rfintext::get_coherence(dtm, k)
 }
 ```
 
@@ -77,35 +45,19 @@ plot_coherence <- function(mx) {
 plot_coherence(results)
 ```
 
-
 ```{r}
-cl <- initialize_cluster('get_coherence', 'dtm')
-k_values <- seq(5, 40, by = 5)
-print(Sys.time())
-results2 <- foreach(i = k_values, .combine = 'rbind', .inorder=FALSE) %dopar% {
-    get_coherence(i)
-}
-parallel::stopCluster(cl)
-print(Sys.time())
+plot_coherence(results[1:25,])
 ```
 
 ```{r}
-plot_coherence(results2)
+plot_coherence(results[1:20,])
 ```
 
 ```{r}
-cl <- initialize_cluster('get_coherence', 'dtm')
-k_values <- seq(5, 20, by = 1)
-print(Sys.time())
-results3 <- foreach(i = k_values, .combine = 'rbind', .inorder=FALSE) %dopar% {
-    get_coherence(i)
-}
-parallel::stopCluster(cl)
-print(Sys.time())
+plot_coherence(results[1:10,])
 ```
 
-```{r}
-plot_coherence(results3)
-```
-Therefore optimal value for key would be either 6 or 15. 
+
+Highest is 2, peaks in 6, 9, 16
+
 

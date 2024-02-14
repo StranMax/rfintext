@@ -21,9 +21,6 @@ knitr::opts_chunk$set(
 This package contains data set `aspol` created from Finnish
 housing policy documents.
 
-Additionally package ships with word list from Institute for the languages of
-Finland `sanalista`.
-
 ## Installation
 
 You can install the development version of rfintext like so:
@@ -46,14 +43,9 @@ aspol
 ```
 
 ```{r}
-sanalista |> print(n=50)
-```
-
-```{r}
 aspol |>
   dplyr::filter(UPOSTAG %in% c("NOUN", "VERB", "ADJ", "ADV")) |>
-  dplyr::count(LEMMA, UPOSTAG, sort = TRUE) |>
-  print(n = 50)
+  dplyr::count(LEMMA, UPOSTAG, sort = TRUE)
 ```
 
 ```{r}
@@ -66,7 +58,6 @@ aspol |>
 ```{r}
 aspol |>
   filter(LEMMA == "suuri") |>
-  count(FORM, sort = TRUE) |>
-  print(n = 50)
+  count(FORM, sort = TRUE)
 ```
 

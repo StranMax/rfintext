@@ -28,12 +28,12 @@ library(dplyr)
 1. Select only nouns verbs and adjectives  
 2. Remove words which contain numbers  
 3. Filter out foreign terms  
-4. Drop terms which appear in less than 0.5% of documents  
-5. Drop terms which appear in more than 99% of documents
+4. Drop terms which appear in less than 0.5% of documents (at least 5 docs here) 
+5. Drop terms which appear in more than 99% of documents (at most 65 docs here)
 
 Original terms total `r nrow(aspol)`
 
-```{r}
+```{r, collapse=FALSE}
 aspol |>
   filter_upostag(c("NOUN", "VERB", "ADJ")) |>
   remove_numbers() |>
@@ -41,5 +41,9 @@ aspol |>
   remove_uncommon_terms() |>
   remove_common_terms() |>
   remove_short_term()
+```
+
+```{r}
+aspol |> preprocess_corpus()
 ```
 

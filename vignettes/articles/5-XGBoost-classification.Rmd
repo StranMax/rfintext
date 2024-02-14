@@ -17,6 +17,8 @@ library(xgboost)
 library(caret)
 library(topicmodels)
 library(quanteda)
+library(doFuture)
+plan(multisession)
 ```
 
 
@@ -24,6 +26,10 @@ library(quanteda)
 aspol_y <- aspol |>
   preprocess_corpus() |>
   left_join(taantuvat)
+```
+
+```{r}
+dtm <- aspol_y |> corpus_to_dtm(kunta, LEMMA)
 ```
 
 
@@ -46,24 +52,19 @@ aspol_data <- split_data_test(aspol_y, luokka)
 ```
 
 ```{r}
-fit_lda <- function(dtm, k) {
-  lda <- topicmodels::LDA(quanteda::convert(dtm, to = "tm"), k = k, control = list(seed = 1234))
-  lda
+dtm
+```
+
+
+```{r}
+k_values <- c(2, 6, 9, 16)
+lda_dtm <- foreach(k = k_values) %dofuture% {
+  rfintext::get_doc_topic_prob(dtm, k = k) |>
+    tidytext::cast_dfm(document, topic, gamma)
 }
+names(lda_dtm) <- paste0("k_", k_values)
 ```
 
-```{r}
-lda6 <- aspol_data$Train |>
-  corpus_to_dtm(doc = kunta, term = LEMMA) |>
-  fit_lda(6)
-```
-
-```{r}
-aspol_data$Train |>
-  corpus_to_dtm(kunta, LEMMA) |>
-  dfm_select(terms(lda6, 25)) |>
-  as.matrix()
-```
 
 ```{r}
 # dtrain <- aspol_data$Train |>
@@ -80,9 +81,5 @@ aspol_data$Train |>
 # bstSparse <- xgboost(data = train$data, label = train$label, max.depth = 2, eta = 1, nthread = 2, nrounds = 2, objective = "binary:logistic")
 ```
 
-
-```{r}
-terms(lda6, 25)
-```
 
 

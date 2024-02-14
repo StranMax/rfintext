@@ -7,7 +7,14 @@
 remove_common_terms(df, doc = .data$kunta, ratio = 0.99)
 }
 \arguments{
-\item{ratio}{}
+\item{df}{data frame}
+
+\item{doc}{document}
+
+\item{ratio}{ratio for common terms, default 0.99}
+}
+\value{
+data frame
 }
 \description{
 Title

@@ -7,7 +7,10 @@
 remove_foreign(df)
 }
 \arguments{
-\item{df}{}
+\item{df}{data frame}
+}
+\value{
+data frame
 }
 \description{
 Title

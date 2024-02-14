@@ -21,18 +21,20 @@ log_dropped <- function(df_old, df_new, print.message = TRUE) {
 
 #' Title
 #'
-#' @param df
-#' @param doc
-#' @param ratio
+#' @param df data frame
+#' @param doc document
+#' @param ratio ratio for common terms, default 0.99
 #'
-#' @return
+#' @return data frame
 #' @export
 #'
 #' @examples
 remove_common_terms <- function(df, doc = .data$kunta, ratio = 0.99) {
   total_doc <- calculate_doc(df)
 
-  df_new <-  df |> calculate_doc_freq() |> dplyr::filter((.data$dc_n / total_doc) < ratio)
+  limit <- min(c(nrow(dplyr::distinct(df, {{doc}})) - 5, total_doc * ratio))
+
+  df_new <-  df |> calculate_doc_freq() |> dplyr::filter(.data$dc_n <= limit)
   log_dropped(df, df_new)
 
   df_new
@@ -40,11 +42,11 @@ remove_common_terms <- function(df, doc = .data$kunta, ratio = 0.99) {
 
 #' Title
 #'
-#' @param df
-#' @param doc
-#' @param ratio
+#' @param df data frame
+#' @param doc document
+#' @param ratio ratio for rare terms, default 0.05
 #'
-#' @return
+#' @return data frame
 #' @export
 #'
 #' @examples
@@ -61,15 +63,15 @@ remove_uncommon_terms <- function(df, doc = .data$kunta, ratio = 0.05) {
 
 #' Title
 #'
-#' @param df
-#' @param len
+#' @param df data frame
+#' @param len minimum length for terms/words
 #'
-#' @return
+#' @return data frame
 #' @export
 #'
 #' @examples
-remove_short_term <- function(df, len = 2) {
-  df_new <- df |> dplyr::filter(nchar(.data$FORM) > len, nchar(.data$LEMMA) > len)
+remove_short_term <- function(df, len = 3) {
+  df_new <- df |> dplyr::filter(nchar(.data$FORM) > len, nchar(.data$LEMMA) >= len)
   log_dropped(df, df_new)
 
   df_new
@@ -77,9 +79,9 @@ remove_short_term <- function(df, len = 2) {
 
 #' Title
 #'
-#' @param df
+#' @param df data frame
 #'
-#' @return
+#' @return data frame
 #' @export
 #'
 #' @examples
@@ -92,9 +94,9 @@ remove_numbers <- function(df) {
 
 #' Title
 #'
-#' @param df
+#' @param df data frame
 #'
-#' @return
+#' @return data frame
 #' @export
 #'
 #' @examples
@@ -107,10 +109,10 @@ remove_foreign <- function(df) {
 
 #' Title
 #'
-#' @param df
-#' @param upostag
+#' @param df data frame
+#' @param upostag character vector of upostag classes
 #'
-#' @return
+#' @return data frame
 #' @export
 #'
 #' @examples

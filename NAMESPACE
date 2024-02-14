@@ -2,6 +2,9 @@
 
 export(corpus_to_dtm)
 export(filter_upostag)
+export(get_coherence)
+export(get_doc_topic_prob)
+export(plot_coherence)
 export(preprocess_corpus)
 export(remove_common_terms)
 export(remove_foreign)

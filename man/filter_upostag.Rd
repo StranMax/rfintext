@@ -7,7 +7,12 @@
 filter_upostag(df, upostag)
 }
 \arguments{
-\item{upostag}{}
+\item{df}{data frame}
+
+\item{upostag}{character vector of upostag classes}
+}
+\value{
+data frame
 }
 \description{
 Title

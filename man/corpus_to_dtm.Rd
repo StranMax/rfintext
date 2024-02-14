@@ -7,7 +7,14 @@
 corpus_to_dtm(df, doc, term)
 }
 \arguments{
-\item{term}{}
+\item{df}{data frame}
+
+\item{doc}{document column}
+
+\item{term}{term column}
+}
+\value{
+quanteda dfm object
 }
 \description{
 Title

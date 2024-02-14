@@ -9,11 +9,11 @@ dtc_to_dtm <- function(df, doc, term) {
 
 #' Title
 #'
-#' @param df
-#' @param doc
-#' @param term
+#' @param df data frame
+#' @param doc document column
+#' @param term term column
 #'
-#' @return
+#' @return quanteda dfm object
 #' @export
 #'
 #' @examples

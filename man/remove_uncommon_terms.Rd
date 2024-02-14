@@ -7,7 +7,14 @@
 remove_uncommon_terms(df, doc = .data$kunta, ratio = 0.05)
 }
 \arguments{
-\item{ratio}{}
+\item{df}{data frame}
+
+\item{doc}{document}
+
+\item{ratio}{ratio for rare terms, default 0.05}
+}
+\value{
+data frame
 }
 \description{
 Title

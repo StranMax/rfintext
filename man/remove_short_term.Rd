@@ -4,10 +4,15 @@
 \alias{remove_short_term}
 \title{Title}
 \usage{
-remove_short_term(df, len = 2)
+remove_short_term(df, len = 3)
 }
 \arguments{
-\item{len}{}
+\item{df}{data frame}
+
+\item{len}{minimum length for terms/words}
+}
+\value{
+data frame
 }
 \description{
 Title
