@@ -5,16 +5,16 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<meta name="description" content="More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.">
-<title>What the Package Does (Title Case) • rfintext</title>
+<meta name="description" content="This package contains all text mining tasks deployed
+    as part of research on finnish housing policy documents.  ">
+<title>Text mining of finnish housing policy documents • rfintext</title>
 <script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
-<!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="What the Package Does (Title Case)">
-<meta property="og:description" content="More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.">
+<!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Text mining of finnish housing policy documents">
+<meta property="og:description" content="This package contains all text mining tasks deployed
+    as part of research on finnish housing policy documents.  ">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
@@ -48,12 +48,8 @@
     <a class="dropdown-item" href="articles/1-Data-preprocessing.html">1 Data preprocessing</a>
     <a class="dropdown-item" href="articles/2-Document-term-matrix.html">2 Document term matrix</a>
     <a class="dropdown-item" href="articles/3-LDA-parameter-tuning.html">3 LDA parameter tuning</a>
-    <a class="dropdown-item" href="articles/4-Key-terms-based-on-LDA.html">4 Key terms based on LDA</a>
     <a class="dropdown-item" href="articles/4-LDA-model.html">4 LDA model</a>
-    <a class="dropdown-item" href="articles/5-Tidytext-format.html">5 Tidytext format</a>
     <a class="dropdown-item" href="articles/5-XGBoost-classification.html">5 XGBoost classification</a>
-    <a class="dropdown-item" href="articles/6-Word-clouds.html">6 Word clouds</a>
-    <a class="dropdown-item" href="articles/avainsanat-kuntaluokittain.html">avainsanat kuntaluokittain</a>
   </div>
 </li>
       </ul>
@@ -81,7 +77,6 @@
 <!-- badges: start -->
 <!-- badges: end -->
 <p>This package contains data set <code>aspol</code> created from Finnish housing policy documents.</p>
-<p>Additionally package ships with word list from Institute for the languages of Finland <code>sanalista</code>.</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
@@ -92,13 +87,13 @@
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/StranMax/rfintext" class="external-link">rfintext</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org" class="external-link">tidyverse</a></span><span class="op">)</span></span></code></pre></div>
-<p>Number of documents currently 66</p>
+<p>Number of documents currently 68</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">aspol</span></span>
-<span><span class="co">#&gt; # A tibble: 468,205 × 13</span></span>
+<span><span class="co">#&gt; # A tibble: 451,660 × 13</span></span>
 <span><span class="co">#&gt;    kunta   sent ID    FORM  LEMMA UPOSTAG XPOSTAG FEATS HEAD  DEPREL DEPS  MISC </span></span>
 <span><span class="co">#&gt;    &lt;chr&gt;  &lt;int&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;  &lt;chr&gt; &lt;chr&gt;</span></span>
-<span><span class="co">#&gt;  1 Enont…     1 1     Khall Khall PROPN   _       Case… 0     root   _     "_"  </span></span>
+<span><span class="co">#&gt;  1 Enont…     1 1     ﻿Khall ﻿Khall PROPN   _       Case… 0     root   _     "_"  </span></span>
 <span><span class="co">#&gt;  2 Enont…     1 2     19.4… 19.4… NUM     _       _     1     nmod   _     "_"  </span></span>
 <span><span class="co">#&gt;  3 Enont…     1 3     $     $     PUNCT   _       _     4     punct  _     "_"  </span></span>
 <span><span class="co">#&gt;  4 Enont…     1 4     126   126   NUM     _       NumT… 1     nummod _     "Spa…</span></span>
@@ -108,201 +103,63 @@
 <span><span class="co">#&gt;  8 Enont…     4 1     KUNTA kunta NOUN    _       Case… 0     root   _     "Spa…</span></span>
 <span><span class="co">#&gt;  9 Enont…     5 1     VUOK… vuok… NOUN    _       Case… 2     nmod:… _     "Spa…</span></span>
 <span><span class="co">#&gt; 10 Enont…     5 2     KEHI… kehi… NOUN    _       Case… 0     root   _     "Spa…</span></span>
-<span><span class="co">#&gt; # ℹ 468,195 more rows</span></span>
+<span><span class="co">#&gt; # ℹ 451,650 more rows</span></span>
 <span><span class="co">#&gt; # ℹ 1 more variable: doc &lt;chr&gt;</span></span></code></pre></div>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">sanalista</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span>n<span class="op">=</span><span class="fl">50</span><span class="op">)</span></span>
-<span><span class="co">#&gt; # A tibble: 104,336 × 4</span></span>
-<span><span class="co">#&gt;    Hakusana         Homonymia Sanaluokka Taivutustiedot</span></span>
-<span><span class="co">#&gt;    &lt;chr&gt;                &lt;dbl&gt; &lt;chr&gt;      &lt;chr&gt;         </span></span>
-<span><span class="co">#&gt;  1 3D-tulostin             NA S          &lt;NA&gt;          </span></span>
-<span><span class="co">#&gt;  2 3D-tulostus             NA S          &lt;NA&gt;          </span></span>
-<span><span class="co">#&gt;  3 4H-kerho                NA S          &lt;NA&gt;          </span></span>
-<span><span class="co">#&gt;  4 4H-kerholainen          NA S          &lt;NA&gt;          </span></span>
-<span><span class="co">#&gt;  5 4H-neuvoja              NA S          &lt;NA&gt;          </span></span>
-<span><span class="co">#&gt;  6 4H-toiminta             NA S          &lt;NA&gt;          </span></span>
-<span><span class="co">#&gt;  7 aah                     NA P          99            </span></span>
-<span><span class="co">#&gt;  8 aakkonen                NA S          38            </span></span>
-<span><span class="co">#&gt;  9 aakkosellinen           NA A          38            </span></span>
-<span><span class="co">#&gt; 10 aakkosellisesti         NA P          99            </span></span>
-<span><span class="co">#&gt; 11 aakkosellisuus          NA S          40            </span></span>
-<span><span class="co">#&gt; 12 aakkosittain            NA P          99            </span></span>
-<span><span class="co">#&gt; 13 aakkosjärjestys         NA S          &lt;NA&gt;          </span></span>
-<span><span class="co">#&gt; 14 aakkosnimi              NA S          &lt;NA&gt;          </span></span>
-<span><span class="co">#&gt; 15 aakkosnumeerinen        NA A          &lt;NA&gt;          </span></span>
-<span><span class="co">#&gt; 16 aakkostaa               NA V          53            </span></span>
-<span><span class="co">#&gt; 17 aakkosto                NA S          2             </span></span>
-<span><span class="co">#&gt; 18 aakkostus               NA S          39            </span></span>
-<span><span class="co">#&gt; 19 aalloittain             NA P          99            </span></span>
-<span><span class="co">#&gt; 20 aalloittainen           NA A          38            </span></span>
-<span><span class="co">#&gt; 21 aalloittaisuus          NA S          40            </span></span>
-<span><span class="co">#&gt; 22 aallokas                NA A          41*A          </span></span>
-<span><span class="co">#&gt; 23 aallokko                NA S          4*A           </span></span>
-<span><span class="co">#&gt; 24 aallonharja             NA S          &lt;NA&gt;          </span></span>
-<span><span class="co">#&gt; 25 aallonmurtaja           NA S          &lt;NA&gt;          </span></span>
-<span><span class="co">#&gt; 26 aallonpituus            NA S          &lt;NA&gt;          </span></span>
-<span><span class="co">#&gt; 27 aallonpohja             NA S          &lt;NA&gt;          </span></span>
-<span><span class="co">#&gt; 28 aallota                 NA V          75*I          </span></span>
-<span><span class="co">#&gt; 29 aallotar                NA S          32*C          </span></span>
-<span><span class="co">#&gt; 30 aallottaa               NA V          53*C          </span></span>
-<span><span class="co">#&gt; 31 aallotus                NA S          39            </span></span>
-<span><span class="co">#&gt; 32 aaloe                   NA S          3             </span></span>
-<span><span class="co">#&gt; 33 aalto                   NA S          1*I           </span></span>
-<span><span class="co">#&gt; 34 aaltoallas              NA S          &lt;NA&gt;          </span></span>
-<span><span class="co">#&gt; 35 aaltoalue               NA S          &lt;NA&gt;          </span></span>
-<span><span class="co">#&gt; 36 aaltoenergia            NA S          &lt;NA&gt;          </span></span>
-<span><span class="co">#&gt; 37 aaltoilla               NA V          67            </span></span>
-<span><span class="co">#&gt; 38 aaltoilu                NA S          2             </span></span>
-<span><span class="co">#&gt; 39 aaltoiluhäiriö          NA S          &lt;NA&gt;          </span></span>
-<span><span class="co">#&gt; 40 -aaltoinen              NA A          38            </span></span>
-<span><span class="co">#&gt; 41 aaltolevy               NA S          &lt;NA&gt;          </span></span>
-<span><span class="co">#&gt; 42 aaltoliike              NA S          &lt;NA&gt;          </span></span>
-<span><span class="co">#&gt; 43 aaltomainen             NA A          38            </span></span>
-<span><span class="co">#&gt; 44 aaltomaisesti           NA P          99            </span></span>
-<span><span class="co">#&gt; 45 aaltopahvi              NA S          &lt;NA&gt;          </span></span>
-<span><span class="co">#&gt; 46 aaltopelti              NA S          &lt;NA&gt;          </span></span>
-<span><span class="co">#&gt; 47 aaltopituus             NA S          &lt;NA&gt;          </span></span>
-<span><span class="co">#&gt; 48 aaltosulje              NA S          &lt;NA&gt;          </span></span>
-<span><span class="co">#&gt; 49 aaltosulku              NA S          &lt;NA&gt;          </span></span>
-<span><span class="co">#&gt; 50 aaltosulkumerkki        NA S          &lt;NA&gt;          </span></span>
-<span><span class="co">#&gt; # ℹ 104,286 more rows</span></span></code></pre></div>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">aspol</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">UPOSTAG</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"NOUN"</span>, <span class="st">"VERB"</span>, <span class="st">"ADJ"</span>, <span class="st">"ADV"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/count.html" class="external-link">count</a></span><span class="op">(</span><span class="va">LEMMA</span>, <span class="va">UPOSTAG</span>, sort <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">50</span><span class="op">)</span></span>
-<span><span class="co">#&gt; # A tibble: 20,691 × 3</span></span>
-<span><span class="co">#&gt;    LEMMA              UPOSTAG     n</span></span>
-<span><span class="co">#&gt;    &lt;chr&gt;              &lt;chr&gt;   &lt;int&gt;</span></span>
-<span><span class="co">#&gt;  1 kaupunki           NOUN     4112</span></span>
-<span><span class="co">#&gt;  2 asunto             NOUN     3873</span></span>
-<span><span class="co">#&gt;  3 vuosi              NOUN     3718</span></span>
-<span><span class="co">#&gt;  4 asuminen           NOUN     3161</span></span>
-<span><span class="co">#&gt;  5 alue               NOUN     2991</span></span>
-<span><span class="co">#&gt;  6 kunta              NOUN     2759</span></span>
-<span><span class="co">#&gt;  7 myös               ADV      2053</span></span>
-<span><span class="co">#&gt;  8 tavoite            NOUN     1969</span></span>
-<span><span class="co">#&gt;  9 uusi               ADJ      1588</span></span>
-<span><span class="co">#&gt; 10 olla               VERB     1536</span></span>
-<span><span class="co">#&gt; 11 osa                NOUN     1503</span></span>
-<span><span class="co">#&gt; 12 tulla              VERB     1422</span></span>
-<span><span class="co">#&gt; 13 palvelu            NOUN     1288</span></span>
-<span><span class="co">#&gt; 14 ohjelma            NOUN     1268</span></span>
-<span><span class="co">#&gt; 15 asukas             NOUN     1267</span></span>
-<span><span class="co">#&gt; 16 tontti             NOUN     1238</span></span>
-<span><span class="co">#&gt; 17 rakentaminen       NOUN     1140</span></span>
-<span><span class="co">#&gt; 18 määrä              NOUN     1111</span></span>
-<span><span class="co">#&gt; 19 noin               ADV      1111</span></span>
-<span><span class="co">#&gt; 20 asunto#tuotanto    NOUN      961</span></span>
-<span><span class="co">#&gt; 21 tarve              NOUN      954</span></span>
-<span><span class="co">#&gt; 22 suuri              ADJ       918</span></span>
-<span><span class="co">#&gt; 23 asua               VERB      879</span></span>
-<span><span class="co">#&gt; 24 asunto#poliittinen ADJ       851</span></span>
-<span><span class="co">#&gt; 25 henkilö            NOUN      833</span></span>
-<span><span class="co">#&gt; 26 vuokra#asunto      NOUN      831</span></span>
-<span><span class="co">#&gt; 27 tukea              VERB      801</span></span>
-<span><span class="co">#&gt; 28 hyvä               ADJ       767</span></span>
-<span><span class="co">#&gt; 29 kehittäminen       NOUN      756</span></span>
-<span><span class="co">#&gt; 30 väestö             NOUN      746</span></span>
-<span><span class="co">#&gt; 31 seutu              NOUN      737</span></span>
-<span><span class="co">#&gt; 32 oma                ADJ       722</span></span>
-<span><span class="co">#&gt; 33 keskusta           NOUN      710</span></span>
-<span><span class="co">#&gt; 34 kasvaa             VERB      692</span></span>
-<span><span class="co">#&gt; 35 rakentaa           VERB      683</span></span>
-<span><span class="co">#&gt; 36 kasvu              NOUN      677</span></span>
-<span><span class="co">#&gt; 37 aika               NOUN      674</span></span>
-<span><span class="co">#&gt; 38 maa                NOUN      673</span></span>
-<span><span class="co">#&gt; 39 edistää            VERB      667</span></span>
-<span><span class="co">#&gt; 40 eri                ADJ       666</span></span>
-<span><span class="co">#&gt; 41 tehdä              VERB      664</span></span>
-<span><span class="co">#&gt; 42 toimen#pide        NOUN      662</span></span>
-<span><span class="co">#&gt; 43 saada              VERB      660</span></span>
-<span><span class="co">#&gt; 44 asunto#kunta       NOUN      649</span></span>
-<span><span class="co">#&gt; 45 asuin#alue         NOUN      641</span></span>
-<span><span class="co">#&gt; 46 oy                 NOUN      634</span></span>
-<span><span class="co">#&gt; 47 vastata            VERB      628</span></span>
-<span><span class="co">#&gt; 48 osuus              NOUN      620</span></span>
-<span><span class="co">#&gt; 49 maan#käyttö        NOUN      607</span></span>
-<span><span class="co">#&gt; 50 tarvita            VERB      596</span></span>
-<span><span class="co">#&gt; # ℹ 20,641 more rows</span></span></code></pre></div>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/count.html" class="external-link">count</a></span><span class="op">(</span><span class="va">LEMMA</span>, <span class="va">UPOSTAG</span>, sort <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="co">#&gt; # A tibble: 20,180 × 3</span></span>
+<span><span class="co">#&gt;    LEMMA    UPOSTAG     n</span></span>
+<span><span class="co">#&gt;    &lt;chr&gt;    &lt;chr&gt;   &lt;int&gt;</span></span>
+<span><span class="co">#&gt;  1 kaupunki NOUN     4081</span></span>
+<span><span class="co">#&gt;  2 asunto   NOUN     3954</span></span>
+<span><span class="co">#&gt;  3 vuosi    NOUN     3683</span></span>
+<span><span class="co">#&gt;  4 asuminen NOUN     3080</span></span>
+<span><span class="co">#&gt;  5 alue     NOUN     2888</span></span>
+<span><span class="co">#&gt;  6 kunta    NOUN     2601</span></span>
+<span><span class="co">#&gt;  7 myös     ADV      1945</span></span>
+<span><span class="co">#&gt;  8 tavoite  NOUN     1911</span></span>
+<span><span class="co">#&gt;  9 uusi     ADJ      1504</span></span>
+<span><span class="co">#&gt; 10 olla     VERB     1491</span></span>
+<span><span class="co">#&gt; # ℹ 20,170 more rows</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">aspol</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">group_by</span><span class="op">(</span><span class="va">LEMMA</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">summarise</span><span class="op">(</span>taivutusmuodot <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">FORM</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">arrange</span><span class="op">(</span><span class="fu">desc</span><span class="op">(</span><span class="va">taivutusmuodot</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; # A tibble: 35,454 × 2</span></span>
+<span><span class="co">#&gt; # A tibble: 34,935 × 2</span></span>
 <span><span class="co">#&gt;    LEMMA    taivutusmuodot</span></span>
 <span><span class="co">#&gt;    &lt;chr&gt;             &lt;int&gt;</span></span>
-<span><span class="co">#&gt;  1 suuri                83</span></span>
-<span><span class="co">#&gt;  2 olla                 82</span></span>
+<span><span class="co">#&gt;  1 olla                 85</span></span>
+<span><span class="co">#&gt;  2 suuri                78</span></span>
 <span><span class="co">#&gt;  3 asunto               74</span></span>
 <span><span class="co">#&gt;  4 tehdä                72</span></span>
-<span><span class="co">#&gt;  5 hyvä                 71</span></span>
-<span><span class="co">#&gt;  6 saada                70</span></span>
-<span><span class="co">#&gt;  7 tavoite              69</span></span>
-<span><span class="co">#&gt;  8 rakentaa             67</span></span>
-<span><span class="co">#&gt;  9 tämä                 63</span></span>
-<span><span class="co">#&gt; 10 tukea                62</span></span>
-<span><span class="co">#&gt; # ℹ 35,444 more rows</span></span></code></pre></div>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<span><span class="co">#&gt;  5 saada                70</span></span>
+<span><span class="co">#&gt;  6 hyvä                 68</span></span>
+<span><span class="co">#&gt;  7 rakentaa             65</span></span>
+<span><span class="co">#&gt;  8 tämä                 64</span></span>
+<span><span class="co">#&gt;  9 se                   63</span></span>
+<span><span class="co">#&gt; 10 tavoite              61</span></span>
+<span><span class="co">#&gt; # ℹ 34,925 more rows</span></span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">aspol</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">LEMMA</span> <span class="op">==</span> <span class="st">"suuri"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">count</span><span class="op">(</span><span class="va">FORM</span>, sort <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">50</span><span class="op">)</span></span>
-<span><span class="co">#&gt; # A tibble: 83 × 2</span></span>
-<span><span class="co">#&gt;    FORM              n</span></span>
-<span><span class="co">#&gt;    &lt;chr&gt;         &lt;int&gt;</span></span>
-<span><span class="co">#&gt;  1 "suuri"         136</span></span>
-<span><span class="co">#&gt;  2 "suurin"        129</span></span>
-<span><span class="co">#&gt;  3 "suurempi"       78</span></span>
-<span><span class="co">#&gt;  4 "Suurin"         55</span></span>
-<span><span class="co">#&gt;  5 "suuria"         53</span></span>
-<span><span class="co">#&gt;  6 "suurempia"      32</span></span>
-<span><span class="co">#&gt;  7 "suurten"        32</span></span>
-<span><span class="co">#&gt;  8 "suurta"         31</span></span>
-<span><span class="co">#&gt;  9 "suuret"         30</span></span>
-<span><span class="co">#&gt; 10 "suurempien"     20</span></span>
-<span><span class="co">#&gt; 11 "suuren"         20</span></span>
-<span><span class="co">#&gt; 12 "suurelta"       16</span></span>
-<span><span class="co">#&gt; 13 "suurempaa"      16</span></span>
-<span><span class="co">#&gt; 14 "suurimmat"      16</span></span>
-<span><span class="co">#&gt; 15 "suurimman"      15</span></span>
-<span><span class="co">#&gt; 16 "Suuri"          13</span></span>
-<span><span class="co">#&gt; 17 "Suurimmat"      13</span></span>
-<span><span class="co">#&gt; 18 "suuremman"       9</span></span>
-<span><span class="co">#&gt; 19 "suuremmat"       9</span></span>
-<span><span class="co">#&gt; 20 "suuriin"         9</span></span>
-<span><span class="co">#&gt; 21 "suureksi"        8</span></span>
-<span><span class="co">#&gt; 22 "suurinta"        8</span></span>
-<span><span class="co">#&gt; 23 "suurissa"        8</span></span>
-<span><span class="co">#&gt; 24 "suurempaan"      7</span></span>
-<span><span class="co">#&gt; 25 "suurimpana"      7</span></span>
-<span><span class="co">#&gt; 26 "Suurimmassa"     6</span></span>
-<span><span class="co">#&gt; 27 "suurimmaksi"     6</span></span>
-<span><span class="co">#&gt; 28 "suurimmista"     6</span></span>
-<span><span class="co">#&gt; 29 "suurista"        6</span></span>
-<span><span class="co">#&gt; 30 "suurimmassa"     5</span></span>
-<span><span class="co">#&gt; 31 "suurimpien"      5</span></span>
-<span><span class="co">#&gt; 32 "suurimpiin"      5</span></span>
-<span><span class="co">#&gt; 33 "\fSuurin"        4</span></span>
-<span><span class="co">#&gt; 34 "Suuren"          4</span></span>
-<span><span class="co">#&gt; 35 "Suuria"          4</span></span>
-<span><span class="co">#&gt; 36 "Suurten"         4</span></span>
-<span><span class="co">#&gt; 37 "suurella"        4</span></span>
-<span><span class="co">#&gt; 38 "suuremmaksi"     4</span></span>
-<span><span class="co">#&gt; 39 "suuremmissa"     4</span></span>
-<span><span class="co">#&gt; 40 "Suuremmissa"     3</span></span>
-<span><span class="co">#&gt; 41 "Suurempi"        3</span></span>
-<span><span class="co">#&gt; 42 "Suurempien"      3</span></span>
-<span><span class="co">#&gt; 43 "suureen"         3</span></span>
-<span><span class="co">#&gt; 44 "suuremmasta"     3</span></span>
-<span><span class="co">#&gt; 45 "suuressa"        3</span></span>
-<span><span class="co">#&gt; 46 "suuresta"        3</span></span>
-<span><span class="co">#&gt; 47 "suurien"         3</span></span>
-<span><span class="co">#&gt; 48 "suurilla"        3</span></span>
-<span><span class="co">#&gt; 49 "suurille"        3</span></span>
-<span><span class="co">#&gt; 50 "suurilta"        3</span></span>
-<span><span class="co">#&gt; # ℹ 33 more rows</span></span></code></pre></div>
+<span>  <span class="fu">count</span><span class="op">(</span><span class="va">FORM</span>, sort <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="co">#&gt; # A tibble: 78 × 2</span></span>
+<span><span class="co">#&gt;    FORM           n</span></span>
+<span><span class="co">#&gt;    &lt;chr&gt;      &lt;int&gt;</span></span>
+<span><span class="co">#&gt;  1 suuri        132</span></span>
+<span><span class="co">#&gt;  2 suurin       128</span></span>
+<span><span class="co">#&gt;  3 suurempi      79</span></span>
+<span><span class="co">#&gt;  4 Suurin        55</span></span>
+<span><span class="co">#&gt;  5 suuria        49</span></span>
+<span><span class="co">#&gt;  6 suurempia     31</span></span>
+<span><span class="co">#&gt;  7 suurten       30</span></span>
+<span><span class="co">#&gt;  8 suurta        29</span></span>
+<span><span class="co">#&gt;  9 suuret        26</span></span>
+<span><span class="co">#&gt; 10 suurempien    20</span></span>
+<span><span class="co">#&gt; # ℹ 68 more rows</span></span></code></pre></div>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">
@@ -332,7 +189,7 @@
 <div class="developers">
 <h2 data-toc-skip>Developers</h2>
 <ul class="list-unstyled">
-<li>The package maintainer <br><small class="roles"> Maintainer </small>  </li>
+<li>Max Strandén <br><small class="roles"> Maintainer </small>  </li>
 </ul>
 </div>
 
@@ -344,7 +201,7 @@
 
     <footer><div class="pkgdown-footer-left">
   <p></p>
-<p>Developed by The package maintainer.</p>
+<p>Developed by Max Strandén.</p>
 </div>
 
 <div class="pkgdown-footer-right">

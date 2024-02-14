@@ -25,22 +25,10 @@
     <loc>https://stranmax.github.io/rfintext/articles/3-LDA-parameter-tuning.html</loc>
   </url>
   <url>
-    <loc>https://stranmax.github.io/rfintext/articles/4-Key-terms-based-on-LDA.html</loc>
-  </url>
-  <url>
     <loc>https://stranmax.github.io/rfintext/articles/4-LDA-model.html</loc>
   </url>
   <url>
-    <loc>https://stranmax.github.io/rfintext/articles/5-Tidytext-format.html</loc>
-  </url>
-  <url>
     <loc>https://stranmax.github.io/rfintext/articles/5-XGBoost-classification.html</loc>
-  </url>
-  <url>
-    <loc>https://stranmax.github.io/rfintext/articles/6-Word-clouds.html</loc>
-  </url>
-  <url>
-    <loc>https://stranmax.github.io/rfintext/articles/avainsanat-kuntaluokittain.html</loc>
   </url>
   <url>
     <loc>https://stranmax.github.io/rfintext/articles/index.html</loc>
@@ -58,16 +46,22 @@
     <loc>https://stranmax.github.io/rfintext/reference/corpus_to_dtm.html</loc>
   </url>
   <url>
-    <loc>https://stranmax.github.io/rfintext/reference/dtm.html</loc>
+    <loc>https://stranmax.github.io/rfintext/reference/filter_upostag.html</loc>
   </url>
   <url>
-    <loc>https://stranmax.github.io/rfintext/reference/filter_upostag.html</loc>
+    <loc>https://stranmax.github.io/rfintext/reference/get_coherence.html</loc>
+  </url>
+  <url>
+    <loc>https://stranmax.github.io/rfintext/reference/get_doc_topic_prob.html</loc>
   </url>
   <url>
     <loc>https://stranmax.github.io/rfintext/reference/index.html</loc>
   </url>
   <url>
     <loc>https://stranmax.github.io/rfintext/reference/kuntalista.html</loc>
+  </url>
+  <url>
+    <loc>https://stranmax.github.io/rfintext/reference/plot_coherence.html</loc>
   </url>
   <url>
     <loc>https://stranmax.github.io/rfintext/reference/preprocess_corpus.html</loc>
@@ -86,9 +80,6 @@
   </url>
   <url>
     <loc>https://stranmax.github.io/rfintext/reference/remove_uncommon_terms.html</loc>
-  </url>
-  <url>
-    <loc>https://stranmax.github.io/rfintext/reference/sanalista.html</loc>
   </url>
   <url>
     <loc>https://stranmax.github.io/rfintext/reference/strategia.html</loc>
