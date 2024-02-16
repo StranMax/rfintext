@@ -87,6 +87,7 @@
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/StranMax/rfintext" class="external-link">rfintext</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/StranMax/rfinstats" class="external-link">rfinstats</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/juliasilge/tidytext" class="external-link">tidytext</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/dmlc/xgboost" class="external-link">xgboost</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/topepo/caret/" class="external-link">caret</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">topicmodels</span><span class="op">)</span></span>
@@ -94,56 +95,50 @@
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://doFuture.futureverse.org" class="external-link">doFuture</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://future.futureverse.org/reference/plan.html" class="external-link">plan</a></span><span class="op">(</span><span class="va">multisession</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">aspol_y</span> <span class="op">&lt;-</span> <span class="va">aspol</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/preprocess_corpus.html">preprocess_corpus</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">left_join</a></span><span class="op">(</span><span class="va">taantuvat</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">y</span> <span class="op">&lt;-</span> <span class="va">aspol</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/distinct.html" class="external-link">distinct</a></span><span class="op">(</span><span class="va">kunta</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">left_join</a></span><span class="op">(</span><span class="va">taantuvat</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">luokka</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>luokka <span class="op">=</span> <span class="fu">forcats</span><span class="fu">::</span><span class="fu"><a href="https://forcats.tidyverse.org/reference/fct_collapse.html" class="external-link">fct_collapse</a></span><span class="op">(</span><span class="va">luokka</span>,</span>
+<span>                                        Kasvava <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Voimakkaasti kasvava"</span>,</span>
+<span>                                                    <span class="st">"Kasvava"</span><span class="op">)</span>, </span>
+<span>                                        Vakaa <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Hieman kasvava"</span>,</span>
+<span>                                                  <span class="st">"Hieman taantuva"</span><span class="op">)</span>,</span>
+<span>                                        Taantuva <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Taantuva"</span>,</span>
+<span>                                                     <span class="st">"Voimakkaasti taantuva"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Joining with `by = join_by(kunta)`</span></span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">X</span> <span class="op">&lt;-</span> <span class="va">aspol</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu"><a href="../reference/preprocess_corpus.html">preprocess_corpus</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu"><a href="../reference/corpus_to_dtm.html">corpus_to_dtm</a></span><span class="op">(</span><span class="va">kunta</span>, <span class="va">LEMMA</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://quanteda.io/reference/dfm_subset.html" class="external-link">dfm_subset</a></span><span class="op">(</span><span class="va">docname_</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">y</span><span class="op">$</span><span class="va">kunta</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Dropped 216172 rows</span></span>
 <span><span class="co">#&gt; Dropped 2263 rows</span></span>
 <span><span class="co">#&gt; Dropped 18 rows</span></span>
 <span><span class="co">#&gt; Dropped 31789 rows</span></span>
 <span><span class="co">#&gt; Dropped 21951 rows</span></span>
-<span><span class="co">#&gt; Dropped 4834 rows</span></span>
-<span><span class="co">#&gt; Joining with `by = join_by(kunta)`</span></span></code></pre></div>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">dtm</span> <span class="op">&lt;-</span> <span class="va">aspol_y</span> <span class="op">|&gt;</span> <span class="fu"><a href="../reference/corpus_to_dtm.html">corpus_to_dtm</a></span><span class="op">(</span><span class="va">kunta</span>, <span class="va">LEMMA</span><span class="op">)</span></span></code></pre></div>
+<span><span class="co">#&gt; Dropped 4834 rows</span></span></code></pre></div>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">split_data_test</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">data</span>, <span class="va">variable</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">y</span> <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/pull.html" class="external-link">pull</a></span><span class="op">(</span><span class="va">data</span>, <span class="op">{</span><span class="op">{</span><span class="va">variable</span><span class="op">}</span><span class="op">}</span><span class="op">)</span></span>
-<span>  <span class="va">trainIndex</span> <span class="op">&lt;-</span> <span class="fu">caret</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/caret/man/createDataPartition.html" class="external-link">createDataPartition</a></span><span class="op">(</span><span class="va">y</span>, p <span class="op">=</span> <span class="fl">.8</span>, </span>
-<span>                                           list <span class="op">=</span> <span class="cn">FALSE</span>, times <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
-<span>  </span>
-<span>  <span class="va">dataTrain</span> <span class="op">&lt;-</span> <span class="va">data</span><span class="op">[</span><span class="va">trainIndex</span>, <span class="op">]</span></span>
-<span>  <span class="va">dataTest</span> <span class="op">&lt;-</span> <span class="va">data</span><span class="op">[</span><span class="op">-</span><span class="va">trainIndex</span>, <span class="op">]</span></span>
-<span>  </span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"Train"</span> <span class="op">=</span> <span class="va">dataTrain</span>, <span class="st">"Test"</span> <span class="op">=</span> <span class="va">dataTest</span><span class="op">)</span></span>
-<span><span class="op">}</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">trainNames</span> <span class="op">&lt;-</span> <span class="va">y</span><span class="op">$</span><span class="va">kunta</span><span class="op">[</span><span class="fu">caret</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/caret/man/createDataPartition.html" class="external-link">createDataPartition</a></span><span class="op">(</span><span class="va">y</span><span class="op">$</span><span class="va">luokka</span>, p <span class="op">=</span> <span class="fl">0.7</span>, times <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">]</span></span></code></pre></div>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">aspol_data</span> <span class="op">&lt;-</span> <span class="fu">split_data_test</span><span class="op">(</span><span class="va">aspol_y</span>, <span class="va">luokka</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">y</span><span class="op">[</span><span class="va">y</span><span class="op">$</span><span class="va">kunta</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">trainNames</span>, <span class="op">]</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/count.html" class="external-link">count</a></span><span class="op">(</span><span class="va">luokka</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 3 × 2</span></span></span>
+<span><span class="co">#&gt;   luokka       n</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> Taantuva    21</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> Vakaa       12</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> Kasvava     14</span></span>
+<span><span class="va">y</span><span class="op">[</span><span class="op">!</span><span class="va">y</span><span class="op">$</span><span class="va">kunta</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">trainNames</span>, <span class="op">]</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/count.html" class="external-link">count</a></span><span class="op">(</span><span class="va">luokka</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 3 × 2</span></span></span>
+<span><span class="co">#&gt;   luokka       n</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> Taantuva     9</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> Vakaa        4</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> Kasvava      6</span></span></code></pre></div>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">dtm</span></span>
-<span><span class="co">#&gt; Document-feature matrix of: 68 documents, 3,061 features (76.78% sparse) and 0 docvars.</span></span>
-<span><span class="co">#&gt;            features</span></span>
-<span><span class="co">#&gt; docs        A#talo III Vapaa#aika aiheuttaa aika aika#väli ajatella ala</span></span>
-<span><span class="co">#&gt;   Enontekiö      3   1          1         3    7         1        1   1</span></span>
-<span><span class="co">#&gt;   Espoo          0   0          0         1   18         3        0   3</span></span>
-<span><span class="co">#&gt;   Eura           0   0          0         1    5         0        0   0</span></span>
-<span><span class="co">#&gt;   Hartola        0   0          1         2    5         0        0   1</span></span>
-<span><span class="co">#&gt;   Hattula        0   0          0         0    6         0        0   0</span></span>
-<span><span class="co">#&gt;   Helsinki       0   0          0         3   46         4        0   5</span></span>
-<span><span class="co">#&gt;            features</span></span>
-<span><span class="co">#&gt; docs        alhainen alku</span></span>
-<span><span class="co">#&gt;   Enontekiö        1    1</span></span>
-<span><span class="co">#&gt;   Espoo            4    1</span></span>
-<span><span class="co">#&gt;   Eura             1    0</span></span>
-<span><span class="co">#&gt;   Hartola          0    0</span></span>
-<span><span class="co">#&gt;   Hattula          0    1</span></span>
-<span><span class="co">#&gt;   Helsinki         5   12</span></span>
-<span><span class="co">#&gt; [ reached max_ndoc ... 62 more documents, reached max_nfeat ... 3,051 more features ]</span></span></code></pre></div>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">k_values</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">6</span>, <span class="fl">9</span>, <span class="fl">16</span><span class="op">)</span></span>
 <span><span class="va">lda_dtm</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/foreach/man/foreach.html" class="external-link">foreach</a></span><span class="op">(</span>k <span class="op">=</span> <span class="va">k_values</span><span class="op">)</span> <span class="op"><a href="https://doFuture.futureverse.org/reference/grapes-dofuture-grapes.html" class="external-link">%dofuture%</a></span> <span class="op">{</span></span>
-<span>  <span class="fu">rfintext</span><span class="fu">::</span><span class="fu"><a href="../reference/get_doc_topic_prob.html">get_doc_topic_prob</a></span><span class="op">(</span><span class="va">dtm</span>, k <span class="op">=</span> <span class="va">k</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>    <span class="fu">tidytext</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/tidytext/man/document_term_casters.html" class="external-link">cast_dfm</a></span><span class="op">(</span><span class="va">document</span>, <span class="va">topic</span>, <span class="va">gamma</span><span class="op">)</span></span>
+<span>  <span class="fu">rfintext</span><span class="fu">::</span><span class="fu"><a href="../reference/get_doc_topic_prob.html">get_doc_topic_prob</a></span><span class="op">(</span><span class="va">X</span>, k <span class="op">=</span> <span class="va">k</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
 <span><span class="co">#&gt; Warning in .recacheSubclasses(def@className, def, env): undefined subclass</span></span>
 <span><span class="co">#&gt; "ndiMatrix" of class "replValueSp"; definition not updated</span></span>
@@ -157,16 +152,567 @@
 <span><span class="co">#&gt; Warning in .recacheSubclasses(def@className, def, env): undefined subclass</span></span>
 <span><span class="co">#&gt; "ndiMatrix" of class "replValueSp"; definition not updated</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">lda_dtm</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"k_"</span>, <span class="va">k_values</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">get_train_test_data</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span>, <span class="va">y</span>, <span class="va">trainNames</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  </span>
+<span>  <span class="va">trainX</span> <span class="op">&lt;-</span> <span class="va">x</span> <span class="op">|&gt;</span> <span class="fu">quanteda</span><span class="fu">::</span><span class="fu"><a href="https://quanteda.io/reference/dfm_subset.html" class="external-link">dfm_subset</a></span><span class="op">(</span><span class="va">docname_</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">trainNames</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="op">)</span></span>
+<span>  <span class="va">trainY</span> <span class="op">&lt;-</span> <span class="va">y</span><span class="op">[</span><span class="va">y</span><span class="op">$</span><span class="va">kunta</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">trainNames</span>, <span class="op">]</span><span class="op">$</span><span class="va">luokka</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">as.integer</a></span><span class="op">(</span><span class="op">)</span> <span class="op">-</span> <span class="fl">1</span></span>
+<span>  </span>
+<span>  <span class="va">testX</span> <span class="op">&lt;-</span> <span class="va">x</span> <span class="op">|&gt;</span> <span class="fu">quanteda</span><span class="fu">::</span><span class="fu"><a href="https://quanteda.io/reference/dfm_subset.html" class="external-link">dfm_subset</a></span><span class="op">(</span><span class="op">!</span><span class="va">docname_</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">trainNames</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="op">)</span></span>
+<span>  <span class="va">testY</span> <span class="op">&lt;-</span> <span class="va">y</span><span class="op">[</span><span class="op">!</span><span class="va">y</span><span class="op">$</span><span class="va">kunta</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">trainNames</span>, <span class="op">]</span><span class="op">$</span><span class="va">luokka</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">as.integer</a></span><span class="op">(</span><span class="op">)</span> <span class="op">-</span> <span class="fl">1</span></span>
+<span>  </span>
+<span>  <span class="va">xgb_train</span> <span class="op">&lt;-</span>  <span class="fu">xgboost</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/xgboost/man/xgb.DMatrix.html" class="external-link">xgb.DMatrix</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">trainX</span>, label <span class="op">=</span> <span class="va">trainY</span><span class="op">)</span></span>
+<span>  <span class="va">xgb_test</span> <span class="op">&lt;-</span> <span class="fu">xgboost</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/xgboost/man/xgb.DMatrix.html" class="external-link">xgb.DMatrix</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">testX</span>, label <span class="op">=</span> <span class="va">testY</span><span class="op">)</span></span>
+<span>  </span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"Train"</span> <span class="op">=</span> <span class="va">xgb_train</span>, <span class="st">"Test"</span> <span class="op">=</span> <span class="va">xgb_test</span><span class="op">)</span></span>
+<span><span class="op">}</span></span></code></pre></div>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># dtrain &lt;- aspol_data$Train |&gt;</span></span>
-<span><span class="co">#   corpus_to_dtm(kunta, LEMMA) |&gt;</span></span>
-<span><span class="co">#   dfm_select(terms(lda6, 25)) |&gt;</span></span>
-<span><span class="co">#   as.matrix() |&gt;</span></span>
-<span><span class="co">#   xgb.DMatrix(data = asp, label=train$label)</span></span>
-<span><span class="co"># </span></span>
-<span><span class="co"># dtest &lt;- xgb.DMatrix(data = test$data, label=test$label)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">xgb_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">lda_dtm</span>, <span class="va">get_train_test_data</span>, <span class="va">y</span>, <span class="va">trainNames</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># bstSparse &lt;- xgboost(data = train$data, label = train$label, max.depth = 2, eta = 1, nthread = 2, nrounds = 2, objective = "binary:logistic")</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">xgb_params</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>  booster <span class="op">=</span> <span class="st">"gbtree"</span>,</span>
+<span>  eta <span class="op">=</span> <span class="fl">0.01</span>,</span>
+<span>  max_depth <span class="op">=</span> <span class="fl">3</span>,</span>
+<span>  gamma <span class="op">=</span> <span class="fl">4</span>,</span>
+<span>  <span class="co"># subsample = 1,</span></span>
+<span>  colsample_bytree <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  objective <span class="op">=</span> <span class="st">"multi:softprob"</span>,</span>
+<span>  <span class="co"># objective = "binary:logistic",</span></span>
+<span>  eval_metric <span class="op">=</span> <span class="st">"mlogloss"</span>,</span>
+<span>  num_class <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/levels.html" class="external-link">levels</a></span><span class="op">(</span><span class="va">y</span><span class="op">$</span><span class="va">luokka</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">xgb_data</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">watchlist</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>train<span class="op">=</span><span class="va">xgb_data</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">Train</span>, test<span class="op">=</span><span class="va">xgb_data</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">Test</span><span class="op">)</span></span>
+<span>  <span class="va">model</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/xgboost/man/xgb.train.html" class="external-link">xgb.train</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">xgb_data</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">Train</span>, max.depth <span class="op">=</span> <span class="fl">3</span>, watchlist<span class="op">=</span><span class="va">watchlist</span>, nrounds <span class="op">=</span> <span class="fl">70</span><span class="op">)</span></span>
+<span><span class="op">}</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1]  train-rmse:0.842207 test-rmse:1.014227 </span></span>
+<span><span class="co">#&gt; [2]  train-rmse:0.785952 test-rmse:1.071639 </span></span>
+<span><span class="co">#&gt; [3]  train-rmse:0.737426 test-rmse:1.070165 </span></span>
+<span><span class="co">#&gt; [4]  train-rmse:0.707254 test-rmse:1.078181 </span></span>
+<span><span class="co">#&gt; [5]  train-rmse:0.669316 test-rmse:1.057280 </span></span>
+<span><span class="co">#&gt; [6]  train-rmse:0.652239 test-rmse:1.087277 </span></span>
+<span><span class="co">#&gt; [7]  train-rmse:0.639282 test-rmse:1.097791 </span></span>
+<span><span class="co">#&gt; [8]  train-rmse:0.628534 test-rmse:1.124611 </span></span>
+<span><span class="co">#&gt; [9]  train-rmse:0.595459 test-rmse:1.126542 </span></span>
+<span><span class="co">#&gt; [10] train-rmse:0.586017 test-rmse:1.150499 </span></span>
+<span><span class="co">#&gt; [11] train-rmse:0.580122 test-rmse:1.171407 </span></span>
+<span><span class="co">#&gt; [12] train-rmse:0.546225 test-rmse:1.169142 </span></span>
+<span><span class="co">#&gt; [13] train-rmse:0.537039 test-rmse:1.175739 </span></span>
+<span><span class="co">#&gt; [14] train-rmse:0.520425 test-rmse:1.185051 </span></span>
+<span><span class="co">#&gt; [15] train-rmse:0.499393 test-rmse:1.192729 </span></span>
+<span><span class="co">#&gt; [16] train-rmse:0.475610 test-rmse:1.190792 </span></span>
+<span><span class="co">#&gt; [17] train-rmse:0.469916 test-rmse:1.195557 </span></span>
+<span><span class="co">#&gt; [18] train-rmse:0.465179 test-rmse:1.212600 </span></span>
+<span><span class="co">#&gt; [19] train-rmse:0.460414 test-rmse:1.209542 </span></span>
+<span><span class="co">#&gt; [20] train-rmse:0.457074 test-rmse:1.224655 </span></span>
+<span><span class="co">#&gt; [21] train-rmse:0.440445 test-rmse:1.222626 </span></span>
+<span><span class="co">#&gt; [22] train-rmse:0.424578 test-rmse:1.229350 </span></span>
+<span><span class="co">#&gt; [23] train-rmse:0.411537 test-rmse:1.237132 </span></span>
+<span><span class="co">#&gt; [24] train-rmse:0.406109 test-rmse:1.245661 </span></span>
+<span><span class="co">#&gt; [25] train-rmse:0.397160 test-rmse:1.248816 </span></span>
+<span><span class="co">#&gt; [26] train-rmse:0.394964 test-rmse:1.259096 </span></span>
+<span><span class="co">#&gt; [27] train-rmse:0.383085 test-rmse:1.256535 </span></span>
+<span><span class="co">#&gt; [28] train-rmse:0.376592 test-rmse:1.259029 </span></span>
+<span><span class="co">#&gt; [29] train-rmse:0.367778 test-rmse:1.272474 </span></span>
+<span><span class="co">#&gt; [30] train-rmse:0.356768 test-rmse:1.267343 </span></span>
+<span><span class="co">#&gt; [31] train-rmse:0.348901 test-rmse:1.274206 </span></span>
+<span><span class="co">#&gt; [32] train-rmse:0.346312 test-rmse:1.284164 </span></span>
+<span><span class="co">#&gt; [33] train-rmse:0.340870 test-rmse:1.285728 </span></span>
+<span><span class="co">#&gt; [34] train-rmse:0.333939 test-rmse:1.283585 </span></span>
+<span><span class="co">#&gt; [35] train-rmse:0.325061 test-rmse:1.287615 </span></span>
+<span><span class="co">#&gt; [36] train-rmse:0.314089 test-rmse:1.295086 </span></span>
+<span><span class="co">#&gt; [37] train-rmse:0.304944 test-rmse:1.299247 </span></span>
+<span><span class="co">#&gt; [38] train-rmse:0.300768 test-rmse:1.300489 </span></span>
+<span><span class="co">#&gt; [39] train-rmse:0.298698 test-rmse:1.308643 </span></span>
+<span><span class="co">#&gt; [40] train-rmse:0.290261 test-rmse:1.305611 </span></span>
+<span><span class="co">#&gt; [41] train-rmse:0.282544 test-rmse:1.313253 </span></span>
+<span><span class="co">#&gt; [42] train-rmse:0.279418 test-rmse:1.314321 </span></span>
+<span><span class="co">#&gt; [43] train-rmse:0.273921 test-rmse:1.312396 </span></span>
+<span><span class="co">#&gt; [44] train-rmse:0.268018 test-rmse:1.319088 </span></span>
+<span><span class="co">#&gt; [45] train-rmse:0.261982 test-rmse:1.324067 </span></span>
+<span><span class="co">#&gt; [46] train-rmse:0.254606 test-rmse:1.331355 </span></span>
+<span><span class="co">#&gt; [47] train-rmse:0.249508 test-rmse:1.330283 </span></span>
+<span><span class="co">#&gt; [48] train-rmse:0.244722 test-rmse:1.328721 </span></span>
+<span><span class="co">#&gt; [49] train-rmse:0.237818 test-rmse:1.333155 </span></span>
+<span><span class="co">#&gt; [50] train-rmse:0.236011 test-rmse:1.339410 </span></span>
+<span><span class="co">#&gt; [51] train-rmse:0.231298 test-rmse:1.340785 </span></span>
+<span><span class="co">#&gt; [52] train-rmse:0.225291 test-rmse:1.344754 </span></span>
+<span><span class="co">#&gt; [53] train-rmse:0.222125 test-rmse:1.343444 </span></span>
+<span><span class="co">#&gt; [54] train-rmse:0.212947 test-rmse:1.347906 </span></span>
+<span><span class="co">#&gt; [55] train-rmse:0.206114 test-rmse:1.352533 </span></span>
+<span><span class="co">#&gt; [56] train-rmse:0.205112 test-rmse:1.358126 </span></span>
+<span><span class="co">#&gt; [57] train-rmse:0.202299 test-rmse:1.356650 </span></span>
+<span><span class="co">#&gt; [58] train-rmse:0.196028 test-rmse:1.362829 </span></span>
+<span><span class="co">#&gt; [59] train-rmse:0.191488 test-rmse:1.362201 </span></span>
+<span><span class="co">#&gt; [60] train-rmse:0.187111 test-rmse:1.367366 </span></span>
+<span><span class="co">#&gt; [61] train-rmse:0.183045 test-rmse:1.372069 </span></span>
+<span><span class="co">#&gt; [62] train-rmse:0.179700 test-rmse:1.371566 </span></span>
+<span><span class="co">#&gt; [63] train-rmse:0.173667 test-rmse:1.370708 </span></span>
+<span><span class="co">#&gt; [64] train-rmse:0.172236 test-rmse:1.375410 </span></span>
+<span><span class="co">#&gt; [65] train-rmse:0.166942 test-rmse:1.378005 </span></span>
+<span><span class="co">#&gt; [66] train-rmse:0.160665 test-rmse:1.381845 </span></span>
+<span><span class="co">#&gt; [67] train-rmse:0.156909 test-rmse:1.386139 </span></span>
+<span><span class="co">#&gt; [68] train-rmse:0.154511 test-rmse:1.385349 </span></span>
+<span><span class="co">#&gt; [69] train-rmse:0.150737 test-rmse:1.387541 </span></span>
+<span><span class="co">#&gt; [70] train-rmse:0.148182 test-rmse:1.388362 </span></span>
+<span><span class="co">#&gt; [1]  train-rmse:0.727357 test-rmse:0.818788 </span></span>
+<span><span class="co">#&gt; [2]  train-rmse:0.572668 test-rmse:0.731046 </span></span>
+<span><span class="co">#&gt; [3]  train-rmse:0.468286 test-rmse:0.731314 </span></span>
+<span><span class="co">#&gt; [4]  train-rmse:0.386519 test-rmse:0.696452 </span></span>
+<span><span class="co">#&gt; [5]  train-rmse:0.318461 test-rmse:0.727282 </span></span>
+<span><span class="co">#&gt; [6]  train-rmse:0.278011 test-rmse:0.731686 </span></span>
+<span><span class="co">#&gt; [7]  train-rmse:0.231918 test-rmse:0.747130 </span></span>
+<span><span class="co">#&gt; [8]  train-rmse:0.209922 test-rmse:0.739087 </span></span>
+<span><span class="co">#&gt; [9]  train-rmse:0.183533 test-rmse:0.747242 </span></span>
+<span><span class="co">#&gt; [10] train-rmse:0.161509 test-rmse:0.762129 </span></span>
+<span><span class="co">#&gt; [11] train-rmse:0.147409 test-rmse:0.765122 </span></span>
+<span><span class="co">#&gt; [12] train-rmse:0.127944 test-rmse:0.760431 </span></span>
+<span><span class="co">#&gt; [13] train-rmse:0.116429 test-rmse:0.756970 </span></span>
+<span><span class="co">#&gt; [14] train-rmse:0.107995 test-rmse:0.763212 </span></span>
+<span><span class="co">#&gt; [15] train-rmse:0.097456 test-rmse:0.765358 </span></span>
+<span><span class="co">#&gt; [16] train-rmse:0.092405 test-rmse:0.767493 </span></span>
+<span><span class="co">#&gt; [17] train-rmse:0.085225 test-rmse:0.769147 </span></span>
+<span><span class="co">#&gt; [18] train-rmse:0.078750 test-rmse:0.770655 </span></span>
+<span><span class="co">#&gt; [19] train-rmse:0.069812 test-rmse:0.768266 </span></span>
+<span><span class="co">#&gt; [20] train-rmse:0.062225 test-rmse:0.771779 </span></span>
+<span><span class="co">#&gt; [21] train-rmse:0.058523 test-rmse:0.772363 </span></span>
+<span><span class="co">#&gt; [22] train-rmse:0.053079 test-rmse:0.777872 </span></span>
+<span><span class="co">#&gt; [23] train-rmse:0.049702 test-rmse:0.778815 </span></span>
+<span><span class="co">#&gt; [24] train-rmse:0.046879 test-rmse:0.779821 </span></span>
+<span><span class="co">#&gt; [25] train-rmse:0.044567 test-rmse:0.780839 </span></span>
+<span><span class="co">#&gt; [26] train-rmse:0.041143 test-rmse:0.781643 </span></span>
+<span><span class="co">#&gt; [27] train-rmse:0.037668 test-rmse:0.782533 </span></span>
+<span><span class="co">#&gt; [28] train-rmse:0.035183 test-rmse:0.782966 </span></span>
+<span><span class="co">#&gt; [29] train-rmse:0.033096 test-rmse:0.783800 </span></span>
+<span><span class="co">#&gt; [30] train-rmse:0.031519 test-rmse:0.784347 </span></span>
+<span><span class="co">#&gt; [31] train-rmse:0.030178 test-rmse:0.784290 </span></span>
+<span><span class="co">#&gt; [32] train-rmse:0.027981 test-rmse:0.784604 </span></span>
+<span><span class="co">#&gt; [33] train-rmse:0.027100 test-rmse:0.786210 </span></span>
+<span><span class="co">#&gt; [34] train-rmse:0.025461 test-rmse:0.786772 </span></span>
+<span><span class="co">#&gt; [35] train-rmse:0.024159 test-rmse:0.788487 </span></span>
+<span><span class="co">#&gt; [36] train-rmse:0.023266 test-rmse:0.788910 </span></span>
+<span><span class="co">#&gt; [37] train-rmse:0.022247 test-rmse:0.788897 </span></span>
+<span><span class="co">#&gt; [38] train-rmse:0.021209 test-rmse:0.788581 </span></span>
+<span><span class="co">#&gt; [39] train-rmse:0.020631 test-rmse:0.789425 </span></span>
+<span><span class="co">#&gt; [40] train-rmse:0.019639 test-rmse:0.790455 </span></span>
+<span><span class="co">#&gt; [41] train-rmse:0.018834 test-rmse:0.790208 </span></span>
+<span><span class="co">#&gt; [42] train-rmse:0.017596 test-rmse:0.790072 </span></span>
+<span><span class="co">#&gt; [43] train-rmse:0.016883 test-rmse:0.790360 </span></span>
+<span><span class="co">#&gt; [44] train-rmse:0.015167 test-rmse:0.790840 </span></span>
+<span><span class="co">#&gt; [45] train-rmse:0.014197 test-rmse:0.792285 </span></span>
+<span><span class="co">#&gt; [46] train-rmse:0.013090 test-rmse:0.792422 </span></span>
+<span><span class="co">#&gt; [47] train-rmse:0.012716 test-rmse:0.793162 </span></span>
+<span><span class="co">#&gt; [48] train-rmse:0.012104 test-rmse:0.793961 </span></span>
+<span><span class="co">#&gt; [49] train-rmse:0.011716 test-rmse:0.794241 </span></span>
+<span><span class="co">#&gt; [50] train-rmse:0.010809 test-rmse:0.794927 </span></span>
+<span><span class="co">#&gt; [51] train-rmse:0.010133 test-rmse:0.794877 </span></span>
+<span><span class="co">#&gt; [52] train-rmse:0.009393 test-rmse:0.795292 </span></span>
+<span><span class="co">#&gt; [53] train-rmse:0.008874 test-rmse:0.795403 </span></span>
+<span><span class="co">#&gt; [54] train-rmse:0.008231 test-rmse:0.795571 </span></span>
+<span><span class="co">#&gt; [55] train-rmse:0.007550 test-rmse:0.795317 </span></span>
+<span><span class="co">#&gt; [56] train-rmse:0.007076 test-rmse:0.795250 </span></span>
+<span><span class="co">#&gt; [57] train-rmse:0.006786 test-rmse:0.795498 </span></span>
+<span><span class="co">#&gt; [58] train-rmse:0.006267 test-rmse:0.795328 </span></span>
+<span><span class="co">#&gt; [59] train-rmse:0.005932 test-rmse:0.795255 </span></span>
+<span><span class="co">#&gt; [60] train-rmse:0.005608 test-rmse:0.795526 </span></span>
+<span><span class="co">#&gt; [61] train-rmse:0.005392 test-rmse:0.795590 </span></span>
+<span><span class="co">#&gt; [62] train-rmse:0.005190 test-rmse:0.795604 </span></span>
+<span><span class="co">#&gt; [63] train-rmse:0.004962 test-rmse:0.795539 </span></span>
+<span><span class="co">#&gt; [64] train-rmse:0.004667 test-rmse:0.795831 </span></span>
+<span><span class="co">#&gt; [65] train-rmse:0.004530 test-rmse:0.795871 </span></span>
+<span><span class="co">#&gt; [66] train-rmse:0.004433 test-rmse:0.795896 </span></span>
+<span><span class="co">#&gt; [67] train-rmse:0.004224 test-rmse:0.796068 </span></span>
+<span><span class="co">#&gt; [68] train-rmse:0.003819 test-rmse:0.796320 </span></span>
+<span><span class="co">#&gt; [69] train-rmse:0.003430 test-rmse:0.796358 </span></span>
+<span><span class="co">#&gt; [70] train-rmse:0.003147 test-rmse:0.796366 </span></span>
+<span><span class="co">#&gt; [1]  train-rmse:0.728456 test-rmse:0.880117 </span></span>
+<span><span class="co">#&gt; [2]  train-rmse:0.588862 test-rmse:0.863959 </span></span>
+<span><span class="co">#&gt; [3]  train-rmse:0.490464 test-rmse:0.823719 </span></span>
+<span><span class="co">#&gt; [4]  train-rmse:0.416759 test-rmse:0.819562 </span></span>
+<span><span class="co">#&gt; [5]  train-rmse:0.364817 test-rmse:0.809005 </span></span>
+<span><span class="co">#&gt; [6]  train-rmse:0.318406 test-rmse:0.809074 </span></span>
+<span><span class="co">#&gt; [7]  train-rmse:0.289502 test-rmse:0.804927 </span></span>
+<span><span class="co">#&gt; [8]  train-rmse:0.258457 test-rmse:0.816173 </span></span>
+<span><span class="co">#&gt; [9]  train-rmse:0.227865 test-rmse:0.825719 </span></span>
+<span><span class="co">#&gt; [10] train-rmse:0.205959 test-rmse:0.817890 </span></span>
+<span><span class="co">#&gt; [11] train-rmse:0.191588 test-rmse:0.817092 </span></span>
+<span><span class="co">#&gt; [12] train-rmse:0.174925 test-rmse:0.821523 </span></span>
+<span><span class="co">#&gt; [13] train-rmse:0.157629 test-rmse:0.822844 </span></span>
+<span><span class="co">#&gt; [14] train-rmse:0.145384 test-rmse:0.825082 </span></span>
+<span><span class="co">#&gt; [15] train-rmse:0.135744 test-rmse:0.825019 </span></span>
+<span><span class="co">#&gt; [16] train-rmse:0.115690 test-rmse:0.825728 </span></span>
+<span><span class="co">#&gt; [17] train-rmse:0.106552 test-rmse:0.827776 </span></span>
+<span><span class="co">#&gt; [18] train-rmse:0.097653 test-rmse:0.831225 </span></span>
+<span><span class="co">#&gt; [19] train-rmse:0.092213 test-rmse:0.832942 </span></span>
+<span><span class="co">#&gt; [20] train-rmse:0.083147 test-rmse:0.837266 </span></span>
+<span><span class="co">#&gt; [21] train-rmse:0.078521 test-rmse:0.835148 </span></span>
+<span><span class="co">#&gt; [22] train-rmse:0.073048 test-rmse:0.837370 </span></span>
+<span><span class="co">#&gt; [23] train-rmse:0.064754 test-rmse:0.838989 </span></span>
+<span><span class="co">#&gt; [24] train-rmse:0.060966 test-rmse:0.839013 </span></span>
+<span><span class="co">#&gt; [25] train-rmse:0.055207 test-rmse:0.842915 </span></span>
+<span><span class="co">#&gt; [26] train-rmse:0.052557 test-rmse:0.843493 </span></span>
+<span><span class="co">#&gt; [27] train-rmse:0.049445 test-rmse:0.840912 </span></span>
+<span><span class="co">#&gt; [28] train-rmse:0.045832 test-rmse:0.841428 </span></span>
+<span><span class="co">#&gt; [29] train-rmse:0.043770 test-rmse:0.841471 </span></span>
+<span><span class="co">#&gt; [30] train-rmse:0.041718 test-rmse:0.840654 </span></span>
+<span><span class="co">#&gt; [31] train-rmse:0.039451 test-rmse:0.840854 </span></span>
+<span><span class="co">#&gt; [32] train-rmse:0.037542 test-rmse:0.841668 </span></span>
+<span><span class="co">#&gt; [33] train-rmse:0.034974 test-rmse:0.841925 </span></span>
+<span><span class="co">#&gt; [34] train-rmse:0.033470 test-rmse:0.841954 </span></span>
+<span><span class="co">#&gt; [35] train-rmse:0.029450 test-rmse:0.842442 </span></span>
+<span><span class="co">#&gt; [36] train-rmse:0.027847 test-rmse:0.842100 </span></span>
+<span><span class="co">#&gt; [37] train-rmse:0.025975 test-rmse:0.842355 </span></span>
+<span><span class="co">#&gt; [38] train-rmse:0.024929 test-rmse:0.842382 </span></span>
+<span><span class="co">#&gt; [39] train-rmse:0.023675 test-rmse:0.841979 </span></span>
+<span><span class="co">#&gt; [40] train-rmse:0.021649 test-rmse:0.842460 </span></span>
+<span><span class="co">#&gt; [41] train-rmse:0.020829 test-rmse:0.842718 </span></span>
+<span><span class="co">#&gt; [42] train-rmse:0.019622 test-rmse:0.842567 </span></span>
+<span><span class="co">#&gt; [43] train-rmse:0.018989 test-rmse:0.843095 </span></span>
+<span><span class="co">#&gt; [44] train-rmse:0.017510 test-rmse:0.843113 </span></span>
+<span><span class="co">#&gt; [45] train-rmse:0.015848 test-rmse:0.843500 </span></span>
+<span><span class="co">#&gt; [46] train-rmse:0.014815 test-rmse:0.843923 </span></span>
+<span><span class="co">#&gt; [47] train-rmse:0.014262 test-rmse:0.843852 </span></span>
+<span><span class="co">#&gt; [48] train-rmse:0.013818 test-rmse:0.844262 </span></span>
+<span><span class="co">#&gt; [49] train-rmse:0.012978 test-rmse:0.844120 </span></span>
+<span><span class="co">#&gt; [50] train-rmse:0.011476 test-rmse:0.844504 </span></span>
+<span><span class="co">#&gt; [51] train-rmse:0.010774 test-rmse:0.844113 </span></span>
+<span><span class="co">#&gt; [52] train-rmse:0.009853 test-rmse:0.844166 </span></span>
+<span><span class="co">#&gt; [53] train-rmse:0.009002 test-rmse:0.844165 </span></span>
+<span><span class="co">#&gt; [54] train-rmse:0.008326 test-rmse:0.844016 </span></span>
+<span><span class="co">#&gt; [55] train-rmse:0.007884 test-rmse:0.843969 </span></span>
+<span><span class="co">#&gt; [56] train-rmse:0.007560 test-rmse:0.843937 </span></span>
+<span><span class="co">#&gt; [57] train-rmse:0.006942 test-rmse:0.844073 </span></span>
+<span><span class="co">#&gt; [58] train-rmse:0.006727 test-rmse:0.843865 </span></span>
+<span><span class="co">#&gt; [59] train-rmse:0.006180 test-rmse:0.843875 </span></span>
+<span><span class="co">#&gt; [60] train-rmse:0.005928 test-rmse:0.843884 </span></span>
+<span><span class="co">#&gt; [61] train-rmse:0.005749 test-rmse:0.843753 </span></span>
+<span><span class="co">#&gt; [62] train-rmse:0.005263 test-rmse:0.843971 </span></span>
+<span><span class="co">#&gt; [63] train-rmse:0.005060 test-rmse:0.843977 </span></span>
+<span><span class="co">#&gt; [64] train-rmse:0.004745 test-rmse:0.843932 </span></span>
+<span><span class="co">#&gt; [65] train-rmse:0.004588 test-rmse:0.843937 </span></span>
+<span><span class="co">#&gt; [66] train-rmse:0.004329 test-rmse:0.843818 </span></span>
+<span><span class="co">#&gt; [67] train-rmse:0.003891 test-rmse:0.844175 </span></span>
+<span><span class="co">#&gt; [68] train-rmse:0.003706 test-rmse:0.844105 </span></span>
+<span><span class="co">#&gt; [69] train-rmse:0.003584 test-rmse:0.844111 </span></span>
+<span><span class="co">#&gt; [70] train-rmse:0.003291 test-rmse:0.844147 </span></span>
+<span><span class="co">#&gt; [1]  train-rmse:0.734513 test-rmse:0.897842 </span></span>
+<span><span class="co">#&gt; [2]  train-rmse:0.601869 test-rmse:0.851706 </span></span>
+<span><span class="co">#&gt; [3]  train-rmse:0.495365 test-rmse:0.843639 </span></span>
+<span><span class="co">#&gt; [4]  train-rmse:0.428313 test-rmse:0.829798 </span></span>
+<span><span class="co">#&gt; [5]  train-rmse:0.361576 test-rmse:0.834592 </span></span>
+<span><span class="co">#&gt; [6]  train-rmse:0.320044 test-rmse:0.826020 </span></span>
+<span><span class="co">#&gt; [7]  train-rmse:0.278026 test-rmse:0.835924 </span></span>
+<span><span class="co">#&gt; [8]  train-rmse:0.241844 test-rmse:0.844452 </span></span>
+<span><span class="co">#&gt; [9]  train-rmse:0.217789 test-rmse:0.838372 </span></span>
+<span><span class="co">#&gt; [10] train-rmse:0.200100 test-rmse:0.838674 </span></span>
+<span><span class="co">#&gt; [11] train-rmse:0.181895 test-rmse:0.846017 </span></span>
+<span><span class="co">#&gt; [12] train-rmse:0.169757 test-rmse:0.836863 </span></span>
+<span><span class="co">#&gt; [13] train-rmse:0.160193 test-rmse:0.831002 </span></span>
+<span><span class="co">#&gt; [14] train-rmse:0.141676 test-rmse:0.830167 </span></span>
+<span><span class="co">#&gt; [15] train-rmse:0.121384 test-rmse:0.835658 </span></span>
+<span><span class="co">#&gt; [16] train-rmse:0.115590 test-rmse:0.835961 </span></span>
+<span><span class="co">#&gt; [17] train-rmse:0.108582 test-rmse:0.834349 </span></span>
+<span><span class="co">#&gt; [18] train-rmse:0.095634 test-rmse:0.837997 </span></span>
+<span><span class="co">#&gt; [19] train-rmse:0.091865 test-rmse:0.836650 </span></span>
+<span><span class="co">#&gt; [20] train-rmse:0.086077 test-rmse:0.832777 </span></span>
+<span><span class="co">#&gt; [21] train-rmse:0.082821 test-rmse:0.834572 </span></span>
+<span><span class="co">#&gt; [22] train-rmse:0.073770 test-rmse:0.837492 </span></span>
+<span><span class="co">#&gt; [23] train-rmse:0.068959 test-rmse:0.838978 </span></span>
+<span><span class="co">#&gt; [24] train-rmse:0.062839 test-rmse:0.841732 </span></span>
+<span><span class="co">#&gt; [25] train-rmse:0.059138 test-rmse:0.837878 </span></span>
+<span><span class="co">#&gt; [26] train-rmse:0.056069 test-rmse:0.837242 </span></span>
+<span><span class="co">#&gt; [27] train-rmse:0.052051 test-rmse:0.839798 </span></span>
+<span><span class="co">#&gt; [28] train-rmse:0.049987 test-rmse:0.839637 </span></span>
+<span><span class="co">#&gt; [29] train-rmse:0.047435 test-rmse:0.839810 </span></span>
+<span><span class="co">#&gt; [30] train-rmse:0.044594 test-rmse:0.838612 </span></span>
+<span><span class="co">#&gt; [31] train-rmse:0.042136 test-rmse:0.838466 </span></span>
+<span><span class="co">#&gt; [32] train-rmse:0.038672 test-rmse:0.839809 </span></span>
+<span><span class="co">#&gt; [33] train-rmse:0.034403 test-rmse:0.840694 </span></span>
+<span><span class="co">#&gt; [34] train-rmse:0.032385 test-rmse:0.840493 </span></span>
+<span><span class="co">#&gt; [35] train-rmse:0.028701 test-rmse:0.841889 </span></span>
+<span><span class="co">#&gt; [36] train-rmse:0.027532 test-rmse:0.841153 </span></span>
+<span><span class="co">#&gt; [37] train-rmse:0.026791 test-rmse:0.841669 </span></span>
+<span><span class="co">#&gt; [38] train-rmse:0.024401 test-rmse:0.841988 </span></span>
+<span><span class="co">#&gt; [39] train-rmse:0.023043 test-rmse:0.842263 </span></span>
+<span><span class="co">#&gt; [40] train-rmse:0.022277 test-rmse:0.842986 </span></span>
+<span><span class="co">#&gt; [41] train-rmse:0.020456 test-rmse:0.842826 </span></span>
+<span><span class="co">#&gt; [42] train-rmse:0.019277 test-rmse:0.842649 </span></span>
+<span><span class="co">#&gt; [43] train-rmse:0.018309 test-rmse:0.843265 </span></span>
+<span><span class="co">#&gt; [44] train-rmse:0.016387 test-rmse:0.843337 </span></span>
+<span><span class="co">#&gt; [45] train-rmse:0.014815 test-rmse:0.841712 </span></span>
+<span><span class="co">#&gt; [46] train-rmse:0.014103 test-rmse:0.842178 </span></span>
+<span><span class="co">#&gt; [47] train-rmse:0.013296 test-rmse:0.842206 </span></span>
+<span><span class="co">#&gt; [48] train-rmse:0.012756 test-rmse:0.842585 </span></span>
+<span><span class="co">#&gt; [49] train-rmse:0.012123 test-rmse:0.842188 </span></span>
+<span><span class="co">#&gt; [50] train-rmse:0.011706 test-rmse:0.842276 </span></span>
+<span><span class="co">#&gt; [51] train-rmse:0.011375 test-rmse:0.842600 </span></span>
+<span><span class="co">#&gt; [52] train-rmse:0.010974 test-rmse:0.842600 </span></span>
+<span><span class="co">#&gt; [53] train-rmse:0.010327 test-rmse:0.842176 </span></span>
+<span><span class="co">#&gt; [54] train-rmse:0.010093 test-rmse:0.842155 </span></span>
+<span><span class="co">#&gt; [55] train-rmse:0.008918 test-rmse:0.841802 </span></span>
+<span><span class="co">#&gt; [56] train-rmse:0.008434 test-rmse:0.842271 </span></span>
+<span><span class="co">#&gt; [57] train-rmse:0.007924 test-rmse:0.842721 </span></span>
+<span><span class="co">#&gt; [58] train-rmse:0.007454 test-rmse:0.842898 </span></span>
+<span><span class="co">#&gt; [59] train-rmse:0.007160 test-rmse:0.842899 </span></span>
+<span><span class="co">#&gt; [60] train-rmse:0.006740 test-rmse:0.842652 </span></span>
+<span><span class="co">#&gt; [61] train-rmse:0.006587 test-rmse:0.842796 </span></span>
+<span><span class="co">#&gt; [62] train-rmse:0.006293 test-rmse:0.843236 </span></span>
+<span><span class="co">#&gt; [63] train-rmse:0.005855 test-rmse:0.843151 </span></span>
+<span><span class="co">#&gt; [64] train-rmse:0.005620 test-rmse:0.843239 </span></span>
+<span><span class="co">#&gt; [65] train-rmse:0.005384 test-rmse:0.843221 </span></span>
+<span><span class="co">#&gt; [66] train-rmse:0.005213 test-rmse:0.843303 </span></span>
+<span><span class="co">#&gt; [67] train-rmse:0.004965 test-rmse:0.843507 </span></span>
+<span><span class="co">#&gt; [68] train-rmse:0.004717 test-rmse:0.843698 </span></span>
+<span><span class="co">#&gt; [69] train-rmse:0.004589 test-rmse:0.843649 </span></span>
+<span><span class="co">#&gt; [70] train-rmse:0.004414 test-rmse:0.843723</span></span>
+<span><span class="co">#&gt; [[1]]</span></span>
+<span><span class="co">#&gt; ##### xgb.Booster</span></span>
+<span><span class="co">#&gt; raw: 75.2 Kb </span></span>
+<span><span class="co">#&gt; call:</span></span>
+<span><span class="co">#&gt;   xgb.train(data = xgb_data[[i]]$Train, nrounds = 70, watchlist = watchlist, </span></span>
+<span><span class="co">#&gt;     max.depth = 3)</span></span>
+<span><span class="co">#&gt; params (as set within xgb.train):</span></span>
+<span><span class="co">#&gt;   max_depth = "3", validate_parameters = "1"</span></span>
+<span><span class="co">#&gt; xgb.attributes:</span></span>
+<span><span class="co">#&gt;   niter</span></span>
+<span><span class="co">#&gt; callbacks:</span></span>
+<span><span class="co">#&gt;   cb.print.evaluation(period = print_every_n)</span></span>
+<span><span class="co">#&gt;   cb.evaluation.log()</span></span>
+<span><span class="co">#&gt; # of features: 2 </span></span>
+<span><span class="co">#&gt; niter: 70</span></span>
+<span><span class="co">#&gt; nfeatures : 2 </span></span>
+<span><span class="co">#&gt; evaluation_log:</span></span>
+<span><span class="co">#&gt;      iter train_rmse test_rmse</span></span>
+<span><span class="co">#&gt;     &lt;num&gt;      &lt;num&gt;     &lt;num&gt;</span></span>
+<span><span class="co">#&gt;         1  0.8422067  1.014227</span></span>
+<span><span class="co">#&gt;         2  0.7859518  1.071639</span></span>
+<span><span class="co">#&gt; ---                           </span></span>
+<span><span class="co">#&gt;        69  0.1507365  1.387541</span></span>
+<span><span class="co">#&gt;        70  0.1481817  1.388362</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; [[2]]</span></span>
+<span><span class="co">#&gt; ##### xgb.Booster</span></span>
+<span><span class="co">#&gt; raw: 78.1 Kb </span></span>
+<span><span class="co">#&gt; call:</span></span>
+<span><span class="co">#&gt;   xgb.train(data = xgb_data[[i]]$Train, nrounds = 70, watchlist = watchlist, </span></span>
+<span><span class="co">#&gt;     max.depth = 3)</span></span>
+<span><span class="co">#&gt; params (as set within xgb.train):</span></span>
+<span><span class="co">#&gt;   max_depth = "3", validate_parameters = "1"</span></span>
+<span><span class="co">#&gt; xgb.attributes:</span></span>
+<span><span class="co">#&gt;   niter</span></span>
+<span><span class="co">#&gt; callbacks:</span></span>
+<span><span class="co">#&gt;   cb.print.evaluation(period = print_every_n)</span></span>
+<span><span class="co">#&gt;   cb.evaluation.log()</span></span>
+<span><span class="co">#&gt; # of features: 6 </span></span>
+<span><span class="co">#&gt; niter: 70</span></span>
+<span><span class="co">#&gt; nfeatures : 6 </span></span>
+<span><span class="co">#&gt; evaluation_log:</span></span>
+<span><span class="co">#&gt;      iter  train_rmse test_rmse</span></span>
+<span><span class="co">#&gt;     &lt;num&gt;       &lt;num&gt;     &lt;num&gt;</span></span>
+<span><span class="co">#&gt;         1 0.727357136 0.8187884</span></span>
+<span><span class="co">#&gt;         2 0.572667732 0.7310462</span></span>
+<span><span class="co">#&gt; ---                            </span></span>
+<span><span class="co">#&gt;        69 0.003429642 0.7963578</span></span>
+<span><span class="co">#&gt;        70 0.003146983 0.7963655</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; [[3]]</span></span>
+<span><span class="co">#&gt; ##### xgb.Booster</span></span>
+<span><span class="co">#&gt; raw: 75.9 Kb </span></span>
+<span><span class="co">#&gt; call:</span></span>
+<span><span class="co">#&gt;   xgb.train(data = xgb_data[[i]]$Train, nrounds = 70, watchlist = watchlist, </span></span>
+<span><span class="co">#&gt;     max.depth = 3)</span></span>
+<span><span class="co">#&gt; params (as set within xgb.train):</span></span>
+<span><span class="co">#&gt;   max_depth = "3", validate_parameters = "1"</span></span>
+<span><span class="co">#&gt; xgb.attributes:</span></span>
+<span><span class="co">#&gt;   niter</span></span>
+<span><span class="co">#&gt; callbacks:</span></span>
+<span><span class="co">#&gt;   cb.print.evaluation(period = print_every_n)</span></span>
+<span><span class="co">#&gt;   cb.evaluation.log()</span></span>
+<span><span class="co">#&gt; # of features: 9 </span></span>
+<span><span class="co">#&gt; niter: 70</span></span>
+<span><span class="co">#&gt; nfeatures : 9 </span></span>
+<span><span class="co">#&gt; evaluation_log:</span></span>
+<span><span class="co">#&gt;      iter  train_rmse test_rmse</span></span>
+<span><span class="co">#&gt;     &lt;num&gt;       &lt;num&gt;     &lt;num&gt;</span></span>
+<span><span class="co">#&gt;         1 0.728456176 0.8801165</span></span>
+<span><span class="co">#&gt;         2 0.588862031 0.8639590</span></span>
+<span><span class="co">#&gt; ---                            </span></span>
+<span><span class="co">#&gt;        69 0.003583965 0.8441107</span></span>
+<span><span class="co">#&gt;        70 0.003290573 0.8441470</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; [[4]]</span></span>
+<span><span class="co">#&gt; ##### xgb.Booster</span></span>
+<span><span class="co">#&gt; raw: 73.9 Kb </span></span>
+<span><span class="co">#&gt; call:</span></span>
+<span><span class="co">#&gt;   xgb.train(data = xgb_data[[i]]$Train, nrounds = 70, watchlist = watchlist, </span></span>
+<span><span class="co">#&gt;     max.depth = 3)</span></span>
+<span><span class="co">#&gt; params (as set within xgb.train):</span></span>
+<span><span class="co">#&gt;   max_depth = "3", validate_parameters = "1"</span></span>
+<span><span class="co">#&gt; xgb.attributes:</span></span>
+<span><span class="co">#&gt;   niter</span></span>
+<span><span class="co">#&gt; callbacks:</span></span>
+<span><span class="co">#&gt;   cb.print.evaluation(period = print_every_n)</span></span>
+<span><span class="co">#&gt;   cb.evaluation.log()</span></span>
+<span><span class="co">#&gt; # of features: 16 </span></span>
+<span><span class="co">#&gt; niter: 70</span></span>
+<span><span class="co">#&gt; nfeatures : 16 </span></span>
+<span><span class="co">#&gt; evaluation_log:</span></span>
+<span><span class="co">#&gt;      iter  train_rmse test_rmse</span></span>
+<span><span class="co">#&gt;     &lt;num&gt;       &lt;num&gt;     &lt;num&gt;</span></span>
+<span><span class="co">#&gt;         1 0.734513439 0.8978425</span></span>
+<span><span class="co">#&gt;         2 0.601868763 0.8517057</span></span>
+<span><span class="co">#&gt; ---                            </span></span>
+<span><span class="co">#&gt;        69 0.004589047 0.8436488</span></span>
+<span><span class="co">#&gt;        70 0.004414220 0.8437228</span></span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">nrounds</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">6</span>, <span class="fl">3</span>, <span class="fl">8</span><span class="op">)</span></span>
+<span><span class="va">xgb_models</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">xgb_data</span><span class="op">)</span>,</span>
+<span>                     <span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span> <span class="op">{</span></span>
+<span>                       <span class="fu"><a href="https://rdrr.io/pkg/xgboost/man/xgb.train.html" class="external-link">xgb.train</a></span><span class="op">(</span></span>
+<span>                         params <span class="op">=</span> <span class="va">xgb_params</span>,</span>
+<span>                         data <span class="op">=</span> <span class="va">xgb_data</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">Train</span>,</span>
+<span>                         <span class="co"># nrounds = nrounds[i],</span></span>
+<span>                         nrounds <span class="op">=</span> <span class="fl">5000</span>,</span>
+<span>                         verbose <span class="op">=</span> <span class="fl">1</span></span>
+<span>                       <span class="op">)</span></span>
+<span>                     <span class="op">}</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">xgb_models</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/xgboost/man/xgb.importance.html" class="external-link">xgb.importance</a></span><span class="op">(</span></span>
+<span>    feature_names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">xgb_data</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>, </span>
+<span>    model <span class="op">=</span> <span class="va">xgb_models</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt; [[1]]</span></span>
+<span><span class="co">#&gt; Empty data.table (0 rows and 4 cols): Feature,Gain,Cover,Frequency</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; [[2]]</span></span>
+<span><span class="co">#&gt;    Feature      Gain      Cover  Frequency</span></span>
+<span><span class="co">#&gt;     &lt;char&gt;     &lt;num&gt;      &lt;num&gt;      &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:       3 0.4101644 0.40320010 0.37634409</span></span>
+<span><span class="co">#&gt; 2:       1 0.2563414 0.27667590 0.24731183</span></span>
+<span><span class="co">#&gt; 3:       2 0.1469880 0.12692002 0.15053763</span></span>
+<span><span class="co">#&gt; 4:       4 0.1196247 0.11425951 0.15053763</span></span>
+<span><span class="co">#&gt; 5:       6 0.0668815 0.07894448 0.07526882</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; [[3]]</span></span>
+<span><span class="co">#&gt;    Feature       Gain      Cover  Frequency</span></span>
+<span><span class="co">#&gt;     &lt;char&gt;      &lt;num&gt;      &lt;num&gt;      &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:       3 0.59693637 0.56935522 0.57978723</span></span>
+<span><span class="co">#&gt; 2:       1 0.38099950 0.41131511 0.38829787</span></span>
+<span><span class="co">#&gt; 3:       5 0.02206412 0.01932966 0.03191489</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; [[4]]</span></span>
+<span><span class="co">#&gt;    Feature       Gain       Cover  Frequency</span></span>
+<span><span class="co">#&gt;     &lt;char&gt;      &lt;num&gt;       &lt;num&gt;      &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:       3 0.52234217 0.484479921 0.47761194</span></span>
+<span><span class="co">#&gt; 2:       6 0.33739581 0.332774267 0.33582090</span></span>
+<span><span class="co">#&gt; 3:       1 0.09011753 0.131981908 0.12686567</span></span>
+<span><span class="co">#&gt; 4:      11 0.03797459 0.044756494 0.04477612</span></span>
+<span><span class="co">#&gt; 5:      13 0.01216989 0.006007409 0.01492537</span></span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">xgb_preds</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">xgb_models</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">xgb_preds</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">xgb_models</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span>, <span class="va">xgb_data</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">Test</span>, reshape <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span>  <span class="va">xgb_preds</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="va">xgb_preds</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">xgb_preds</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/levels.html" class="external-link">levels</a></span><span class="op">(</span><span class="va">y</span><span class="op">$</span><span class="va">luokka</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">xgb_preds</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">y</span><span class="op">$</span><span class="va">kunta</span><span class="op">[</span><span class="op">!</span><span class="va">y</span><span class="op">$</span><span class="va">kunta</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">trainNames</span><span class="op">]</span></span>
+<span>  <span class="va">xgb_preds</span> <span class="op">&lt;-</span> <span class="va">xgb_preds</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
+<span>      <span class="co"># PredictedClass = max(c_across(Taantuva, Vakaa, Kasvava)),</span></span>
+<span>           ActualClass <span class="op">=</span> <span class="va">y</span><span class="op">[</span><span class="op">!</span><span class="va">y</span><span class="op">$</span><span class="va">kunta</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">trainNames</span>, <span class="op">]</span><span class="op">$</span><span class="va">luokka</span><span class="op">)</span></span>
+<span><span class="op">}</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">xgb_preds</span></span>
+<span><span class="co">#&gt; [[1]]</span></span>
+<span><span class="co">#&gt;                Taantuva     Vakaa   Kasvava ActualClass</span></span>
+<span><span class="co">#&gt; Huittinen     0.4468082 0.2553194 0.2978723    Taantuva</span></span>
+<span><span class="co">#&gt; Hyvinkää      0.4468082 0.2553194 0.2978723       Vakaa</span></span>
+<span><span class="co">#&gt; Iitti         0.4468082 0.2553194 0.2978723    Taantuva</span></span>
+<span><span class="co">#&gt; Järvenpää     0.4468082 0.2553194 0.2978723     Kasvava</span></span>
+<span><span class="co">#&gt; Kaarina       0.4468082 0.2553194 0.2978723     Kasvava</span></span>
+<span><span class="co">#&gt; Kerava        0.4468082 0.2553194 0.2978723     Kasvava</span></span>
+<span><span class="co">#&gt; Kontiolahti   0.4468082 0.2553194 0.2978723     Kasvava</span></span>
+<span><span class="co">#&gt; Kouvola       0.4468082 0.2553194 0.2978723    Taantuva</span></span>
+<span><span class="co">#&gt; Lahti         0.4468082 0.2553194 0.2978723       Vakaa</span></span>
+<span><span class="co">#&gt; Lohja         0.4468082 0.2553194 0.2978723       Vakaa</span></span>
+<span><span class="co">#&gt; Loimaa        0.4468082 0.2553194 0.2978723    Taantuva</span></span>
+<span><span class="co">#&gt; Mikkeli       0.4468082 0.2553194 0.2978723       Vakaa</span></span>
+<span><span class="co">#&gt; Nivala        0.4468082 0.2553194 0.2978723    Taantuva</span></span>
+<span><span class="co">#&gt; Oulainen      0.4468082 0.2553194 0.2978723    Taantuva</span></span>
+<span><span class="co">#&gt; Oulu          0.4468082 0.2553194 0.2978723     Kasvava</span></span>
+<span><span class="co">#&gt; Pelkosenniemi 0.4468082 0.2553194 0.2978723    Taantuva</span></span>
+<span><span class="co">#&gt; Siikalatva    0.4468082 0.2553194 0.2978723    Taantuva</span></span>
+<span><span class="co">#&gt; Tohmajärvi    0.4468082 0.2553194 0.2978723    Taantuva</span></span>
+<span><span class="co">#&gt; Turku         0.4468082 0.2553194 0.2978723     Kasvava</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; [[2]]</span></span>
+<span><span class="co">#&gt;                Taantuva     Vakaa   Kasvava ActualClass</span></span>
+<span><span class="co">#&gt; Huittinen     0.5437204 0.2468452 0.2094344    Taantuva</span></span>
+<span><span class="co">#&gt; Hyvinkää      0.3195433 0.3110421 0.3694146       Vakaa</span></span>
+<span><span class="co">#&gt; Iitti         0.4763502 0.2138185 0.3098312    Taantuva</span></span>
+<span><span class="co">#&gt; Järvenpää     0.3696856 0.2339021 0.3964124     Kasvava</span></span>
+<span><span class="co">#&gt; Kaarina       0.3159175 0.2520451 0.4320374     Kasvava</span></span>
+<span><span class="co">#&gt; Kerava        0.3159175 0.2520451 0.4320374     Kasvava</span></span>
+<span><span class="co">#&gt; Kontiolahti   0.3385366 0.2700911 0.3913723     Kasvava</span></span>
+<span><span class="co">#&gt; Kouvola       0.4751903 0.2157330 0.3090768    Taantuva</span></span>
+<span><span class="co">#&gt; Lahti         0.3159175 0.2520451 0.4320374       Vakaa</span></span>
+<span><span class="co">#&gt; Lohja         0.4624536 0.2892942 0.2482522       Vakaa</span></span>
+<span><span class="co">#&gt; Loimaa        0.5452396 0.2447408 0.2100196    Taantuva</span></span>
+<span><span class="co">#&gt; Mikkeli       0.5437204 0.2468452 0.2094344       Vakaa</span></span>
+<span><span class="co">#&gt; Nivala        0.3385366 0.2700911 0.3913723    Taantuva</span></span>
+<span><span class="co">#&gt; Oulainen      0.4028275 0.3213835 0.2757890    Taantuva</span></span>
+<span><span class="co">#&gt; Oulu          0.4507985 0.2023492 0.3468523     Kasvava</span></span>
+<span><span class="co">#&gt; Pelkosenniemi 0.5452396 0.2447408 0.2100196    Taantuva</span></span>
+<span><span class="co">#&gt; Siikalatva    0.5452396 0.2447408 0.2100196    Taantuva</span></span>
+<span><span class="co">#&gt; Tohmajärvi    0.4507985 0.2023492 0.3468523    Taantuva</span></span>
+<span><span class="co">#&gt; Turku         0.3159175 0.2520451 0.4320374     Kasvava</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; [[3]]</span></span>
+<span><span class="co">#&gt;                Taantuva     Vakaa   Kasvava ActualClass</span></span>
+<span><span class="co">#&gt; Huittinen     0.5882332 0.2447338 0.1670330    Taantuva</span></span>
+<span><span class="co">#&gt; Hyvinkää      0.3988891 0.3572706 0.2438404       Vakaa</span></span>
+<span><span class="co">#&gt; Iitti         0.5882332 0.2447338 0.1670330    Taantuva</span></span>
+<span><span class="co">#&gt; Järvenpää     0.5882332 0.2447338 0.1670330     Kasvava</span></span>
+<span><span class="co">#&gt; Kaarina       0.2628256 0.2354034 0.5017710     Kasvava</span></span>
+<span><span class="co">#&gt; Kerava        0.3988891 0.3572706 0.2438404     Kasvava</span></span>
+<span><span class="co">#&gt; Kontiolahti   0.3988891 0.3572706 0.2438404     Kasvava</span></span>
+<span><span class="co">#&gt; Kouvola       0.4342403 0.1806652 0.3850946    Taantuva</span></span>
+<span><span class="co">#&gt; Lahti         0.4058793 0.1897217 0.4043989       Vakaa</span></span>
+<span><span class="co">#&gt; Lohja         0.5882332 0.2447338 0.1670330       Vakaa</span></span>
+<span><span class="co">#&gt; Loimaa        0.5882332 0.2447338 0.1670330    Taantuva</span></span>
+<span><span class="co">#&gt; Mikkeli       0.5882332 0.2447338 0.1670330       Vakaa</span></span>
+<span><span class="co">#&gt; Nivala        0.3988891 0.3572706 0.2438404    Taantuva</span></span>
+<span><span class="co">#&gt; Oulainen      0.3988891 0.3572706 0.2438404    Taantuva</span></span>
+<span><span class="co">#&gt; Oulu          0.5882332 0.2447338 0.1670330     Kasvava</span></span>
+<span><span class="co">#&gt; Pelkosenniemi 0.5882332 0.2447338 0.1670330    Taantuva</span></span>
+<span><span class="co">#&gt; Siikalatva    0.5882332 0.2447338 0.1670330    Taantuva</span></span>
+<span><span class="co">#&gt; Tohmajärvi    0.5882332 0.2447338 0.1670330    Taantuva</span></span>
+<span><span class="co">#&gt; Turku         0.2628256 0.2354034 0.5017710     Kasvava</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; [[4]]</span></span>
+<span><span class="co">#&gt;                Taantuva     Vakaa   Kasvava ActualClass</span></span>
+<span><span class="co">#&gt; Huittinen     0.4501243 0.2987644 0.2511113    Taantuva</span></span>
+<span><span class="co">#&gt; Hyvinkää      0.5051420 0.2688716 0.2259865       Vakaa</span></span>
+<span><span class="co">#&gt; Iitti         0.5622491 0.2378436 0.1999074    Taantuva</span></span>
+<span><span class="co">#&gt; Järvenpää     0.5622491 0.2378436 0.1999074     Kasvava</span></span>
+<span><span class="co">#&gt; Kaarina       0.3541742 0.2551892 0.3906366     Kasvava</span></span>
+<span><span class="co">#&gt; Kerava        0.4299014 0.3097521 0.2603464     Kasvava</span></span>
+<span><span class="co">#&gt; Kontiolahti   0.5051420 0.2688716 0.2259865     Kasvava</span></span>
+<span><span class="co">#&gt; Kouvola       0.3731665 0.2476846 0.3791488    Taantuva</span></span>
+<span><span class="co">#&gt; Lahti         0.3561411 0.2447606 0.3990982       Vakaa</span></span>
+<span><span class="co">#&gt; Lohja         0.4501243 0.2987644 0.2511113       Vakaa</span></span>
+<span><span class="co">#&gt; Loimaa        0.5622491 0.2378436 0.1999074    Taantuva</span></span>
+<span><span class="co">#&gt; Mikkeli       0.3731665 0.2476846 0.3791488       Vakaa</span></span>
+<span><span class="co">#&gt; Nivala        0.5051420 0.2688716 0.2259865    Taantuva</span></span>
+<span><span class="co">#&gt; Oulainen      0.5051420 0.2688716 0.2259865    Taantuva</span></span>
+<span><span class="co">#&gt; Oulu          0.4831610 0.2808145 0.2360245     Kasvava</span></span>
+<span><span class="co">#&gt; Pelkosenniemi 0.5622491 0.2378436 0.1999074    Taantuva</span></span>
+<span><span class="co">#&gt; Siikalatva    0.5550066 0.2417786 0.2032148    Taantuva</span></span>
+<span><span class="co">#&gt; Tohmajärvi    0.4831610 0.2808145 0.2360245    Taantuva</span></span>
+<span><span class="co">#&gt; Turku         0.3541742 0.2551892 0.3906366     Kasvava</span></span></code></pre></div>
   </main>
 </div>
 
