@@ -25,23 +25,24 @@ library(tidyverse)
 
 Number of documents currently 68
 
+Example from dataset, sentence nro 43 from Espoo document:
+
 ``` r
-aspol
-#> # A tibble: 451,660 × 13
-#>    kunta   sent ID    FORM  LEMMA UPOSTAG XPOSTAG FEATS HEAD  DEPREL DEPS  MISC 
-#>    <chr>  <int> <chr> <chr> <chr> <chr>   <chr>   <chr> <chr> <chr>  <chr> <chr>
-#>  1 Enont…     1 1     ﻿Khall ﻿Khall PROPN   _       Case… 0     root   _     "_"  
-#>  2 Enont…     1 2     19.4… 19.4… NUM     _       _     1     nmod   _     "_"  
-#>  3 Enont…     1 3     $     $     PUNCT   _       _     4     punct  _     "_"  
-#>  4 Enont…     1 4     126   126   NUM     _       NumT… 1     nummod _     "Spa…
-#>  5 Enont…     2 1     (     (     PUNCT   _       _     2     punct  _     "Spa…
-#>  6 Enont…     2 2     N     N     NOUN    _       Abbr… 0     root   _     "Spa…
-#>  7 Enont…     3 1     Enon… Enon… PROPN   _       Case… 0     root   _     "Spa…
-#>  8 Enont…     4 1     KUNTA kunta NOUN    _       Case… 0     root   _     "Spa…
-#>  9 Enont…     5 1     VUOK… vuok… NOUN    _       Case… 2     nmod:… _     "Spa…
-#> 10 Enont…     5 2     KEHI… kehi… NOUN    _       Case… 0     root   _     "Spa…
-#> # ℹ 451,650 more rows
-#> # ℹ 1 more variable: doc <chr>
+aspol |> filter(kunta == "Espoo", sent == 43)
+#> # A tibble: 26 × 13
+#>    kunta  sent ID    FORM          LEMMA       UPOSTAG XPOSTAG FEATS                                                                  HEAD  DEPREL    DEPS  MISC                 doc              
+#>    <chr> <int> <chr> <chr>         <chr>       <chr>   <chr>   <chr>                                                                  <chr> <chr>     <chr> <chr>                <chr>            
+#>  1 Espoo    43 1     Asumisen      asuminen    NOUN    _       Case=Gen|Derivation=Minen|Number=Sing                                  4     nmod:poss _     "_"                  espoo_2023.conllu
+#>  2 Espoo    43 2     ja            ja          CCONJ   _       _                                                                      3     cc        _     "_"                  espoo_2023.conllu
+#>  3 Espoo    43 3     maankäytön    maan#käyttö NOUN    _       Case=Gen|Number=Sing                                                   1     conj      _     "_"                  espoo_2023.conllu
+#>  4 Espoo    43 4     periaatteiden periaate    NOUN    _       Case=Gen|Number=Plur                                                   5     nmod:gobj _     "_"                  espoo_2023.conllu
+#>  5 Espoo    43 5     laadinnassa   laadinta    NOUN    _       Case=Ine|Number=Sing                                                   6     nmod      _     "_"                  espoo_2023.conllu
+#>  6 Espoo    43 6     tärkeimpiä    tärkeä      ADJ     _       Case=Par|Degree=Sup|Number=Plur                                        8     amod      _     "SpacesAfter=\\r\\n" espoo_2023.conllu
+#>  7 Espoo    43 7     ratkaistavia  ratkaista   VERB    _       Case=Par|Degree=Pos|Number=Plur|PartForm=Pres|VerbForm=Part|Voice=Pass 8     acl       _     "_"                  espoo_2023.conllu
+#>  8 Espoo    43 8     asioita       asia        NOUN    _       Case=Par|Number=Plur                                                   12    nsubj:cop _     "_"                  espoo_2023.conllu
+#>  9 Espoo    43 9     ovat          olla        AUX     _       Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin|Voice=Act        12    aux       _     "_"                  espoo_2023.conllu
+#> 10 Espoo    43 10    olleet        olla        AUX     _       Case=Nom|Degree=Pos|Number=Plur|PartForm=Past|VerbForm=Part|Voice=Act  12    cop       _     "_"                  espoo_2023.conllu
+#> # ℹ 16 more rows
 ```
 
 ``` r
@@ -87,20 +88,61 @@ aspol |>
 
 ``` r
 aspol |>
-  filter(LEMMA == "suuri") |>
-  count(FORM, sort = TRUE)
-#> # A tibble: 78 × 2
-#>    FORM           n
+  filter(LEMMA == "asunto") |>
+  count(FORM, FEATS, sort = TRUE)
+#> # A tibble: 81 × 3
+#>    FORM       FEATS                    n
+#>    <chr>      <chr>                <int>
+#>  1 asuntojen  Case=Gen|Number=Plur   880
+#>  2 asuntoa    Case=Par|Number=Sing   516
+#>  3 asuntoja   Case=Par|Number=Plur   472
+#>  4 asunnot    Case=Nom|Number=Plur   317
+#>  5 asunnon    Case=Gen|Number=Sing   306
+#>  6 Asuntojen  Case=Gen|Number=Plur   240
+#>  7 asunto-    Case=Nom|Number=Sing   190
+#>  8 asunnoista Case=Ela|Number=Plur   171
+#>  9 asunto     Case=Nom|Number=Sing   123
+#> 10 Asunnot    Case=Nom|Number=Plur    98
+#> # ℹ 71 more rows
+```
+
+``` r
+aspol |>
+  group_by(FORM) |>
+  summarise(perusmuoto = length(unique(UPOSTAG))) |>
+  arrange(desc(perusmuoto))
+#> # A tibble: 69,686 × 2
+#>    FORM  perusmuoto
 #>    <chr>      <int>
-#>  1 suuri        132
-#>  2 suurin       128
-#>  3 suurempi      79
-#>  4 Suurin        55
-#>  5 suuria        49
-#>  6 suurempia     31
-#>  7 suurten       30
-#>  8 suurta        29
-#>  9 suuret        26
-#> 10 suurempien    20
-#> # ℹ 68 more rows
+#>  1 .              9
+#>  2 /              9
+#>  3 o              9
+#>  4 -              6
+#>  5 @              6
+#>  6 Yli            6
+#>  7 –              6
+#>  8 !              5
+#>  9 %              5
+#> 10 )              5
+#> # ℹ 69,676 more rows
+```
+
+``` r
+aspol |>
+  filter(LEMMA == "olla") |>
+  count(FORM, LEMMA, UPOSTAG, FEATS, sort = TRUE)
+#> # A tibble: 130 × 5
+#>    FORM     LEMMA UPOSTAG FEATS                                                                     n
+#>    <chr>    <chr> <chr>   <chr>                                                                 <int>
+#>  1 on       olla  AUX     Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin|Voice=Act        9847
+#>  2 ovat     olla  AUX     Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin|Voice=Act        1653
+#>  3 oli      olla  AUX     Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin|Voice=Act         762
+#>  4 ole      olla  AUX     Connegative=Yes|Mood=Ind|Tense=Pres|VerbForm=Fin                        487
+#>  5 ollut    olla  AUX     Case=Nom|Degree=Pos|Number=Sing|PartForm=Past|VerbForm=Part|Voice=Act   450
+#>  6 olla     olla  AUX     InfForm=1|Number=Sing|VerbForm=Inf|Voice=Act                            447
+#>  7 on       olla  AUX     Mood=Ind|Number=Sing|Person=0|Tense=Pres|VerbForm=Fin|Voice=Act         255
+#>  8 olemassa olla  VERB    Case=Ine|InfForm=3|Number=Sing|VerbForm=Inf|Voice=Act                   229
+#>  9 olevien  olla  VERB    Case=Gen|Degree=Pos|Number=Plur|PartForm=Pres|VerbForm=Part|Voice=Act   172
+#> 10 olisi    olla  AUX     Mood=Cnd|Number=Sing|Person=3|VerbForm=Fin|Voice=Act                    148
+#> # ℹ 120 more rows
 ```

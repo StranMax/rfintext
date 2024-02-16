@@ -23,29 +23,34 @@ plan(multisession)
 ```
 
 
-```{r}
+```{r, message=FALSE, R.options=list(width=10000)}
 y <- aspol |>
   distinct(kunta) |>
   left_join(taantuvat) |>
   filter(!is.na(luokka)) |>
   mutate(luokka = forcats::fct_collapse(luokka,
                                         Kasvava = c("Voimakkaasti kasvava",
-                                                    "Kasvava"), 
-                                        Vakaa = c("Hieman kasvava",
-                                                  "Hieman taantuva"),
-                                        Taantuva = c("Taantuva",
+                                                    "Kasvava",
+                                                    "Hieman kasvava"), 
+                                        # Vakaa = c("Hieman kasvava",
+                                        #           "Hieman taantuva"),
+                                        Taantuva = c("Hieman taantuva",
+                                                     "Taantuva",
                                                      "Voimakkaasti taantuva")))
+y
 ```
 
-```{r}
+```{r, message=FALSE, R.options=list(width=10000), cols.print=20}
 X <- aspol |> 
   preprocess_corpus() |> 
   corpus_to_dtm(kunta, LEMMA) |>
   dfm_subset(docname_ %in% y$kunta)
+X
 ```
 
 ```{r}
 trainNames <- y$kunta[caret::createDataPartition(y$luokka, p = 0.7, times = 1)[[1]]]
+trainNames
 ```
 
 ```{r}
@@ -54,13 +59,18 @@ y[!y$kunta %in% trainNames, ] |> count(luokka)
 ```
 
 
-```{r}
+```{r, message=FALSE, warning=FALSE}
 k_values <- c(2, 6, 9, 16)
 lda_dtm <- foreach(k = k_values) %dofuture% {
   rfintext::get_doc_topic_prob(X, k = k)
 }
 names(lda_dtm) <- paste0("k_", k_values)
 ```
+
+```{r, R.options=list(width=10000)}
+lda_dtm
+```
+
 
 
 ```{r}
@@ -84,6 +94,11 @@ xgb_data <- lapply(lda_dtm, get_train_test_data, y, trainNames)
 ```
 
 ```{r}
+xgb_data
+```
+
+
+```{r}
 xgb_params <- list(
   booster = "gbtree",
   eta = 0.01,
@@ -92,21 +107,21 @@ xgb_params <- list(
   # subsample = 1,
   colsample_bytree = 1,
   objective = "multi:softprob",
-  # objective = "binary:logistic",
+  # objective = "binary:logistic"
   eval_metric = "mlogloss",
   num_class = length(levels(y$luokka))
 )
 ```
 
 ```{r, rows.print=70}
-lapply(seq_along(xgb_data), function(i) {
-  watchlist = list(train=xgb_data[[i]]$Train, test=xgb_data[[i]]$Test)
-  model = xgb.train(data = xgb_data[[i]]$Train, max.depth = 3, watchlist=watchlist, nrounds = 70)
-})
+# lapply(seq_along(xgb_data), function(i) {
+#   watchlist = list(train=xgb_data[[i]]$Train, test=xgb_data[[i]]$Test)
+#   model = xgb.train(data = xgb_data[[i]]$Train, max.depth = 3, watchlist=watchlist, nrounds = 70)
+# })
 ```
 
 ```{r}
-nrounds <- c(1, 6, 3, 8)
+# nrounds <- c(1, 6, 3, 8)
 xgb_models <- lapply(seq_along(xgb_data),
                      function(i) {
                        xgb.train(
@@ -118,33 +133,47 @@ xgb_models <- lapply(seq_along(xgb_data),
                        )
                      }
 )
+names(xgb_models) <- paste0("k_", k_values)
 ```
 
 ```{r}
-lapply(seq_along(xgb_models), function(i) {
+importance <-  lapply(seq_along(xgb_models), function(i) {
   xgb.importance(
     feature_names = colnames(xgb_data[[i]]), 
     model = xgb_models[[i]]
   )
 }
 )
+names(importance) <- paste0("k_", k_values)
+importance
 ```
+
 
 ```{r}
 xgb_preds <- lapply(seq_along(xgb_models), function(i) {
   xgb_preds <- predict(xgb_models[[i]], xgb_data[[i]]$Test, reshape = TRUE)
   xgb_preds <- as.data.frame(xgb_preds)
+  
   colnames(xgb_preds) <- levels(y$luokka)
   rownames(xgb_preds) <- y$kunta[!y$kunta %in% trainNames]
-  xgb_preds <- xgb_preds |>
-    mutate(
-      # PredictedClass = max(c_across(Taantuva, Vakaa, Kasvava)),
-           ActualClass = y[!y$kunta %in% trainNames, ]$luokka)
+  xgb_preds$PredictedClass <- factor(colnames(xgb_preds)[max.col(xgb_preds, ties.method='first')], levels = levels(y$luokka))
+  xgb_preds$ActualClass <- factor(y[!y$kunta %in% trainNames, ]$luokka, levels = levels(y$luokka))
+  xgb_preds
 })
+names(xgb_preds) <- paste0("k_", k_values)
 ```
 
 
 ```{r, rows.print=19}
 xgb_preds
+```
+
+
+```{r}
+conf_matrix <- lapply(seq_along(xgb_data), function(i) {
+  confusionMatrix(xgb_preds[[i]]$ActualClass, xgb_preds[[i]]$PredictedClass)
+})
+names(conf_matrix) <- paste0("k_", k_values)
+conf_matrix
 ```
 

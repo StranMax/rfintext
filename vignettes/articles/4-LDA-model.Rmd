@@ -43,7 +43,7 @@ lapply(results, topic_diagnostics, dtm)
 ```
 
 
-```{r, rows.print=25}
+```{r, rows.print=25, R.options=list(width=10000)}
 lapply(results, function(x) as.data.frame(terms(x, 25)))
 ```
 

@@ -38,11 +38,13 @@ library(tidyverse)
 
 Number of documents currently `r length(unique(aspol$kunta))`
 
-```{r}
-aspol
+Example from dataset, sentence nro 43 from Espoo document:
+
+```{r, R.options = list(width = 10000), rows.print=26}
+aspol |> filter(kunta == "Espoo", sent == 43)
 ```
 
-```{r}
+```{r, R.options = list(width = 10000), rows.print=10}
 aspol |>
   dplyr::filter(UPOSTAG %in% c("NOUN", "VERB", "ADJ", "ADV")) |>
   dplyr::count(LEMMA, UPOSTAG, sort = TRUE)
@@ -55,9 +57,22 @@ aspol |>
   arrange(desc(taivutusmuodot))
 ```
 
+```{r , R.options = list(width = 10000), rows.print=81}
+aspol |>
+  filter(LEMMA == "asunto") |>
+  count(FORM, FEATS, sort = TRUE)
+```
+
 ```{r}
 aspol |>
-  filter(LEMMA == "suuri") |>
-  count(FORM, sort = TRUE)
+  group_by(FORM) |>
+  summarise(perusmuoto = length(unique(UPOSTAG))) |>
+  arrange(desc(perusmuoto))
+```
+
+```{r , R.options = list(width = 10000), rows.print=81}
+aspol |>
+  filter(LEMMA == "olla") |>
+  count(FORM, LEMMA, UPOSTAG, FEATS, sort = TRUE)
 ```
 
