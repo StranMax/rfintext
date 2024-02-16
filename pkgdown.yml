@@ -9,7 +9,7 @@ articles:
   3-LDA-parameter-tuning: 3-LDA-parameter-tuning.html
   4-LDA-model: 4-LDA-model.html
   5-XGBoost-classification: 5-XGBoost-classification.html
-last_built: 2024-02-16T09:37Z
+last_built: 2024-02-16T14:25Z
 urls:
   reference: https://stranmax.github.io/rfintext/reference
   article: https://stranmax.github.io/rfintext/articles
