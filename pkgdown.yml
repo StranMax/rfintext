@@ -7,8 +7,8 @@ articles:
   1-Data-preprocessing: 1-Data-preprocessing.html
   2-Document-term-matrix: 2-Document-term-matrix.html
   3-Topic-modeling: 3-Topic-modeling.html
-  5-XGBoost-classification: 5-XGBoost-classification.html
-last_built: 2024-02-22T10:50Z
+  4-XGBoost-classification: 4-XGBoost-classification.html
+last_built: 2024-02-22T19:27Z
 urls:
   reference: https://stranmax.github.io/rfintext/reference
   article: https://stranmax.github.io/rfintext/articles

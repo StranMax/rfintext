@@ -25,7 +25,7 @@
     <loc>https://stranmax.github.io/rfintext/articles/3-Topic-modeling.html</loc>
   </url>
   <url>
-    <loc>https://stranmax.github.io/rfintext/articles/5-XGBoost-classification.html</loc>
+    <loc>https://stranmax.github.io/rfintext/articles/4-XGBoost-classification.html</loc>
   </url>
   <url>
     <loc>https://stranmax.github.io/rfintext/articles/index.html</loc>
@@ -40,6 +40,9 @@
     <loc>https://stranmax.github.io/rfintext/reference/aspol.html</loc>
   </url>
   <url>
+    <loc>https://stranmax.github.io/rfintext/reference/compute_error.html</loc>
+  </url>
+  <url>
     <loc>https://stranmax.github.io/rfintext/reference/corpus_to_dtm.html</loc>
   </url>
   <url>
@@ -52,10 +55,16 @@
     <loc>https://stranmax.github.io/rfintext/reference/get_doc_topic_prob.html</loc>
   </url>
   <url>
+    <loc>https://stranmax.github.io/rfintext/reference/get_train_test_data.html</loc>
+  </url>
+  <url>
     <loc>https://stranmax.github.io/rfintext/reference/index.html</loc>
   </url>
   <url>
     <loc>https://stranmax.github.io/rfintext/reference/kuntalista.html</loc>
+  </url>
+  <url>
+    <loc>https://stranmax.github.io/rfintext/reference/mod.html</loc>
   </url>
   <url>
     <loc>https://stranmax.github.io/rfintext/reference/plot_coherence.html</loc>
@@ -77,6 +86,9 @@
   </url>
   <url>
     <loc>https://stranmax.github.io/rfintext/reference/remove_uncommon_terms.html</loc>
+  </url>
+  <url>
+    <loc>https://stranmax.github.io/rfintext/reference/split_train_test.html</loc>
   </url>
   <url>
     <loc>https://stranmax.github.io/rfintext/reference/strategia.html</loc>
