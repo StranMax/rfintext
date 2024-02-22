@@ -6,10 +6,9 @@ articles:
   1-Asuntopoliittisten-ohjelmien-teko-kunnissa: 1-Asuntopoliittisten-ohjelmien-teko-kunnissa.html
   1-Data-preprocessing: 1-Data-preprocessing.html
   2-Document-term-matrix: 2-Document-term-matrix.html
-  3-LDA-parameter-tuning: 3-LDA-parameter-tuning.html
-  4-LDA-model: 4-LDA-model.html
+  3-Topic-modeling: 3-Topic-modeling.html
   5-XGBoost-classification: 5-XGBoost-classification.html
-last_built: 2024-02-22T07:14Z
+last_built: 2024-02-22T10:50Z
 urls:
   reference: https://stranmax.github.io/rfintext/reference
   article: https://stranmax.github.io/rfintext/articles
