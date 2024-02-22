@@ -1,0 +1,89 @@
+---
+title: "3 Topic modeling"
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+Topic modeling with latent Dirichlet allocation (LDA). Finding optimal k-parameter.
+Using coherence score as a value of goodness.
+
+```{r setup, message=FALSE, warning=FALSE}
+library(rfintext)
+library(quanteda)
+library(tidytext)
+library(topicmodels)
+library(topicdoc)
+library(dplyr)
+library(ggplot2)
+library(doFuture)
+plan(multisession)
+```
+
+```{r, include=FALSE}
+quanteda_options(print_dfm_max_ndoc = 20, print_dfm_max_nfeat = 20)
+```
+
+```{r, message=FALSE, R.options = list(width = 10000)}
+dtm <- aspol |>
+  preprocess_corpus() |>
+  corpus_to_dtm(kunta, LEMMA)
+dtm
+```
+
+```{r, R.options=list(width=10000)}
+topfeatures(dtm)
+```
+
+LDA needs one parameter `k`. Finding optimal values by evaluating coherence score.
+
+```{r, warning=FALSE}
+k_values <- c(seq(2, 70, by = 1))
+system.time(
+  coherence <- foreach(k = k_values, .combine = 'rbind', .inorder = FALSE) %dofuture% {
+    rfintext::get_coherence(dtm, k)
+  }
+)
+```
+
+```{r}
+p <- plot_coherence(coherence)
+p
+```
+
+```{r}
+optimal_k <- c(5, 15, 18, 21)
+p +
+  geom_vline(xintercept = optimal_k, linetype='dashed', color=c('red')) +
+  lapply(optimal_k, function(x) {geom_text(aes(x=x+1, label=x, y=-5), colour="red", angle=90)}) +
+  labs(title = "Optimal k values")
+  
+```
+
+Highest coherence values: `r optimal_k`
+
+```{r, warning=FALSE}
+lda_models <- foreach(k = optimal_k) %dofuture% {
+  topicmodels::LDA(quanteda::convert(dtm, to = "tm"), k = k, control = list(seed = 1234))
+}
+names(lda_models) <- paste0("k_", optimal_k)
+```
+
+```{r, R.options=list(width = 10000, pillar.print_max = 25, pillar.print_min = 25)}
+lapply(lda_models, function(x) {
+  as.data.frame(terms(x, 25))
+})
+```
+
+```{r, R.options=list(width = 10000)}
+lapply(lda_models, function(x) {
+  x |> 
+    tidytext::tidy(matrix = "gamma") |>
+    tidytext::cast_dfm(document, topic, gamma)
+})
+```
+

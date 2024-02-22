@@ -40,5 +40,5 @@ get_doc_topic_prob <- function(dfm, k) {
   lda <- topicmodels::LDA(quanteda::convert(dfm, to = "tm"), k = k, control = list(seed = 1234))
   lda |>
     tidytext::tidy(matrix = "gamma") |>
-    tidytext::cast_dfm(document, topic, gamma)
+    tidytext::cast_dfm(.data$document, .data$topic, gamma)
 }
