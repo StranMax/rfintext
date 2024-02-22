@@ -25,6 +25,7 @@ Suggests:
     quanteda,
     readr,
     sf,
+    stats,
     stringr,
     testthat (>= 3.0.0),
     tidytext,

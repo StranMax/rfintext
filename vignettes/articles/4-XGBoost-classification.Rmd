@@ -1,0 +1,170 @@
+---
+title: "4 XGBoost classification"
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup, message=FALSE, warning=FALSE}
+library(rfintext)
+library(rfinstats)
+library(dplyr)
+library(tidytext)
+library(xgboost)
+library(caret)
+library(topicmodels)
+library(quanteda)
+library(doFuture)
+library(forcats)
+library(purrr)
+plan(multisession)
+```
+
+```{r, include=FALSE}
+quanteda_options(print_dfm_max_ndoc = 20, print_dfm_max_nfeat = 20)
+```
+
+```{r, message=FALSE, R.options=list(width=10000, pillar.print_max = 20, pillar.print_min = 20)}
+y <- aspol |>
+  distinct(kunta) |>
+  left_join(taantuvat) |>
+  filter(!is.na(luokka)) |>
+  mutate(luokka = forcats::fct_collapse(luokka,
+                                        Kasvava = c("Voimakkaasti kasvava",
+                                                    "Kasvava",
+                                                    "Hieman kasvava"), 
+                                        Taantuva = c("Hieman taantuva",
+                                                     "Taantuva",
+                                                     "Voimakkaasti taantuva")))
+y
+```
+
+```{r, message=FALSE, R.options=list(width=10000)}
+X <- aspol |> 
+  preprocess_corpus() |> 
+  corpus_to_dtm(kunta, LEMMA) |>
+  dfm_subset(docname_ %in% y$kunta)
+X
+```
+
+```{r, warning=FALSE}
+optimal_k <- c(5, 15, 18, 21)
+system.time(
+  lda_models <- foreach(k = optimal_k) %dofuture% {
+    get_doc_topic_prob(X, k = k)
+  }
+)
+
+names(lda_models) <- paste0("k_", optimal_k)
+```
+
+```{r, R.options=list(width=10000)}
+lda_models
+```
+
+```{r}
+xgb_data <- lapply(lda_models, get_train_test_data, y, split_train_test(y, luokka, kunta))
+```
+
+```{r}
+xgb_data
+```
+
+```{r}
+gs <- tidyr::expand_grid(
+  booster = "gbtree",
+  eta = seq(0.01, 0.4, by = 0.1),
+  max_depth = seq(3, 9, by = 1),
+  gamma = seq(0, 4, by = 2),
+  subsample = seq(0.5, 1, by = 0.25),
+  colsample_bylevel = seq(0.5, 1, by = 0.25),
+  nrounds = seq(5, 50, by = 20),
+  objective = "binary:logistic",
+  num_parallel_tree = 2
+)
+gs
+```
+
+```{r}
+system.time(
+  gs_list <- lapply(xgb_data, function(x) {
+    gs |> mutate(xgb_model = purrr::pmap(gs, function(...) mod(x[["Train"]], ...), .progress = TRUE))
+  })
+)
+
+gs_list
+```
+
+```{r}
+gs_list <- map2(xgb_data, gs_list, function(xgb_dat, xgb_mod) {
+  xgb_mod |> mutate(error = purrr::map_dbl(xgb_model, function(mod) {
+    compute_error(mod, xgb_dat[["Test"]])
+  }))
+}  )
+gs_list
+```
+
+```{r}
+results <- bind_rows(gs_list, .id = "lda_model")
+```
+
+```{r}
+results |>
+  ggplot() +
+  geom_boxplot(aes(error)) +
+  labs(y="") +
+  theme(axis.text.y = element_blank(), axis.ticks.y = element_blank()) +
+  facet_wrap(~lda_model, nrow = 4)
+```
+
+```{r, rows.print=100}
+results |> slice_max(order_by = -error, n = 1, by = lda_model, with_ties = TRUE)
+```
+
+
+
+```{r}
+# importance <-  lapply(seq_along(xgb_models), function(i) {
+#   xgb.importance(
+#     feature_names = colnames(xgb_data[[i]]), 
+#     model = xgb_models[[i]]
+#   )
+# }
+# )
+# names(importance) <- paste0("k_", k_values)
+# importance
+```
+
+
+```{r}
+# xgb_preds <- lapply(seq_along(xgb_models), function(i) {
+#   xgb_preds <- predict(xgb_models[[i]], xgb_data[[i]]$Test, reshape = TRUE)
+#   xgb_preds <- as.data.frame(xgb_preds)
+#   
+#   colnames(xgb_preds) <- levels(y$luokka)
+#   rownames(xgb_preds) <- y$kunta[!y$kunta %in% trainNames]
+#   xgb_preds$PredictedClass <- factor(colnames(xgb_preds)[max.col(xgb_preds, ties.method='first')], levels = levels(y$luokka))
+#   xgb_preds$ActualClass <- factor(y[!y$kunta %in% trainNames, ]$luokka, levels = levels(y$luokka))
+#   xgb_preds
+# })
+# names(xgb_preds) <- paste0("k_", k_values)
+```
+
+
+```{r, rows.print=19}
+# xgb_preds
+```
+
+
+```{r}
+# conf_matrix <- lapply(seq_along(xgb_data), function(i) {
+#   confusionMatrix(xgb_preds[[i]]$ActualClass, xgb_preds[[i]]$PredictedClass)
+# })
+# names(conf_matrix) <- paste0("k_", k_values)
+# conf_matrix
+```
+
