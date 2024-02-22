@@ -18,9 +18,18 @@ library(rfinstats)
 library(quanteda)
 ```
 
+```{r, include=FALSE}
+quanteda_options(print_dfm_max_ndoc = 20, print_dfm_max_nfeat = 20)
+```
+
+```{r, message=FALSE, R.options = list(width = 10000, pillar.print_max = 20, pillar.print_min = 20)}
+aspol |>
+  preprocess_corpus() |>
+  dplyr::count(kunta, LEMMA, name = "tc")
+```
 
 
-```{r}
+```{r, message=FALSE, R.options = list(width = 10000)}
 aspol |>
   preprocess_corpus() |>
   corpus_to_dtm(kunta, LEMMA)

@@ -33,7 +33,7 @@ library(dplyr)
 
 Original terms total `r nrow(aspol)`
 
-```{r, collapse=FALSE}
+```{r, R.options = list(width = 10000, pillar.print_max = 20, pillar.print_min = 20)}
 aspol |>
   filter_upostag(c("NOUN", "VERB", "ADJ")) |>
   remove_numbers() |>
@@ -43,7 +43,7 @@ aspol |>
   remove_short_term()
 ```
 
-```{r}
+```{r, R.options = list(width = 10000, pillar.print_max = 20, pillar.print_min = 20)}
 aspol |> preprocess_corpus()
 ```
 

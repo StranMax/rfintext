@@ -40,11 +40,11 @@ Number of documents currently `r length(unique(aspol$kunta))`
 
 Example from dataset, sentence nro 43 from Espoo document:
 
-```{r, R.options = list(width = 10000), rows.print=26}
+```{r, R.options = list(width = 10000, pillar.print_max = 26, pillar.print_min = 26)}
 aspol |> filter(kunta == "Espoo", sent == 43)
 ```
 
-```{r, R.options = list(width = 10000), rows.print=10}
+```{r, R.options = list(width = 10000, pillar.print_max = 20, pillar.print_min = 20)}
 aspol |>
   dplyr::filter(UPOSTAG %in% c("NOUN", "VERB", "ADJ", "ADV")) |>
   dplyr::count(LEMMA, UPOSTAG, sort = TRUE)
@@ -57,7 +57,7 @@ aspol |>
   arrange(desc(taivutusmuodot))
 ```
 
-```{r , R.options = list(width = 10000), rows.print=81}
+```{r , R.options = list(width = 10000, pillar.print_max = 20, pillar.print_min = 20)}
 aspol |>
   filter(LEMMA == "asunto") |>
   count(FORM, FEATS, sort = TRUE)
@@ -70,7 +70,7 @@ aspol |>
   arrange(desc(perusmuoto))
 ```
 
-```{r , R.options = list(width = 10000), rows.print=81}
+```{r , R.options = list(width = 10000, pillar.print_max = 20, pillar.print_min = 20)}
 aspol |>
   filter(LEMMA == "olla") |>
   count(FORM, LEMMA, UPOSTAG, FEATS, sort = TRUE)
