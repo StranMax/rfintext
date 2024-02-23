@@ -74,7 +74,7 @@ xgb_data <- lapply(lda_models, get_train_test_data, y, split_train_test(y, luokk
 xgb_data
 ```
 
-```{r}
+```{r, R.options=list(width=10000, pillar.print_max = 20, pillar.print_min = 20)}
 gs <- tidyr::expand_grid(
   booster = "gbtree",
   eta = seq(0.01, 0.4, by = 0.1),
@@ -89,7 +89,7 @@ gs <- tidyr::expand_grid(
 gs
 ```
 
-```{r}
+```{r, R.options=list(width=10000, pillar.print_max = 20, pillar.print_min = 20)}
 system.time(
   gs_list <- lapply(xgb_data, function(x) {
     gs |> mutate(xgb_model = purrr::pmap(gs, function(...) mod(x[["Train"]], ...), .progress = TRUE))
@@ -99,7 +99,7 @@ system.time(
 gs_list
 ```
 
-```{r}
+```{r, R.options=list(width=10000, pillar.print_max = 20, pillar.print_min = 20)}
 gs_list <- map2(xgb_data, gs_list, function(xgb_dat, xgb_mod) {
   xgb_mod |> mutate(error = purrr::map_dbl(xgb_model, function(mod) {
     compute_error(mod, xgb_dat[["Test"]])
@@ -121,7 +121,7 @@ results |>
   facet_wrap(~lda_model, nrow = 4)
 ```
 
-```{r, rows.print=100}
+```{r, R.options=list(width=10000, pillar.print_max = 50, pillar.print_min = 50)}
 results |> slice_max(order_by = -error, n = 1, by = lda_model, with_ties = TRUE)
 ```
 
