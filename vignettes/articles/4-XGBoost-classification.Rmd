@@ -122,7 +122,56 @@ results |>
 ```
 
 ```{r, R.options=list(width=10000, pillar.print_max = 50, pillar.print_min = 50)}
-results |> slice_max(order_by = -error, n = 1, by = lda_model, with_ties = TRUE)
+results |> slice_max(order_by = -error, n = 1, by = lda_model, with_ties = FALSE)
+```
+
+
+```{r}
+results |>
+  mutate(importance = map2(results$lda_model, results$xgb_model, function(k_model, mdl) {
+    results |> mutate(importance = tidyr::nest(
+      xgb.importance(feature_names = colnames(xgb_data[[k_model]]),
+                     model = mdl)
+    ))
+  }, .progress = TRUE))
+```
+
+
+```{r}
+importance <-  map2(results$lda_model, results$xgb_model, function(k_model, mdl) {
+  results |> mutate(importance = tidyr::nest(xgb.importance(feature_names = colnames(xgb_data[[k_model]]),
+                 model = mdl)))
+}, .progress = TRUE)
+```
+
+```{r}
+importance
+```
+
+
+```{r}
+results |>
+  arrange(error) |>
+  slice_head(n=10) |>
+  select(lda_model, xgb_model) |>
+  map2("lda_model", "xgb_model", function(x, y) {
+    class(x)
+  })
+  # map2(["xgb_model"], xgb_data, function(k, dat) {
+  #   xgb.importance(feature_names = colnames(dat), 
+  #                  model = k)
+  # })
+  # pmap(function(df) {
+  #   xgb.importance(feature_names = colnames(xgb_data[[df["lda_model"]]]), 
+  #                  model = df["xgb_model"])
+  # })
+```
+
+
+```{r}
+bst <- results |> arrange(error) |> slice_head(n = 1) |> pull(xgb_model)
+xgb.importance(feature_names = colnames(xgb_data$k_5),
+               model = bst[[1]])
 ```
 
 

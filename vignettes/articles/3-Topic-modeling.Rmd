@@ -14,6 +14,7 @@ Using coherence score as a value of goodness.
 
 ```{r setup, message=FALSE, warning=FALSE}
 library(rfintext)
+library(rfinstats)
 library(quanteda)
 library(tidytext)
 library(topicmodels)
@@ -55,13 +56,17 @@ p <- plot_coherence(coherence)
 p
 ```
 
+Visually selecting potentially best k values
 ```{r}
 optimal_k <- c(5, 15, 18, 21)
+```
+
+
+```{r}
 p +
   geom_vline(xintercept = optimal_k, linetype='dashed', color=c('red')) +
   lapply(optimal_k, function(x) {geom_text(aes(x=x+1, label=x, y=-5), colour="red", angle=90)}) +
   labs(title = "Optimal k values")
-  
 ```
 
 Highest coherence values: `r optimal_k`
@@ -74,16 +79,259 @@ names(lda_models) <- paste0("k_", optimal_k)
 ```
 
 ```{r, R.options=list(width = 10000, pillar.print_max = 25, pillar.print_min = 25)}
-lapply(lda_models, function(x) {
+topic_terms <- lapply(lda_models, function(x) {
   as.data.frame(terms(x, 25))
 })
+topic_terms
 ```
 
 ```{r, R.options=list(width = 10000)}
-lapply(lda_models, function(x) {
+doc_topics <- lapply(lda_models, function(x) {
   x |> 
     tidytext::tidy(matrix = "gamma") |>
     tidytext::cast_dfm(document, topic, gamma)
 })
+doc_topics
+```
+
+```{r}
+lapply(doc_topics, function(x) {
+  x |> as.matrix() |> cor() |>
+  as_tibble(rownames = "topic1") |>
+  tidyr::pivot_longer(!topic1, names_to = "topic2", values_to = "correlation") |>
+  ggplot() +
+  geom_tile(aes(x = topic1, y = topic2, fill = correlation)) +
+  scale_fill_viridis_c(option = "A")
+})
+```
+
+
+```{r}
+gather_topic_prob <- function(m) {
+  m |> 
+    convert(to = "data.frame") |>
+    tidyr::pivot_longer(!doc_id, names_to = "topic", values_to = "prop")
+}
+```
+
+```{r}
+join_y <- function(df) {
+  df |> 
+    left_join(taantuvat, by = join_by("doc_id" == "kunta")) |>
+    filter(!is.na(luokka))
+}
+```
+
+```{r}
+summarise_topics <- function(df, ...) {
+  df |> 
+    mutate(topic = factor(as.integer(topic))) |>
+    summarise(...)
+}
+```
+
+
+```{r}
+plot_topic_mean_prop <- function(df, ...) {
+  df |>
+    ggplot() +
+    geom_point(aes(...))
+}
+```
+
+```{r}
+lapply(doc_topics, function(x) { 
+  x |>
+    gather_topic_prob() |>
+    join_y() |>
+    summarise_topics(sum_prop = sum(prop), .by = c(luokka, topic)) |>
+    plot_topic_mean_prop(x = topic, y = sum_prop, colour = luokka)
+}
+)
+```
+
+```{r}
+lapply(doc_topics, function(x) { 
+  x |>
+    gather_topic_prob() |>
+    join_y() |>
+    summarise_topics(mean_prop = mean(prop), .by = c(luokka, topic)) |>
+    plot_topic_mean_prop(x = topic, y = mean_prop, colour = luokka)
+}
+)
+```
+
+
+```{r}
+taantuvat |>
+  filter(kunta %in% unique(aspol$kunta)) |>
+  mutate(luokka = if_else(suht_muutos_2010_2022 > 0, "Kasvava", "Taantuva")) |>
+  count(luokka, sort = TRUE)
+```
+
+```{r}
+# purrr::imap(doc_topics, function(x, name) { 
+#   x |>
+#     gather_topic_prob() |>
+#     join_y() |>
+#     select(doc_id, topic, prop, suht_muutos_2010_2022, luokka) |>
+#     tidyr::pivot_wider(names_from = topic, values_from = prop) |>
+#     rename_with(~ paste0("topic_", .x, recycle0 = TRUE), matches("^[0-9]+$")) |>
+#     write.csv(paste0("topic_", name, ".csv"))
+# })
+```
+
+
+```{r}
+dat <- doc_topics$k_5 |> 
+  gather_topic_prob() |>
+  join_y() |>
+  mutate(luokka = if_else(suht_muutos_2010_2022 > 0, "Kasvava", "Taantuva"),
+         topic = factor(as.integer(topic))) |>
+  select(topic, prop, luokka)
+dat
+```
+
+```{r}
+for (i in seq_along(unique(dat$topic))) {
+  cat("Topic ", i)
+  print(
+    dat |> filter(topic == i) |>
+    ggplot() +
+    geom_boxplot(aes(x = luokka, y = prop)) +
+      labs(title = paste0("Topic ", i))
+    )
+  print(
+    dat |>
+      filter(topic == i) |>
+      kruskal.test(luokka ~ prop, data = _)
+  )
+} 
+```
+
+
+```{r}
+doc_topics$k_5 |>
+  gather_topic_prob() |>
+  join_y() |>
+  mutate(luokka = if_else(suht_muutos_2010_2022 > 0, "Kasvava", "Taantuva"),
+         topic = factor(as.integer(topic))) |>
+  summarise(topic_sum = sum(prop), 
+            topic_mean = mean(prop),
+            .by = c(luokka, topic)) |>
+  kruskal.test(topic_sum ~ luokka)
+```
+
+```{r}
+lapply(doc_topics, function(x) { 
+  x |>
+    gather_topic_prob() |>
+    join_y() |>
+    mutate(luokka = if_else(suht_muutos_2010_2022 > 0, "Kasvava", "Taantuva"),
+           topic = factor(as.integer(topic))) |>
+    summarise(mean_prop = mean(prop), .by = c(luokka, topic)) |>
+    tidyr::pivot_wider(names_from = luokka, values_from = mean_prop) |>
+    mutate(diff = Kasvava-Taantuva) |>
+    ggplot() +
+    geom_point(aes(x = topic, y = diff)) +
+    ylim(-0.4, 0.4) +
+    geom_hline(yintercept = 0)
+})
+```
+
+
+```{r}
+lapply(doc_topics, function(x) { 
+  x |>
+    gather_topic_prob() |>
+    join_y() |>
+    mutate(luokka = if_else(suht_muutos_2010_2022 > 0, "Kasvava", "Taantuva"),
+           topic = factor(as.integer(topic))) |>
+    summarise(topic_sum = sum(prop), 
+              topic_mean = mean(prop),
+              .by = c(luokka, topic)) |>
+    ggplot() +
+    geom_tile(aes(x = topic, y = luokka, fill = topic_sum)) +
+    scale_fill_viridis_c(option = "A")
+}
+)
+```
+
+```{r}
+lapply(doc_topics, function(x) { 
+  x |>
+    gather_topic_prob() |>
+    join_y() |>
+    mutate(luokka = if_else(suht_muutos_2010_2022 > 0, "Kasvava", "Taantuva"),
+           topic = factor(as.integer(topic))) |>
+    summarise(topic_sum = sum(prop), 
+              topic_mean = mean(prop),
+              .by = c(luokka, topic)) |>
+    ggplot() +
+    geom_tile(aes(x = topic, y = luokka, fill = topic_mean)) +
+    scale_fill_viridis_c(option = "A")
+}
+)
+```
+
+```{r}
+lapply(doc_topics, function(x) { 
+  x |>
+    gather_topic_prob() |>
+    join_y() |>
+    mutate(luokka = if_else(suht_muutos_2010_2022 > 0, "Kasvava", "Taantuva"),
+           topic = factor(as.integer(topic))) |>
+    summarise(mean_prop = mean(prop), .by = c(luokka, topic)) |>
+    tidyr::pivot_wider(names_from = luokka, values_from = mean_prop) |>
+    mutate(diff = Kasvava-Taantuva) |>
+    tidyr::pivot_longer(Kasvava:Taantuva, names_to = "luokka", values_to = "prop") |>
+    ggplot() +
+    geom_tile(aes(x = topic, y = luokka, fill = diff)) +
+    scale_fill_distiller(palette = "Spectral")
+})
+```
+
+```{r}
+titles <- aspol |> 
+  group_by(kunta) |> 
+  slice_head(n=10) |> 
+  summarise(title = paste(FORM, collapse = " ")) |>
+  inner_join(taantuvat)
+titles
+```
+
+```{r}
+titles_per_topics <- lapply(doc_topics, function(x) {
+  gather_topic_prob(x) |>
+    slice_max(order_by = prop, n = 1, by = doc_id) |>
+    left_join(titles, by = join_by("doc_id" == "kunta"))
+  })
+titles_per_topics
+```
+
+```{r, rows.print=16, }
+titles_per_topics$k_5 |>
+  filter(topic==3) |>
+  select(doc_id, title)
+```
+
+
+```{r}
+doc_topics$k_5 |> convert(to = "data.frame") |>
+  tidyr::pivot_longer(!doc_id, names_to = "topic", values_to = "prop") |>
+  left_join(taantuvat, by = join_by("doc_id" == "kunta")) |>
+  filter(!is.na(luokka)) |>
+  group_by(luokka, topic) |>
+  summarise(mean_prop = mean(prop)) |>
+  ggplot() +
+  geom_point(aes(x = topic, y = mean_prop, colour = luokka))
+```
+
+
+```{r}
+doc_topics$k_5 |> convert(to = "data.frame") |>
+  tidyr::pivot_longer(!doc_id, names_to = "topic", values_to = "prop") |>
+  ggplot() +
+  geom_col(aes(x = prop, y = topic))
 ```
 
