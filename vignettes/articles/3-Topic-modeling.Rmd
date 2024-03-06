@@ -40,7 +40,11 @@ dtm
 ```
 
 ```{r, R.options=list(width=10000)}
-topfeatures(dtm)
+topfeatures(dtm, n = 20) |>
+  as_tibble(rownames = "term") |>
+  ggplot(aes(x = value, y = reorder(term, value))) +
+  geom_col() +
+  labs(subtitle = "20 most common terms", x = "Count", y = "Term")
 ```
 
 LDA needs one parameter `k`. Finding optimal values by evaluating coherence score.
@@ -54,7 +58,7 @@ system.time(
     mean_coherence <- mean(topicdoc::topic_coherence(lda, dtm))
     data_frame(k = k, mean_coherence = mean_coherence)
   }
-)
+)  # Around 30 min.
 ```
 
 ```{r}
@@ -65,7 +69,9 @@ system.time(
 ```{r}
 p <- model_coherence |>
   ggplot(aes(x = k, y = mean_coherence)) +
-  geom_line()
+  geom_line() +
+  labs(subtitle = "LDA model coherence with different topic numbers", 
+       x = "k (number of topics)", y = "Mean coherence")
 p
 ```
 
@@ -79,7 +85,8 @@ optimal_k <- c(5, 15, 18, 21)
 p +
   geom_vline(xintercept = optimal_k, linetype='dashed', color=c('red')) +
   lapply(optimal_k, function(x) {geom_text(aes(x=x+1, label=x, y=-5), colour="red", angle=90)}) +
-  labs(title = "Optimal k values")
+  labs(subtitle = "Optimal k values",
+       x = "k (number of topics)", y = "Mean coherence")
 ```
 
 Highest coherence values: `r optimal_k`
@@ -164,35 +171,50 @@ ggplot(topic_prevalence, aes(x = factor(topic), y = mean_gamma)) +
   labs(subtitle = "Topic prevalence")
 ```
 
-```{r, fig.height=21, fig.width=7}
+```{r, fig.height=21, fig.width=14}
 for (i in unique(beta_matrix$model)) {
   print(
     beta_matrix |>
       filter(model == i) |>
       group_by(topic) |>
       slice_max(beta, n = 25) |>
-      mutate(topic = as.factor(topic)) |>
+      mutate(topic = as.factor(paste0("Topic_", topic))) |>
+      ggplot(aes(x = beta, y = reorder(term, beta), fill = topic)) +
+      geom_col(show.legend = FALSE) +
+      scale_fill_viridis_d(option = "A") +
+      facet_wrap(~topic, scales = "free") +
+      labs(title = "Top 25 terms by topic", subtitle = paste0("Model_", i), x = "Probability", y = "Term")
+  )
+}
+```
+
+```{r, fig.height=21, fig.width=14}
+for (i in unique(beta_matrix$model)) {
+  print(
+    beta_matrix |>
+      filter(model == i) |>
+      group_by(topic) |>
+      slice_max(beta, n = 25) |>
+      mutate(topic = as.factor(paste0("Topic_", topic))) |>
       ungroup() |>
       add_count(term, name = "in_topics") |>
-      filter((in_topics / max(as.integer(topic))) < 0.75) |>
+      filter(in_topics == 1) |>
       ggplot(aes(x = beta, y = reorder(term, beta), fill = topic)) +
       geom_col(show.legend = FALSE) +
       scale_fill_viridis_d(option = "A") +
       facet_wrap(~topic, scales = "free", ncol = 2) +
-      labs(subtitle = i)
+      labs(title = "Unique terms out of top 25 terms by topic", subtitle = paste0("Model_", i), x = "Probability", y = "Term")
   )
 }
-
 ```
 
-
 ```{r, R.options=list(width = 10000)}
-doc_topics <- lapply(lda_models, function(x) {
-  x |>
-    tidytext::tidy(matrix = "gamma") |>
-    tidytext::cast_dfm(document, topic, gamma)
-})
-doc_topics
+# doc_topics <- lapply(lda_models, function(x) {
+#   x |>
+#     tidytext::tidy(matrix = "gamma") |>
+#     tidytext::cast_dfm(document, topic, gamma)
+# })
+# doc_topics
 ```
 
 
