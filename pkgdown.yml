@@ -1,4 +1,4 @@
-pandoc: 2.19.2
+pandoc: 3.1.11
 pkgdown: 2.0.7
 pkgdown_sha: ~
 articles:
@@ -8,7 +8,7 @@ articles:
   2-Document-term-matrix: 2-Document-term-matrix.html
   3-Topic-modeling: 3-Topic-modeling.html
   4-XGBoost-classification: 4-XGBoost-classification.html
-last_built: 2024-02-23T06:21Z
+last_built: 2024-03-06T11:58Z
 urls:
   reference: https://stranmax.github.io/rfintext/reference
   article: https://stranmax.github.io/rfintext/articles

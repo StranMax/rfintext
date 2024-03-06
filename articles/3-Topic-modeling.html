@@ -70,7 +70,7 @@
 
 
 
-
+<script src="3-Topic-modeling_files/kePrint-0.0.1/kePrint.js"></script><link href="3-Topic-modeling_files/lightable-0.0.1/lightable.css" rel="stylesheet">
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="" class="logo" alt=""><h1>3 Topic modeling</h1>
@@ -86,14 +86,18 @@
 optimal k-parameter. Using coherence score as a value of goodness.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/StranMax/rfintext" class="external-link">rfintext</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/StranMax/rfinstats" class="external-link">rfinstats</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://quanteda.io" class="external-link">quanteda</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/juliasilge/tidytext" class="external-link">tidytext</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">topicmodels</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/doug-friedman/topicdoc" class="external-link">topicdoc</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyr.tidyverse.org" class="external-link">tidyr</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
+<span><span class="co"># library(DT)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://haozhu233.github.io/kableExtra/" class="external-link">kableExtra</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://doFuture.futureverse.org" class="external-link">doFuture</a></span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://future.futureverse.org/reference/plan.html" class="external-link">plan</a></span><span class="op">(</span><span class="va">multisession</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://future.futureverse.org/reference/plan.html" class="external-link">plan</a></span><span class="op">(</span><span class="va">multisession</span>, workers <span class="op">=</span> <span class="fu"><a href="https://parallelly.futureverse.org/reference/availableCores.html" class="external-link">availableCores</a></span><span class="op">(</span>logical <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dtm</span> <span class="op">&lt;-</span> <span class="va">aspol</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/preprocess_corpus.html">preprocess_corpus</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -132,150 +136,1231 @@ evaluating coherence score.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">k_values</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">70</span>, by <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/system.time.html" class="external-link">system.time</a></span><span class="op">(</span></span>
-<span>  <span class="va">coherence</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/foreach/man/foreach.html" class="external-link">foreach</a></span><span class="op">(</span>k <span class="op">=</span> <span class="va">k_values</span>, .combine <span class="op">=</span> <span class="st">'rbind'</span>, .inorder <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op"><a href="https://doFuture.futureverse.org/reference/grapes-dofuture-grapes.html" class="external-link">%dofuture%</a></span> <span class="op">{</span></span>
-<span>    <span class="fu">rfintext</span><span class="fu">::</span><span class="fu"><a href="../reference/get_coherence.html">get_coherence</a></span><span class="op">(</span><span class="va">dtm</span>, <span class="va">k</span><span class="op">)</span></span>
+<span>  <span class="va">model_coherence</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/foreach/man/foreach.html" class="external-link">foreach</a></span><span class="op">(</span>k <span class="op">=</span> <span class="va">k_values</span>, .combine <span class="op">=</span> <span class="st">'rbind'</span>, .inorder <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op"><a href="https://doFuture.futureverse.org/reference/grapes-dofuture-grapes.html" class="external-link">%dofuture%</a></span> <span class="op">{</span></span>
+<span>    <span class="va">lda</span> <span class="op">&lt;-</span> <span class="fu">topicmodels</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/topicmodels/man/lda.html" class="external-link">LDA</a></span><span class="op">(</span><span class="fu">quanteda</span><span class="fu">::</span><span class="fu"><a href="https://quanteda.io/reference/convert.html" class="external-link">convert</a></span><span class="op">(</span><span class="va">dtm</span>, to <span class="op">=</span> <span class="st">"tm"</span><span class="op">)</span>, k <span class="op">=</span> <span class="va">k</span>, control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>seed <span class="op">=</span> <span class="fl">1234</span><span class="op">)</span><span class="op">)</span></span>
+<span>    <span class="va">mean_coherence</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="fu">topicdoc</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/topicdoc/man/topic_coherence.html" class="external-link">topic_coherence</a></span><span class="op">(</span><span class="va">lda</span>, <span class="va">dtm</span><span class="op">)</span><span class="op">)</span></span>
+<span>    <span class="fu"><a href="https://tibble.tidyverse.org/reference/deprecated.html" class="external-link">data_frame</a></span><span class="op">(</span>k <span class="op">=</span> <span class="va">k</span>, mean_coherence <span class="op">=</span> <span class="va">mean_coherence</span><span class="op">)</span></span>
 <span>  <span class="op">}</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt;     user   system  elapsed </span></span>
-<span><span class="co">#&gt;   75.839    1.836 2030.831</span></span></code></pre></div>
+<span><span class="co">#&gt;   70.393    1.771 2339.346</span></span></code></pre></div>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plot_coherence.html">plot_coherence</a></span><span class="op">(</span><span class="va">coherence</span><span class="op">)</span></span>
-<span><span class="va">p</span></span></code></pre></div>
-<p><img src="3-Topic-modeling_files/figure-html/unnamed-chunk-6-1.png" width="700"></p>
+<code class="sourceCode R"><span><span class="co"># save(model_coherence, file = "./extdata/model_coherence.rda")  # Does not work!!??</span></span>
+<span><span class="co"># usethis::use_data(model_coherence)</span></span></code></pre></div>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">optimal_k</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">15</span>, <span class="fl">18</span>, <span class="fl">21</span><span class="op">)</span></span>
-<span><span class="va">p</span> <span class="op">+</span></span>
+<code class="sourceCode R"><span><span class="va">p</span> <span class="op">&lt;-</span> <span class="va">model_coherence</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">k</span>, y <span class="op">=</span> <span class="va">mean_coherence</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">p</span></span></code></pre></div>
+<p><img src="3-Topic-modeling_files/figure-html/unnamed-chunk-7-1.png" width="700"></p>
+<p>Visually selecting potentially best k values</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">optimal_k</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">15</span>, <span class="fl">18</span>, <span class="fl">21</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">p</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_vline</a></span><span class="op">(</span>xintercept <span class="op">=</span> <span class="va">optimal_k</span>, linetype<span class="op">=</span><span class="st">'dashed'</span>, color<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'red'</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">optimal_k</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">{</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_text.html" class="external-link">geom_text</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x<span class="op">=</span><span class="va">x</span><span class="op">+</span><span class="fl">1</span>, label<span class="op">=</span><span class="va">x</span>, y<span class="op">=</span><span class="op">-</span><span class="fl">5</span><span class="op">)</span>, colour<span class="op">=</span><span class="st">"red"</span>, angle<span class="op">=</span><span class="fl">90</span><span class="op">)</span><span class="op">}</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Optimal k values"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="3-Topic-modeling_files/figure-html/unnamed-chunk-7-1.png" width="700"></p>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Optimal k values"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning in geom_text(aes(x = x + 1, label = x, y = -5), colour = "red", : All aesthetics have length 1, but the data has 69 rows.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Did you mean to use `annotate()`?</span></span>
+<span><span class="co">#&gt; All aesthetics have length 1, but the data has 69 rows.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Did you mean to use `annotate()`?</span></span>
+<span><span class="co">#&gt; All aesthetics have length 1, but the data has 69 rows.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Did you mean to use `annotate()`?</span></span>
+<span><span class="co">#&gt; All aesthetics have length 1, but the data has 69 rows.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Did you mean to use `annotate()`?</span></span></code></pre></div>
+<p><img src="3-Topic-modeling_files/figure-html/unnamed-chunk-9-1.png" width="700"></p>
 <p>Highest coherence values: 5, 15, 18, 21</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">lda_models</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/foreach/man/foreach.html" class="external-link">foreach</a></span><span class="op">(</span>k <span class="op">=</span> <span class="va">optimal_k</span><span class="op">)</span> <span class="op"><a href="https://doFuture.futureverse.org/reference/grapes-dofuture-grapes.html" class="external-link">%dofuture%</a></span> <span class="op">{</span></span>
 <span>  <span class="fu">topicmodels</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/topicmodels/man/lda.html" class="external-link">LDA</a></span><span class="op">(</span><span class="fu">quanteda</span><span class="fu">::</span><span class="fu"><a href="https://quanteda.io/reference/convert.html" class="external-link">convert</a></span><span class="op">(</span><span class="va">dtm</span>, to <span class="op">=</span> <span class="st">"tm"</span><span class="op">)</span>, k <span class="op">=</span> <span class="va">k</span>, control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>seed <span class="op">=</span> <span class="fl">1234</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">lda_models</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"k_"</span>, <span class="va">optimal_k</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">lda_models</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/terms.html" class="external-link">terms</a></span><span class="op">(</span><span class="va">x</span>, <span class="fl">25</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="op">}</span><span class="op">)</span></span>
-<span><span class="co">#&gt; $k_5</span></span>
-<span><span class="co">#&gt;                Topic 1         Topic 2        Topic 3          Topic 4            Topic 5</span></span>
-<span><span class="co">#&gt; 1               tontti        kaupunki     kiinteistö         kaupunki           asuminen</span></span>
-<span><span class="co">#&gt; 2             kaupunki        asuminen          yhtiö         asuminen           kaupunki</span></span>
-<span><span class="co">#&gt; 3         rakentaminen asunto#tuotanto  vuokra#asunto           asukas            ohjelma</span></span>
-<span><span class="co">#&gt; 4              ohjelma           määrä          tulla         keskusta asunto#poliittinen</span></span>
-<span><span class="co">#&gt; 5          asema#kaava          asukas        omistaa          palvelu            palvelu</span></span>
-<span><span class="co">#&gt; 6                  maa       prosentti      rivi#talo     rakentaminen            henkilö</span></span>
-<span><span class="co">#&gt; 7                tulla          kasvaa          tehdä            määrä              tukea</span></span>
-<span><span class="co">#&gt; 8       kaupunki#seutu           osuus       rakennus     kehittäminen              huone</span></span>
-<span><span class="co">#&gt; 9          maan#käyttö           kasvu       asuminen             asua               asua</span></span>
-<span><span class="co">#&gt; 10            asuminen    asunto#kanta       keskusta            tulla   palvelu#asuminen</span></span>
-<span><span class="co">#&gt; 11           luovuttaa    asunto#kunta       rakentaa           väestö               hyvä</span></span>
-<span><span class="co">#&gt; 12  asunto#poliittinen           tulla           talo kaupunki#rakenne      erityis#ryhmä</span></span>
-<span><span class="co">#&gt; 13     asunto#tuotanto      asuin#alue         asukas            pieni             asukas</span></span>
-<span><span class="co">#&gt; 14             käyttää            asua          kohde       työ#paikka              tulla</span></span>
-<span><span class="co">#&gt; 15           kaavoitus   vuokra#asunto        palvelu     mahdollisuus            tarvita</span></span>
-<span><span class="co">#&gt; 16 maan#käyttö#sopimus            kuva kanta#kaupunki       asuin#alue       asunto#kunta</span></span>
-<span><span class="co">#&gt; 17       maan#omistaja    rakentaminen          kunto             aika        ikä#ihminen</span></span>
-<span><span class="co">#&gt; 18                aika          valtio        kysyntä      suunnittelu            edistää</span></span>
-<span><span class="co">#&gt; 19     maa#poliittinen            aika        sijaita         liikenne  asunto#politiikka</span></span>
-<span><span class="co">#&gt; 20           huomioida         edistää          saada      maan#käyttö    asuin#ympäristö</span></span>
-<span><span class="co">#&gt; 21         toimen#pide          väestö          myydä             hyvä          järjestää</span></span>
-<span><span class="co">#&gt; 22      maa#politiikka         vastata         väestö           tärkeä             paikka</span></span>
-<span><span class="co">#&gt; 23             edistää    kehittäminen          liite          vyöhyke      vuokra#asunto</span></span>
-<span><span class="co">#&gt; 24           toteuttaa     toimen#pide    käyttö#aste         rakentaa              lähde</span></span>
-<span><span class="co">#&gt; 25       maan#hankinta       valmistua        omistus           tontti            vastata</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $k_15</span></span>
-<span><span class="co">#&gt;                Topic 1           Topic 2       Topic 3                Topic 4            Topic 5            Topic 6        Topic 7            Topic 8            Topic 9           Topic 10     Topic 11          Topic 12        Topic 13        Topic 14           Topic 15</span></span>
-<span><span class="co">#&gt; 1             kaupunki          kaupunki         yhtiö               kaupunki              huone             tontti       kaupunki     kaupunki#seutu           kaupunki           kaupunki     asuminen          asuminen        kaupunki        kaupunki           kaupunki</span></span>
-<span><span class="co">#&gt; 2               tontti          asuminen    kiinteistö       kaupunki#rakenne           asuminen              tulla         tontti            ohjelma          prosentti asunto#poliittinen     kaupunki            asukas        asuminen        asuminen           asuminen</span></span>
-<span><span class="co">#&gt; 3         rakentaminen             määrä vuokra#asunto                vyöhyke           kaupunki           kaupunki   rakentaminen           asuminen           asuminen            ohjelma     rakennus           palvelu           tulla  asunto#ohjelma            ohjelma</span></span>
-<span><span class="co">#&gt; 4          maan#käyttö           henkilö     rivi#talo           rakentaminen            henkilö                maa       asuminen    asunto#tuotanto    asunto#tuotanto           asuminen     rakentaa          kaupunki         henkilö          asukas asunto#poliittinen</span></span>
-<span><span class="co">#&gt; 5            kaavoitus           palvelu       omistaa               keskusta   palvelu#asuminen            ohjelma      luovuttaa              seutu               kuva     kanta#kaupunki   kiinteistö              hyvä    kehittäminen    rakentaminen            palvelu</span></span>
-<span><span class="co">#&gt; 6                  maa   asunto#tuotanto         kunto                palvelu            palvelu        asema#kaava          tulla              kasvu       asunto#kunta               asua       tontti        asuin#alue     maan#käyttö          väestö               hyvä</span></span>
-<span><span class="co">#&gt; 7  maan#käyttö#sopimus             tukea        asukas                 asukas       asunto#kunta              liite           aika       asunto#kunta              osuus           keskusta        tehdä              asua         palvelu       prosentti              tulla</span></span>
-<span><span class="co">#&gt; 8          asema#kaava            asukas          talo             työ#paikka      erityis#ryhmä            omistaa       rakennus              määrä             asukas            palvelu        tulla       strateginen          tontti    kehittäminen             asukas</span></span>
-<span><span class="co">#&gt; 9              edistää              asua         tulla                  määrä              tukea asunto#poliittinen      toteuttaa           taulukko             kasvaa             asukas rakentaminen asunto#politiikka          asukas        keskusta            taajama</span></span>
-<span><span class="co">#&gt; 10            asuminen      asunto#kanta       sijaita                  vanha               asua      vuokra#asunto          saada asunto#poliittinen              määrä                maa       asukas             tulla    rakentaminen           liite  asunto#politiikka</span></span>
-<span><span class="co">#&gt; 11       maan#omistaja           edistää         tehdä          kaupunki#alue asunto#poliittinen              tehdä       rakentaa         asuin#alue       asunto#kanta              lähde         kylä           ohjelma            asua           määrä        tulevaisuus</span></span>
-<span><span class="co">#&gt; 12     asunto#tuotanto             kasvu       kysyntä              sijoittua           tehostaa              myydä        kysyntä       rakentaminen              tulla      vuokra#asunto      henkilö             määrä     asema#kaava           yhtiö              tukea</span></span>
-<span><span class="co">#&gt; 13           luovuttaa             tulla         kohde                  pieni  kehitys#vammainen         yksityinen          määrä              osuus      vuokra#asunto             väestö      palvelu             tukea          muutos         palvelu       kehittäminen</span></span>
-<span><span class="co">#&gt; 14         toimen#pide           kysyntä       palvelu               asuminen            ohjelma             myynti        linjaus             väestö               asua        kerros#talo        määrä          keskusta   vuokra#asunto asunto#tuotanto          maa#seutu</span></span>
-<span><span class="co">#&gt; 15           huomioida            kasvaa   vuokra#talo täydennys#rakentaminen             paikka              kaava        käyttää              tulla         asuin#alue              määrä     keskusta   asuin#ympäristö asunto#tuotanto         vastata               kylä</span></span>
-<span><span class="co">#&gt; 16             ohjelma asunto#politiikka   käyttö#aste            suunnittelu        ikä#ihminen            käyttää           kuva      rakenne#malli       rakentaminen       kehittäminen  kerros#talo           henkilö    asunto#kunta          kasvaa             väestö</span></span>
-<span><span class="co">#&gt; 17             palvelu            väestö      asuminen        asunto#tuotanto            yksikkö    kunnan#hallitus     asuin#alue               kuva               aika              tulla         aika            väestö     toimen#pide            aika        toimen#pide</span></span>
-<span><span class="co">#&gt; 18               tukea     vuokra#asunto        väestö            asunto#alue              tulla               hyvä        vastata    maa#poliittinen             valtio    asunto#tuotanto        seutu            tärkeä           määrä           kasvu             tärkeä</span></span>
-<span><span class="co">#&gt; 19        monipuolinen       toimen#pide         määrä                  tulla          järjestää      maan#hankinta          periä      väestön#kasvu          varmistaa       rakentaminen      tarvita      monipuolinen            koko    aseman#seutu            edistää</span></span>
-<span><span class="co">#&gt; 20        kehittäminen             pieni          euro                  kasvu            asiakas            omistus maa#politiikka             kasvaa          toteuttaa            vastata        myydä            kasvaa           osuus         edistää           keskusta</span></span>
-<span><span class="co">#&gt; 21             käyttää           tarvita         saada                   aika            tarvita      maan#omistaja        kestävä          valmistua           hallinta               koko         hyvä              koko          väestö         avustus       rakentaminen</span></span>
-<span><span class="co">#&gt; 22       toteuttaminen        asuin#alue perus#korjaus        joukko#liikenne      vuokra#asunto       rakentaminen    asema#kaava        seudullinen                maa              osuus        saada      mahdollistaa           nuori         kysyntä          vaikuttaa</span></span>
-<span><span class="co">#&gt; 23              asukas             lähde          asua              valmistua         tavallinen        yleis#kaava        korvaus               aika             tontti             kasvaa        hissi           vastata         vastata       huomioida            tarvita</span></span>
-<span><span class="co">#&gt; 24           kustannus             saada         laina    asunto#rakentaminen              vanha           tekninen        sopimus            kehitys vapaa#rahoitteinen        toimen#pide        vanha          rakentaa        liikenne           saada       mahdollisuus</span></span>
-<span><span class="co">#&gt; 25               laatu           ohjelma      keskusta               rakentaa         tuntematon           seuraava        tarvita             pyrkiä              kasvu       mahdollisuus    prosentti   asunto#tuotanto          kasvaa         liittyä            vastata</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $k_18</span></span>
-<span><span class="co">#&gt;                Topic 1           Topic 2       Topic 3      Topic 4          Topic 5            Topic 6        Topic 7            Topic 8             Topic 9           Topic 10     Topic 11          Topic 12        Topic 13        Topic 14           Topic 15               Topic 16           Topic 17               Topic 18</span></span>
-<span><span class="co">#&gt; 1             kaupunki          kaupunki    kiinteistö     kaupunki         kaupunki             tontti       kaupunki     kaupunki#seutu            kaupunki           kaupunki     asuminen          asuminen        kaupunki        kaupunki           kaupunki               kaupunki              huone               kaupunki</span></span>
-<span><span class="co">#&gt; 2         rakentaminen          asuminen         yhtiö     asuminen         asuminen              tulla         tontti            ohjelma              tontti           asuminen     rakentaa            asukas        asuminen        asuminen           asuminen              prosentti           asuminen       kaupunki#rakenne</span></span>
-<span><span class="co">#&gt; 3               tontti             määrä vuokra#asunto kehittäminen    vuokra#asunto                maa   rakentaminen           asuminen            asuminen     kanta#kaupunki     rakennus           palvelu           tulla  asunto#ohjelma            ohjelma               asuminen            henkilö                vyöhyke</span></span>
-<span><span class="co">#&gt; 4              ohjelma           henkilö     rivi#talo        tulla          palvelu            ohjelma       asuminen              seutu              asukas asunto#poliittinen       tontti          kaupunki     asema#kaava          asukas asunto#poliittinen        asunto#tuotanto   palvelu#asuminen           rakentaminen</span></span>
-<span><span class="co">#&gt; 5             asuminen           palvelu       omistaa         asua            määrä        asema#kaava          tulla    asunto#tuotanto                 maa               asua        tehdä        asuin#alue asunto#tuotanto        keskusta            palvelu           asunto#kunta            palvelu                palvelu</span></span>
-<span><span class="co">#&gt; 6          maan#käyttö            asukas         kunto       asukas             asua asunto#poliittinen           aika              kasvu        rakentaminen            ohjelma        tulla              hyvä          muutos    kehittäminen             asukas                   kuva       asunto#kunta               keskusta</span></span>
-<span><span class="co">#&gt; 7          asema#kaava             tukea         tulla    maa#seutu     asunto#kunta              liite      luovuttaa       rakentaminen     asunto#tuotanto           keskusta rakentaminen              asua         palvelu       prosentti               hyvä                  osuus asunto#poliittinen                 asukas</span></span>
-<span><span class="co">#&gt; 8  maan#käyttö#sopimus   asunto#tuotanto          talo      palvelu          henkilö              tehdä       rakennus              määrä           luovuttaa            palvelu   kiinteistö             määrä         henkilö    rakentaminen              tulla                  määrä      erityis#ryhmä                  määrä</span></span>
-<span><span class="co">#&gt; 9      asunto#tuotanto              asua         tehdä      taajama palvelu#asuminen              kaava        kysyntä           taulukko           kaavoitus             asukas         kylä       strateginen     maan#käyttö          väestö  asunto#politiikka                 kasvaa              tukea             työ#paikka</span></span>
-<span><span class="co">#&gt; 10             edistää             kasvu        asukas     liikenne     asunto#kanta         yksityinen           kuva         asuin#alue          asuin#alue              lähde       asukas asunto#politiikka          asukas asunto#tuotanto              tukea                  tulla             paikka                  vanha</span></span>
-<span><span class="co">#&gt; 11           huomioida             tulla         kohde         kylä          omistaa            käyttää maa#politiikka       asunto#kunta           toteuttaa       kehittäminen     keskusta   asuin#ympäristö  asunto#ohjelma           määrä           keskusta           asunto#kanta  kehitys#vammainen täydennys#rakentaminen</span></span>
-<span><span class="co">#&gt; 12                 maa      asunto#kanta       sijaita       tontti             koko             myynti          saada              osuus         maan#käyttö                maa      palvelu             tulla     toimen#pide           yhtiö       rakentaminen                 asukas              tulla              sijoittua</span></span>
-<span><span class="co">#&gt; 13        kehittäminen           edistää       kysyntä rakentaminen          ohjelma      maan#hankinta       rakentaa    maa#poliittinen           varmistaa      vuokra#asunto  kerros#talo           henkilö    rakentaminen         vastata            edistää                   asua        ikä#ihminen               asuminen</span></span>
-<span><span class="co">#&gt; 14           kaavoitus           kysyntä   vuokra#talo  tulevaisuus          liittyä              myydä        linjaus             väestö       vuokra#asunto             väestö         aika           ohjelma    kehittäminen           liite             väestö              valmistua               asua                  pieni</span></span>
-<span><span class="co">#&gt; 15         toimen#pide            kasvaa       palvelu      muuttaa    erityis#ryhmä    kunnan#hallitus          periä      rakenne#malli               määrä              tulla      henkilö          keskusta         vastata         palvelu        toimen#pide               hallinta            ohjelma            asunto#alue</span></span>
-<span><span class="co">#&gt; 16        monipuolinen asunto#politiikka   käyttö#aste         hyvä           asukas               hyvä    asema#kaava               kuva               tukea        kerros#talo        myydä            väestö          kasvaa          kasvaa             tärkeä           rakentaminen            yksikkö            suunnittelu</span></span>
-<span><span class="co">#&gt; 17      maa#politiikka        asuin#alue   toimen#pide mahdollisuus            seutu            omistaa   vuokralainen              tulla              valtio    asunto#tuotanto        hissi             tukea          tontti    aseman#seutu              määrä          vuokra#asunto           tehostaa                  tulla</span></span>
-<span><span class="co">#&gt; 18           luovuttaa            väestö perus#korjaus       väestö            tukea      maan#omistaja      toteuttaa        maan#käyttö             edistää              määrä        vanha            tärkeä   vuokra#asunto         edistää        tulevaisuus                  kasvu         tavallinen          kaupunki#alue</span></span>
-<span><span class="co">#&gt; 19               laatu       toimen#pide         saada  maan#käyttö            pieni       rakentaminen        vastata             pyrkiä                aika           vastaaja         hyvä            kasvaa           seutu           kasvu            tarvita                   aika              vanha        joukko#liikenne</span></span>
-<span><span class="co">#&gt; 20     maa#poliittinen             lähde        väestö     kehittää            saada        yleis#kaava     asuin#alue             tontti             palvelu            vastata      tarvita   osa#yleis#kaava           osuus         kysyntä              kohde              toteuttaa         tuntematon        asunto#tuotanto</span></span>
-<span><span class="co">#&gt; 21              laatia           tarvita      asuminen      liittyä          tarvita           tekninen        käyttää      väestön#kasvu maan#käyttö#sopimus       rakentaminen        määrä          rakentaa           tukea            aika      erityis#ryhmä             asuin#alue        talo#tyyppi              valmistua</span></span>
-<span><span class="co">#&gt; 22             palvelu     erityis#ryhmä          euro         koko           vuokra           rakentaa          määrä        seudullinen              käyttö               koko        seutu             tehdä         tarvita         avustus            vastata                 tontti          järjestää    asunto#rakentaminen</span></span>
-<span><span class="co">#&gt; 23             käyttää             pieni         laina       haluta             tuki        lauta#kunta        kestävä asunto#poliittinen            periaate       mahdollisuus      tarjota           kehitys         edistää        rakentaa          vaikuttaa           kehittäminen            asiakas                  kasvu</span></span>
-<span><span class="co">#&gt; 24               keino            valtio      nykyinen      tarjota            osuus           asuminen        ohjelma               aika       maan#omistaja               asia       toimia      monipuolinen           määrä           saada       kehittäminen           mahdollistaa         tarkoittaa                   aika</span></span>
-<span><span class="co">#&gt; 25              asukas      rakentaminen         määrä      henkilö           väestö          kaavoitus        korvaus            kehitys       toteuttaminen        toimen#pide        saada              koko            asua         kehitys         asuin#alue täydennys#rakentaminen         luku#määrä                 tuleva</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $k_21</span></span>
-<span><span class="co">#&gt;            Topic 1            Topic 2         Topic 3      Topic 4          Topic 5            Topic 6         Topic 7             Topic 8             Topic 9           Topic 10     Topic 11        Topic 12        Topic 13        Topic 14           Topic 15        Topic 16           Topic 17               Topic 18               Topic 19          Topic 20           Topic 21</span></span>
-<span><span class="co">#&gt; 1         kaupunki           asuminen           yhtiö     kaupunki         kaupunki           kaupunki        kaupunki      kaupunki#seutu            kaupunki           kaupunki     kaupunki        asuminen        kaupunki        kaupunki           kaupunki        kaupunki              huone               kaupunki               asuminen          kaupunki             tontti</span></span>
-<span><span class="co">#&gt; 2          ohjelma           kaupunki      kiinteistö     asuminen         asuminen      vuokra#asunto          tontti             ohjelma              tontti     kanta#kaupunki     asuminen          asukas        asuminen        asuminen            ohjelma       prosentti           asuminen       kaupunki#rakenne               kaupunki          asuminen                maa</span></span>
-<span><span class="co">#&gt; 3         asuminen asunto#poliittinen       rivi#talo kehittäminen    vuokra#asunto         kiinteistö    rakentaminen               seutu            asuminen           asuminen     rakentaa         palvelu           tulla  asunto#ohjelma           asuminen asunto#tuotanto            henkilö                vyöhyke           rakentaminen             määrä            ohjelma</span></span>
-<span><span class="co">#&gt; 4           tontti            ohjelma   vuokra#asunto        tulla          palvelu            omistaa        asuminen     asunto#tuotanto              asukas               asua        tehdä        kaupunki     asema#kaava          asukas asunto#poliittinen        asuminen asunto#poliittinen           rakentaminen        asunto#tuotanto           henkilö asunto#poliittinen</span></span>
-<span><span class="co">#&gt; 5     rakentaminen            palvelu          asukas         asua palvelu#asuminen           rakennus           tulla        rakentaminen           luovuttaa asunto#poliittinen       asukas            hyvä asunto#tuotanto          väestö            palvelu            kuva            ohjelma                palvelu            toimen#pide   asunto#tuotanto              tulla</span></span>
-<span><span class="co">#&gt; 6  asunto#tuotanto              tukea         sijaita       asukas          henkilö              tehdä       luovuttaa     maa#poliittinen        rakentaminen           keskusta       tontti      asuin#alue          muutos    kehittäminen             asukas    asunto#kunta       asunto#kunta               keskusta                 lisätä            asukas        asema#kaava</span></span>
-<span><span class="co">#&gt; 7      maan#käyttö  asunto#politiikka         omistaa    maa#seutu             asua           nykyinen            aika               kasvu     asunto#tuotanto            ohjelma rakentaminen     strateginen         palvelu        keskusta               hyvä           osuus            palvelu                 asukas                  keino              asua              liite</span></span>
-<span><span class="co">#&gt; 8           asukas            edistää           tulla      palvelu    erityis#ryhmä              yhtiö     asema#kaava            asuminen                 maa            palvelu     rakennus        keskusta         henkilö       prosentti              tulla          kasvaa              tulla                  määrä             asuin#alue           palvelu         yksityinen</span></span>
-<span><span class="co">#&gt; 9          palvelu             asukas         kysyntä      taajama     asunto#kanta asunto#osake#yhtiö  maa#politiikka       rakenne#malli           toteuttaa             asukas        tulla         henkilö     maan#käyttö    aseman#seutu           keskusta           määrä   palvelu#asuminen             työ#paikka                    maa             tukea              kaava</span></span>
-<span><span class="co">#&gt; 10    monipuolinen      erityis#ryhmä            talo     liikenne     asunto#kunta              kohde        rakennus               osuus           varmistaa              lähde        määrä          väestö          asukas           määrä        tulevaisuus          asukas              tukea                  vanha           monipuolinen             tulla              tehdä</span></span>
-<span><span class="co">#&gt; 11       huomioida              kasvu           kunto       tontti        järjestää              kunto         kysyntä         maan#käyttö       vuokra#asunto      vuokra#asunto      henkilö           tulla  asunto#ohjelma           liite       rakentaminen    asunto#kanta               asua              sijoittua                  laatu             kasvu       rakentaminen</span></span>
-<span><span class="co">#&gt; 12    kehittäminen              yhtiö        asuminen         kylä            tukea              tulla         käyttää              pyrkiä           kaavoitus             väestö         kylä            asua     toimen#pide           yhtiö              määrä           tulla           taulukko täydennys#rakentaminen                linjaus            kasvaa      maan#hankinta</span></span>
-<span><span class="co">#&gt; 13       kaavoitus              tulla          väestö rakentaminen            määrä        toimen#pide           periä              tontti               tukea       kehittäminen      palvelu           määrä         vastata         vastata             väestö       valmistua              vanha                  pieni                edistää      asunto#kanta      maan#omistaja</span></span>
-<span><span class="co">#&gt; 14           kasvu           toiminta           tehdä  tulevaisuus          tarvita      perus#korjaus         vastata              väestö         maan#käyttö              tulla     keskusta osa#yleis#kaava    rakentaminen          kasvaa             tärkeä            asua      erityis#ryhmä               asuminen    maan#käyttö#sopimus           kysyntä               hyvä</span></span>
-<span><span class="co">#&gt; 15   ohjelma#kausi      vuokra#asunto         palvelu      muuttaa          liittyä              myydä        rakentaa                kuva               määrä    asunto#tuotanto   kiinteistö         ohjelma           seutu         avustus        toimen#pide   vuokra#asunto             asukas            asunto#alue täydennys#rakentaminen        asuin#alue           asuminen</span></span>
-<span><span class="co">#&gt; 16     toimen#pide            luonnos     käyttö#aste       väestö          asiakas        vuokra#talo           saada               määrä              valtio              määrä        seutu           ranta    kehittäminen    rakentaminen              päivä        hallinta             paikka            suunnittelu            asema#kaava             lähde            käyttää</span></span>
-<span><span class="co">#&gt; 17            hyvä    asunto#tuotanto        keskusta mahdollisuus             tuki             myynti            kuva          asuin#alue                aika                maa  kerros#talo          tärkeä          tontti         kysyntä               asua    rakentaminen              määrä                  tulla           mahdollistaa asunto#politiikka        yleis#kaava</span></span>
-<span><span class="co">#&gt; 18          laatia           keskusta           kohde         hyvä            saada              määrä         linjaus         seudullinen          asuin#alue               koko      tarvita           tehdä   vuokra#asunto         palvelu         asuin#alue           kasvu              kasvu          kaupunki#alue                  jatko           edistää    kunnan#hallitus</span></span>
-<span><span class="co">#&gt; 19           tukea            vastata           määrä     kehittää           asukas            omistus    vuokralainen yhdys#kunta#rakenne             edistää               asia        hissi          kasvaa          kasvaa            aika              kohde            aika        ikä#ihminen        asunto#tuotanto      asunto#politiikka            väestö          kaavoitus</span></span>
-<span><span class="co">#&gt; 20         edistää       rakentaminen            asua  maan#käyttö             koko               talo       toteuttaa       väestön#kasvu             palvelu            vastata         asua         kehitys           tukea           kasvu               kuva          tontti        talo#tyyppi              valmistua     asunto#poliittinen           tarvita               aika</span></span>
-<span><span class="co">#&gt; 21        keskusta        toimen#pide     vuokra#talo      liittyä            osuus              saada        mukainen        asunto#kunta            periaate           vastaaja         aika         tarjota           osuus          kaavio  asunto#politiikka    kehittäminen         tuntematon        joukko#liikenne         hallinta#muoto       toimen#pide            hankkia</span></span>
-<span><span class="co">#&gt; 22 maa#poliittinen            linjaus         henkilö      henkilö         tehostaa      taloudellinen         liittyä            kaupunki              käyttö       asunto#kanta        vanha           ottaa         tarvita         edistää       kehittäminen       toteuttaa            yksikkö                  kasvu                ohjelma     kaupungin#osa           rakentaa</span></span>
-<span><span class="co">#&gt; 23  kaupunki#seutu       kehittäminen        rakentaa         koko            pieni          huoneisto      asuin#alue                aika maan#käyttö#sopimus              tukea         hyvä          huomio         edistää asunto#tuotanto          toteuttaa      asuin#alue         tavallinen                 tuleva                 haluta             pieni          rivi#talo</span></span>
-<span><span class="co">#&gt; 24       toteuttaa      toteuttaminen vuokra#asuminen      tarjota          omistaa         purkaminen           määrä               tulla              kasvaa       mahdollisuus    prosentti        rakentaa    asunto#kunta     yleis#kaava               aika          väestö           ratkaisu                   aika               nykyinen             saada     maa#politiikka</span></span>
-<span><span class="co">#&gt; 25           liite            tarvita      työ#paikka  toimen#pide      ikä#ihminen      korjaus#tarve oma#koti#tontti             kehitys            rakentaa       rakentaminen       toimia    rakentaminen           kohde           saada          vaikuttaa          valtio  kehitys#vammainen    asunto#rakentaminen            maan#käyttö     erityis#ryhmä      toteuttaminen</span></span></code></pre></div>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">lda_models</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">x</span> <span class="op">|&gt;</span> </span>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">beta_matrix</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind_rows.html" class="external-link">bind_rows</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">lda_models</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="fu">tidytext</span><span class="fu">::</span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x</span>, matrix <span class="op">=</span> <span class="st">"beta"</span><span class="op">)</span></span>
+<span>  <span class="op">}</span><span class="op">)</span>, </span>
+<span>  .id <span class="op">=</span> <span class="st">"model"</span><span class="op">)</span></span>
+<span><span class="va">beta_matrix</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 180,599 × 4</span></span></span>
+<span><span class="co">#&gt;    model topic term           beta</span></span>
+<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> k_5       1 A#talo     1.08<span style="color: #949494;">e</span><span style="color: #BB0000;">-11</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> k_5       2 A#talo     1.47<span style="color: #949494;">e</span><span style="color: #BB0000;">-19</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> k_5       3 A#talo     3.55<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> k_5       4 A#talo     1.51<span style="color: #949494;">e</span><span style="color: #BB0000;">-14</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> k_5       5 A#talo     2.72<span style="color: #949494;">e</span><span style="color: #BB0000;">-10</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> k_5       1 III        6.04<span style="color: #949494;">e</span><span style="color: #BB0000;">-95</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> k_5       2 III        1.54<span style="color: #949494;">e</span><span style="color: #BB0000;">-95</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> k_5       3 III        3.94<span style="color: #949494;">e</span><span style="color: #BB0000;">- 5</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> k_5       4 III        1.27<span style="color: #949494;">e</span><span style="color: #BB0000;">-82</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> k_5       5 III        1.14<span style="color: #949494;">e</span><span style="color: #BB0000;">-93</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">11</span> k_5       1 Vapaa#aika 1.05<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">12</span> k_5       2 Vapaa#aika 6.92<span style="color: #949494;">e</span><span style="color: #BB0000;">-16</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">13</span> k_5       3 Vapaa#aika 4.73<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">14</span> k_5       4 Vapaa#aika 1.42<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">15</span> k_5       5 Vapaa#aika 7.14<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">16</span> k_5       1 aiheuttaa  1.05<span style="color: #949494;">e</span><span style="color: #BB0000;">- 3</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">17</span> k_5       2 aiheuttaa  4.92<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">18</span> k_5       3 aiheuttaa  1.12<span style="color: #949494;">e</span><span style="color: #BB0000;">- 3</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">19</span> k_5       4 aiheuttaa  1.89<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">20</span> k_5       5 aiheuttaa  1.70<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">21</span> k_5       1 aika       4.62<span style="color: #949494;">e</span><span style="color: #BB0000;">- 3</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">22</span> k_5       2 aika       5.27<span style="color: #949494;">e</span><span style="color: #BB0000;">- 3</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">23</span> k_5       3 aika       3.66<span style="color: #949494;">e</span><span style="color: #BB0000;">- 3</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">24</span> k_5       4 aika       4.55<span style="color: #949494;">e</span><span style="color: #BB0000;">- 3</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">25</span> k_5       5 aika       8.22<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 180,574 more rows</span></span></span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">topic_congruence</span> <span class="op">&lt;-</span> <span class="va">beta_matrix</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://tidyr.tidyverse.org/reference/pivot_wider.html" class="external-link">pivot_wider</a></span><span class="op">(</span>values_from <span class="op">=</span> <span class="va">beta</span>, names_from <span class="op">=</span> <span class="va">topic</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/rename.html" class="external-link">rename_with</a></span><span class="op">(</span><span class="op">~</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"Topic_"</span>, <span class="va">.</span><span class="op">)</span>, <span class="fu"><a href="https://tidyselect.r-lib.org/reference/where.html" class="external-link">where</a></span><span class="op">(</span><span class="va">is.numeric</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="op">-</span><span class="va">term</span><span class="op">)</span></span>
+<span><span class="va">topic_congruence</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 12,244 × 22</span></span></span>
+<span><span class="co">#&gt;    model  Topic_1  Topic_2   Topic_3  Topic_4  Topic_5 Topic_6 Topic_7 Topic_8</span></span>
+<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> k_5   1.08<span style="color: #949494;">e</span><span style="color: #BB0000;">-11</span> 1.47<span style="color: #949494;">e</span><span style="color: #BB0000;">-19</span> 0.000<span style="text-decoration: underline;">355</span>  1.51<span style="color: #949494;">e</span><span style="color: #BB0000;">-14</span> 2.72<span style="color: #949494;">e</span><span style="color: #BB0000;">-10</span>      <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> k_5   6.04<span style="color: #949494;">e</span><span style="color: #BB0000;">-95</span> 1.54<span style="color: #949494;">e</span><span style="color: #BB0000;">-95</span> 0.000<span style="text-decoration: underline;">039</span>4 1.27<span style="color: #949494;">e</span><span style="color: #BB0000;">-82</span> 1.14<span style="color: #949494;">e</span><span style="color: #BB0000;">-93</span>      <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> k_5   1.05<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span> 6.92<span style="color: #949494;">e</span><span style="color: #BB0000;">-16</span> 0.000<span style="text-decoration: underline;">473</span>  1.42<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span> 7.14<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span>      <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> k_5   1.05<span style="color: #949494;">e</span><span style="color: #BB0000;">- 3</span> 4.92<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span> 0.001<span style="text-decoration: underline;">12</span>   1.89<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span> 1.70<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span>      <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> k_5   4.62<span style="color: #949494;">e</span><span style="color: #BB0000;">- 3</span> 5.27<span style="color: #949494;">e</span><span style="color: #BB0000;">- 3</span> 0.003<span style="text-decoration: underline;">66</span>   4.55<span style="color: #949494;">e</span><span style="color: #BB0000;">- 3</span> 8.22<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span>      <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> k_5   8.04<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span> 5.01<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span> 0.000<span style="text-decoration: underline;">366</span>  4.75<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span> 7.02<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span>      <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> k_5   1.04<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span> 1.86<span style="color: #949494;">e</span><span style="color: #BB0000;">- 5</span> 0.000<span style="text-decoration: underline;">138</span>  7.25<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span> 1.04<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span>      <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> k_5   2.54<span style="color: #949494;">e</span><span style="color: #BB0000;">- 5</span> 2.88<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span> 0.000<span style="text-decoration: underline;">501</span>  5.84<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span> 1.37<span style="color: #949494;">e</span><span style="color: #BB0000;">- 8</span>      <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> k_5   3.42<span style="color: #949494;">e</span><span style="color: #BB0000;">- 5</span> 5.25<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span> 0.000<span style="text-decoration: underline;">952</span>  4.34<span style="color: #949494;">e</span><span style="color: #BB0000;">- 5</span> 3.26<span style="color: #949494;">e</span><span style="color: #BB0000;">- 5</span>      <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> k_5   8.09<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span> 8.03<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span> 0.000<span style="text-decoration: underline;">667</span>  1.09<span style="color: #949494;">e</span><span style="color: #BB0000;">- 3</span> 1.96<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span>      <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 12,234 more rows</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 13 more variables: Topic_9 &lt;dbl&gt;, Topic_10 &lt;dbl&gt;, Topic_11 &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   Topic_12 &lt;dbl&gt;, Topic_13 &lt;dbl&gt;, Topic_14 &lt;dbl&gt;, Topic_15 &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   Topic_16 &lt;dbl&gt;, Topic_17 &lt;dbl&gt;, Topic_18 &lt;dbl&gt;, Topic_19 &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   Topic_20 &lt;dbl&gt;, Topic_21 &lt;dbl&gt;</span></span></span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">k_5_k_15</span> <span class="op">&lt;-</span>  <span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">topic_congruence</span><span class="op">[</span><span class="va">topic_congruence</span><span class="op">$</span><span class="va">model</span><span class="op">==</span><span class="st">"k_5"</span>, <span class="fl">2</span><span class="op">:</span><span class="fl">6</span><span class="op">]</span>, <span class="va">topic_congruence</span><span class="op">[</span><span class="va">topic_congruence</span><span class="op">$</span><span class="va">model</span><span class="op">==</span><span class="st">"k_15"</span>, <span class="fl">2</span><span class="op">:</span><span class="fl">16</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="va">k_5_k_18</span> <span class="op">&lt;-</span>  <span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">topic_congruence</span><span class="op">[</span><span class="va">topic_congruence</span><span class="op">$</span><span class="va">model</span><span class="op">==</span><span class="st">"k_5"</span>, <span class="fl">2</span><span class="op">:</span><span class="fl">6</span><span class="op">]</span>, <span class="va">topic_congruence</span><span class="op">[</span><span class="va">topic_congruence</span><span class="op">$</span><span class="va">model</span><span class="op">==</span><span class="st">"k_18"</span>, <span class="fl">2</span><span class="op">:</span><span class="fl">19</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="va">k_5_k_21</span> <span class="op">&lt;-</span>  <span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">topic_congruence</span><span class="op">[</span><span class="va">topic_congruence</span><span class="op">$</span><span class="va">model</span><span class="op">==</span><span class="st">"k_5"</span>, <span class="fl">2</span><span class="op">:</span><span class="fl">6</span><span class="op">]</span>, <span class="va">topic_congruence</span><span class="op">[</span><span class="va">topic_congruence</span><span class="op">$</span><span class="va">model</span><span class="op">==</span><span class="st">"k_21"</span>, <span class="fl">2</span><span class="op">:</span><span class="fl">22</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="va">k_15_k_18</span> <span class="op">&lt;-</span>  <span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">topic_congruence</span><span class="op">[</span><span class="va">topic_congruence</span><span class="op">$</span><span class="va">model</span><span class="op">==</span><span class="st">"k_15"</span>, <span class="fl">2</span><span class="op">:</span><span class="fl">16</span><span class="op">]</span>, <span class="va">topic_congruence</span><span class="op">[</span><span class="va">topic_congruence</span><span class="op">$</span><span class="va">model</span><span class="op">==</span><span class="st">"k_18"</span>, <span class="fl">2</span><span class="op">:</span><span class="fl">19</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="va">k_15_k_21</span> <span class="op">&lt;-</span>  <span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">topic_congruence</span><span class="op">[</span><span class="va">topic_congruence</span><span class="op">$</span><span class="va">model</span><span class="op">==</span><span class="st">"k_15"</span>, <span class="fl">2</span><span class="op">:</span><span class="fl">16</span><span class="op">]</span>, <span class="va">topic_congruence</span><span class="op">[</span><span class="va">topic_congruence</span><span class="op">$</span><span class="va">model</span><span class="op">==</span><span class="st">"k_21"</span>, <span class="fl">2</span><span class="op">:</span><span class="fl">22</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="va">k_18_k_21</span> <span class="op">&lt;-</span>  <span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">topic_congruence</span><span class="op">[</span><span class="va">topic_congruence</span><span class="op">$</span><span class="va">model</span><span class="op">==</span><span class="st">"k_18"</span>, <span class="fl">2</span><span class="op">:</span><span class="fl">19</span><span class="op">]</span>, <span class="va">topic_congruence</span><span class="op">[</span><span class="va">topic_congruence</span><span class="op">$</span><span class="va">model</span><span class="op">==</span><span class="st">"k_21"</span>, <span class="fl">2</span><span class="op">:</span><span class="fl">22</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="va">topic_correlation</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">k_5_k_15</span>, <span class="va">k_5_k_18</span>, <span class="va">k_5_k_21</span>, <span class="va">k_15_k_18</span>, <span class="va">k_15_k_21</span>, <span class="va">k_18_k_21</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">topic_correlation</span><span class="op">)</span> <span class="op">&lt;-</span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"k_5_vs_k_15"</span>, <span class="st">"k_5_vs_k_18"</span>, <span class="st">"k_5_vs_k_21"</span>, <span class="st">"k_15_vs_k_18"</span>, <span class="st">"k_15_vs_k_21"</span>, <span class="st">"k_18_vs_k_21"</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">topic_correlation</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span></span>
+<span>    <span class="fu"><a href="https://tidyr.tidyverse.org/reference/pivot_longer.html" class="external-link">pivot_longer</a></span><span class="op">(</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/as_tibble.html" class="external-link">as_tibble</a></span><span class="op">(</span><span class="va">topic_correlation</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span>, rownames <span class="op">=</span> <span class="st">"model1"</span><span class="op">)</span>, <span class="op">!</span><span class="va">model1</span>, names_to <span class="op">=</span> <span class="st">"model2"</span>, values_to <span class="op">=</span> <span class="st">"correlation"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>      <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>topic_nro1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">as.integer</a></span><span class="op">(</span><span class="fu">stringr</span><span class="fu">::</span><span class="fu"><a href="https://stringr.tidyverse.org/reference/str_extract.html" class="external-link">str_extract</a></span><span class="op">(</span><span class="va">model1</span>, <span class="st">"\\d+"</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>             topic_nro2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">as.integer</a></span><span class="op">(</span><span class="fu">stringr</span><span class="fu">::</span><span class="fu"><a href="https://stringr.tidyverse.org/reference/str_extract.html" class="external-link">str_extract</a></span><span class="op">(</span><span class="va">model2</span>, <span class="st">"\\d+"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>      <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu">forcats</span><span class="fu">::</span><span class="fu"><a href="https://forcats.tidyverse.org/reference/fct_reorder.html" class="external-link">fct_reorder</a></span><span class="op">(</span><span class="va">model1</span>, <span class="va">topic_nro1</span>, <span class="va">sum</span><span class="op">)</span>, y <span class="op">=</span> <span class="fu">forcats</span><span class="fu">::</span><span class="fu"><a href="https://forcats.tidyverse.org/reference/fct_reorder.html" class="external-link">fct_reorder</a></span><span class="op">(</span><span class="va">model2</span>, <span class="va">topic_nro2</span>, <span class="va">sum</span><span class="op">)</span>, fill <span class="op">=</span> <span class="va">correlation</span>, label <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">correlation</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>      <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_tile.html" class="external-link">geom_tile</a></span><span class="op">(</span>show.legend <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">+</span></span>
+<span>      <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_text.html" class="external-link">geom_text</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>      <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>axis.text.x <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_text</a></span><span class="op">(</span>angle <span class="op">=</span> <span class="fl">90</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>      <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>subtitle <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">topic_correlation</span><span class="op">)</span><span class="op">[</span><span class="va">i</span><span class="op">]</span><span class="op">)</span> <span class="op">+</span></span>
+<span>      <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_viridis.html" class="external-link">scale_fill_viridis_c</a></span><span class="op">(</span>option <span class="op">=</span> <span class="st">"A"</span><span class="op">)</span></span>
+<span>    <span class="op">)</span></span>
+<span><span class="op">}</span></span></code></pre></div>
+<p><img src="3-Topic-modeling_files/figure-html/unnamed-chunk-14-1.png" width="700"><img src="3-Topic-modeling_files/figure-html/unnamed-chunk-14-2.png" width="700"><img src="3-Topic-modeling_files/figure-html/unnamed-chunk-14-3.png" width="700"><img src="3-Topic-modeling_files/figure-html/unnamed-chunk-14-4.png" width="700"><img src="3-Topic-modeling_files/figure-html/unnamed-chunk-14-5.png" width="700"><img src="3-Topic-modeling_files/figure-html/unnamed-chunk-14-6.png" width="700"></p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">theta_matrix</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind_rows.html" class="external-link">bind_rows</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">lda_models</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="fu">tidytext</span><span class="fu">::</span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x</span>, matrix <span class="op">=</span> <span class="st">"gamma"</span><span class="op">)</span></span>
+<span>  <span class="op">}</span><span class="op">)</span>,</span>
+<span>  .id <span class="op">=</span> <span class="st">"model"</span><span class="op">)</span></span>
+<span><span class="va">theta_matrix</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 4,012 × 4</span></span></span>
+<span><span class="co">#&gt;    model document    topic     gamma</span></span>
+<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> k_5   Enontekiö       1 0.000<span style="text-decoration: underline;">090</span>3</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> k_5   Espoo           1 0.608    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> k_5   Eura            1 0.000<span style="text-decoration: underline;">087</span>2</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> k_5   Hartola         1 0.000<span style="text-decoration: underline;">107</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> k_5   Hattula         1 0.216    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> k_5   Helsinki        1 0.000<span style="text-decoration: underline;">012</span>9</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> k_5   Huittinen       1 0.026<span style="text-decoration: underline;">0</span>   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> k_5   Hyvinkää        1 0.050<span style="text-decoration: underline;">0</span>   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> k_5   Hämeenlinna     1 0.000<span style="text-decoration: underline;">045</span>6</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> k_5   Iitti           1 0.600    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">11</span> k_5   Imatra          1 0.000<span style="text-decoration: underline;">253</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">12</span> k_5   Inkoo           1 0.696    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">13</span> k_5   Joensuu         1 0.070<span style="text-decoration: underline;">6</span>   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">14</span> k_5   Juva            1 0.000<span style="text-decoration: underline;">062</span>7</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">15</span> k_5   Järvenpää       1 0.000<span style="text-decoration: underline;">116</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">16</span> k_5   Kaarina         1 0.922    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">17</span> k_5   Kalajoki        1 0.000<span style="text-decoration: underline;">710</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">18</span> k_5   Kauniainen      1 0.295    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">19</span> k_5   Kemiönsaari     1 0.900    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">20</span> k_5   Kerava          1 1.00     </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">21</span> k_5   Kokkola         1 0.443    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">22</span> k_5   Kontiolahti     1 0.855    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">23</span> k_5   Kouvola         1 0.000<span style="text-decoration: underline;">032</span>9</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">24</span> k_5   Kuopio          1 0.000<span style="text-decoration: underline;">017</span>2</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">25</span> k_5   Kuusamo         1 0.000<span style="text-decoration: underline;">025</span>2</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 3,987 more rows</span></span></span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">topic_prevalence</span> <span class="op">&lt;-</span>  <span class="va">theta_matrix</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarise</a></span><span class="op">(</span>mean_gamma <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">gamma</span><span class="op">)</span>, median_gamma <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/median.html" class="external-link">median</a></span><span class="op">(</span><span class="va">gamma</span><span class="op">)</span>, .by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">model</span>, <span class="va">topic</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>gamma <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">mean_gamma</span>, <span class="fl">2</span><span class="op">)</span>, <span class="st">" ("</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">median_gamma</span>, <span class="fl">2</span><span class="op">)</span>, <span class="st">")"</span><span class="op">)</span><span class="op">)</span> <span class="co">#|&gt;</span></span>
+<span>  <span class="co"># select(model, topic, gamma) |&gt;</span></span>
+<span>  <span class="co"># tidyr::pivot_wider(names_from =  model, values_from = gamma, values_fill = "")</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/kableExtra/man/kbl.html" class="external-link">kbl</a></span><span class="op">(</span><span class="va">topic_prevalence</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/kableExtra/man/kable_styling.html" class="external-link">kable_styling</a></span><span class="op">(</span>fixed_thead <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></span></code></pre></div>
+<table class="table table" style="margin-left: auto; margin-right: auto;">
+<thead><tr>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+model
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+topic
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+mean_gamma
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+median_gamma
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+gamma
+</th>
+</tr></thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+k_5
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0.2040112
+</td>
+<td style="text-align:right;">
+0.0509957
+</td>
+<td style="text-align:left;">
+0.2 (0.05)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+k_5
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+0.1712772
+</td>
+<td style="text-align:right;">
+0.0375971
+</td>
+<td style="text-align:left;">
+0.17 (0.04)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+k_5
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+0.2643524
+</td>
+<td style="text-align:right;">
+0.0701628
+</td>
+<td style="text-align:left;">
+0.26 (0.07)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+k_5
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+0.1519996
+</td>
+<td style="text-align:right;">
+0.0172003
+</td>
+<td style="text-align:left;">
+0.15 (0.02)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+k_5
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+0.2083597
+</td>
+<td style="text-align:right;">
+0.0936812
+</td>
+<td style="text-align:left;">
+0.21 (0.09)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+k_15
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0.0869579
+</td>
+<td style="text-align:right;">
+0.0000205
+</td>
+<td style="text-align:left;">
+0.09 (0)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+k_15
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+0.0577807
+</td>
+<td style="text-align:right;">
+0.0000156
+</td>
+<td style="text-align:left;">
+0.06 (0)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+k_15
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+0.1599603
+</td>
+<td style="text-align:right;">
+0.0000178
+</td>
+<td style="text-align:left;">
+0.16 (0)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+k_15
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+0.0241606
+</td>
+<td style="text-align:right;">
+0.0000141
+</td>
+<td style="text-align:left;">
+0.02 (0)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+k_15
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+0.0510817
+</td>
+<td style="text-align:right;">
+0.0000213
+</td>
+<td style="text-align:left;">
+0.05 (0)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+k_15
+</td>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:right;">
+0.0839495
+</td>
+<td style="text-align:right;">
+0.0000166
+</td>
+<td style="text-align:left;">
+0.08 (0)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+k_15
+</td>
+<td style="text-align:right;">
+7
+</td>
+<td style="text-align:right;">
+0.0268009
+</td>
+<td style="text-align:right;">
+0.0000151
+</td>
+<td style="text-align:left;">
+0.03 (0)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+k_15
+</td>
+<td style="text-align:right;">
+8
+</td>
+<td style="text-align:right;">
+0.0722847
+</td>
+<td style="text-align:right;">
+0.0000189
+</td>
+<td style="text-align:left;">
+0.07 (0)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+k_15
+</td>
+<td style="text-align:right;">
+9
+</td>
+<td style="text-align:right;">
+0.0377999
+</td>
+<td style="text-align:right;">
+0.0000189
+</td>
+<td style="text-align:left;">
+0.04 (0)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+k_15
+</td>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:right;">
+0.0588271
+</td>
+<td style="text-align:right;">
+0.0000171
+</td>
+<td style="text-align:left;">
+0.06 (0)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+k_15
+</td>
+<td style="text-align:right;">
+11
+</td>
+<td style="text-align:right;">
+0.0490096
+</td>
+<td style="text-align:right;">
+0.0000141
+</td>
+<td style="text-align:left;">
+0.05 (0)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+k_15
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+0.0812845
+</td>
+<td style="text-align:right;">
+0.0000198
+</td>
+<td style="text-align:left;">
+0.08 (0)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+k_15
+</td>
+<td style="text-align:right;">
+13
+</td>
+<td style="text-align:right;">
+0.0591097
+</td>
+<td style="text-align:right;">
+0.0000156
+</td>
+<td style="text-align:left;">
+0.06 (0)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+k_15
+</td>
+<td style="text-align:right;">
+14
+</td>
+<td style="text-align:right;">
+0.0497231
+</td>
+<td style="text-align:right;">
+0.0000189
+</td>
+<td style="text-align:left;">
+0.05 (0)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+k_15
+</td>
+<td style="text-align:right;">
+15
+</td>
+<td style="text-align:right;">
+0.1012697
+</td>
+<td style="text-align:right;">
+0.0000198
+</td>
+<td style="text-align:left;">
+0.1 (0)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+k_18
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0.0706851
+</td>
+<td style="text-align:right;">
+0.0000137
+</td>
+<td style="text-align:left;">
+0.07 (0)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+k_18
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+0.0404770
+</td>
+<td style="text-align:right;">
+0.0000097
+</td>
+<td style="text-align:left;">
+0.04 (0)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+k_18
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+0.1646664
+</td>
+<td style="text-align:right;">
+0.0000114
+</td>
+<td style="text-align:left;">
+0.16 (0)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+k_18
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+0.0526944
+</td>
+<td style="text-align:right;">
+0.0000102
+</td>
+<td style="text-align:left;">
+0.05 (0)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+k_18
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+0.0621897
+</td>
+<td style="text-align:right;">
+0.0000131
+</td>
+<td style="text-align:left;">
+0.06 (0)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+k_18
+</td>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:right;">
+0.0714012
+</td>
+<td style="text-align:right;">
+0.0000120
+</td>
+<td style="text-align:left;">
+0.07 (0)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+k_18
+</td>
+<td style="text-align:right;">
+7
+</td>
+<td style="text-align:right;">
+0.0200055
+</td>
+<td style="text-align:right;">
+0.0000109
+</td>
+<td style="text-align:left;">
+0.02 (0)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+k_18
+</td>
+<td style="text-align:right;">
+8
+</td>
+<td style="text-align:right;">
+0.0678781
+</td>
+<td style="text-align:right;">
+0.0000131
+</td>
+<td style="text-align:left;">
+0.07 (0)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+k_18
+</td>
+<td style="text-align:right;">
+9
+</td>
+<td style="text-align:right;">
+0.0279317
+</td>
+<td style="text-align:right;">
+0.0000097
+</td>
+<td style="text-align:left;">
+0.03 (0)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+k_18
+</td>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:right;">
+0.0516557
+</td>
+<td style="text-align:right;">
+0.0000102
+</td>
+<td style="text-align:left;">
+0.05 (0)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+k_18
+</td>
+<td style="text-align:right;">
+11
+</td>
+<td style="text-align:right;">
+0.0461636
+</td>
+<td style="text-align:right;">
+0.0000102
+</td>
+<td style="text-align:left;">
+0.05 (0)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+k_18
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+0.0622999
+</td>
+<td style="text-align:right;">
+0.0000114
+</td>
+<td style="text-align:left;">
+0.06 (0)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+k_18
+</td>
+<td style="text-align:right;">
+13
+</td>
+<td style="text-align:right;">
+0.0500309
+</td>
+<td style="text-align:right;">
+0.0000109
+</td>
+<td style="text-align:left;">
+0.05 (0)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+k_18
+</td>
+<td style="text-align:right;">
+14
+</td>
+<td style="text-align:right;">
+0.0473369
+</td>
+<td style="text-align:right;">
+0.0000095
+</td>
+<td style="text-align:left;">
+0.05 (0)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+k_18
+</td>
+<td style="text-align:right;">
+15
+</td>
+<td style="text-align:right;">
+0.0713406
+</td>
+<td style="text-align:right;">
+0.0000143
+</td>
+<td style="text-align:left;">
+0.07 (0)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+k_18
+</td>
+<td style="text-align:right;">
+16
+</td>
+<td style="text-align:right;">
+0.0359412
+</td>
+<td style="text-align:right;">
+0.0000102
+</td>
+<td style="text-align:left;">
+0.04 (0)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+k_18
+</td>
+<td style="text-align:right;">
+17
+</td>
+<td style="text-align:right;">
+0.0380103
+</td>
+<td style="text-align:right;">
+0.0000122
+</td>
+<td style="text-align:left;">
+0.04 (0)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+k_18
+</td>
+<td style="text-align:right;">
+18
+</td>
+<td style="text-align:right;">
+0.0192919
+</td>
+<td style="text-align:right;">
+0.0000095
+</td>
+<td style="text-align:left;">
+0.02 (0)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+k_21
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0.0498077
+</td>
+<td style="text-align:right;">
+0.0000098
+</td>
+<td style="text-align:left;">
+0.05 (0)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+k_21
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+0.0919051
+</td>
+<td style="text-align:right;">
+0.0000098
+</td>
+<td style="text-align:left;">
+0.09 (0)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+k_21
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+0.1132447
+</td>
+<td style="text-align:right;">
+0.0000088
+</td>
+<td style="text-align:left;">
+0.11 (0)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+k_21
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+0.0522647
+</td>
+<td style="text-align:right;">
+0.0000088
+</td>
+<td style="text-align:left;">
+0.05 (0)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+k_21
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+0.0528812
+</td>
+<td style="text-align:right;">
+0.0000127
+</td>
+<td style="text-align:left;">
+0.05 (0)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+k_21
+</td>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:right;">
+0.0834722
+</td>
+<td style="text-align:right;">
+0.0000088
+</td>
+<td style="text-align:left;">
+0.08 (0)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+k_21
+</td>
+<td style="text-align:right;">
+7
+</td>
+<td style="text-align:right;">
+0.0237384
+</td>
+<td style="text-align:right;">
+0.0000083
+</td>
+<td style="text-align:left;">
+0.02 (0)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+k_21
+</td>
+<td style="text-align:right;">
+8
+</td>
+<td style="text-align:right;">
+0.0555408
+</td>
+<td style="text-align:right;">
+0.0000088
+</td>
+<td style="text-align:left;">
+0.06 (0)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+k_21
+</td>
+<td style="text-align:right;">
+9
+</td>
+<td style="text-align:right;">
+0.0274000
+</td>
+<td style="text-align:right;">
+0.0000083
+</td>
+<td style="text-align:left;">
+0.03 (0)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+k_21
+</td>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:right;">
+0.0443224
+</td>
+<td style="text-align:right;">
+0.0000088
+</td>
+<td style="text-align:left;">
+0.04 (0)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+k_21
+</td>
+<td style="text-align:right;">
+11
+</td>
+<td style="text-align:right;">
+0.0368682
+</td>
+<td style="text-align:right;">
+0.0000088
+</td>
+<td style="text-align:left;">
+0.04 (0)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+k_21
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+0.0438361
+</td>
+<td style="text-align:right;">
+0.0000106
+</td>
+<td style="text-align:left;">
+0.04 (0)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+k_21
+</td>
+<td style="text-align:right;">
+13
+</td>
+<td style="text-align:right;">
+0.0470741
+</td>
+<td style="text-align:right;">
+0.0000088
+</td>
+<td style="text-align:left;">
+0.05 (0)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+k_21
+</td>
+<td style="text-align:right;">
+14
+</td>
+<td style="text-align:right;">
+0.0243022
+</td>
+<td style="text-align:right;">
+0.0000079
+</td>
+<td style="text-align:left;">
+0.02 (0)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+k_21
+</td>
+<td style="text-align:right;">
+15
+</td>
+<td style="text-align:right;">
+0.0318477
+</td>
+<td style="text-align:right;">
+0.0000083
+</td>
+<td style="text-align:left;">
+0.03 (0)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+k_21
+</td>
+<td style="text-align:right;">
+16
+</td>
+<td style="text-align:right;">
+0.0328844
+</td>
+<td style="text-align:right;">
+0.0000088
+</td>
+<td style="text-align:left;">
+0.03 (0)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+k_21
+</td>
+<td style="text-align:right;">
+17
+</td>
+<td style="text-align:right;">
+0.0372277
+</td>
+<td style="text-align:right;">
+0.0000088
+</td>
+<td style="text-align:left;">
+0.04 (0)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+k_21
+</td>
+<td style="text-align:right;">
+18
+</td>
+<td style="text-align:right;">
+0.0168735
+</td>
+<td style="text-align:right;">
+0.0000083
+</td>
+<td style="text-align:left;">
+0.02 (0)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+k_21
+</td>
+<td style="text-align:right;">
+19
+</td>
+<td style="text-align:right;">
+0.0482870
+</td>
+<td style="text-align:right;">
+0.0000098
+</td>
+<td style="text-align:left;">
+0.05 (0)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+k_21
+</td>
+<td style="text-align:right;">
+20
+</td>
+<td style="text-align:right;">
+0.0167647
+</td>
+<td style="text-align:right;">
+0.0000081
+</td>
+<td style="text-align:left;">
+0.02 (0)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+k_21
+</td>
+<td style="text-align:right;">
+21
+</td>
+<td style="text-align:right;">
+0.0694572
+</td>
+<td style="text-align:right;">
+0.0000094
+</td>
+<td style="text-align:left;">
+0.07 (0)
+</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">topic_prevalence</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">topic</span><span class="op">)</span>, y <span class="op">=</span> <span class="va">mean_gamma</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_bar.html" class="external-link">geom_col</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">model</span>, levels <span class="op">=</span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"k_5"</span>, <span class="st">"k_15"</span>, <span class="st">"k_18"</span>, <span class="st">"k_21"</span><span class="op">)</span><span class="op">)</span>, scales <span class="op">=</span> <span class="st">"free_x"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>subtitle <span class="op">=</span> <span class="st">"Topic prevalence"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="3-Topic-modeling_files/figure-html/unnamed-chunk-17-1.png" width="700"></p>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">beta_matrix</span><span class="op">$</span><span class="va">model</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span></span>
+<span>    <span class="va">beta_matrix</span> <span class="op">|&gt;</span></span>
+<span>      <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">model</span> <span class="op">==</span> <span class="va">i</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>      <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">topic</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>      <span class="fu"><a href="https://dplyr.tidyverse.org/reference/slice.html" class="external-link">slice_max</a></span><span class="op">(</span><span class="va">beta</span>, n <span class="op">=</span> <span class="fl">25</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>      <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>topic <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">as.factor</a></span><span class="op">(</span><span class="va">topic</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>      <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">ungroup</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>      <span class="fu"><a href="https://dplyr.tidyverse.org/reference/count.html" class="external-link">add_count</a></span><span class="op">(</span><span class="va">term</span>, name <span class="op">=</span> <span class="st">"in_topics"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>      <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="op">(</span><span class="va">in_topics</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">as.integer</a></span><span class="op">(</span><span class="va">topic</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">&lt;</span> <span class="fl">0.75</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>      <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">beta</span>, y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/reorder.factor.html" class="external-link">reorder</a></span><span class="op">(</span><span class="va">term</span>, <span class="va">beta</span><span class="op">)</span>, fill <span class="op">=</span> <span class="va">topic</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>      <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_bar.html" class="external-link">geom_col</a></span><span class="op">(</span>show.legend <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">+</span></span>
+<span>      <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_viridis.html" class="external-link">scale_fill_viridis_d</a></span><span class="op">(</span>option <span class="op">=</span> <span class="st">"A"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>      <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">topic</span>, scales <span class="op">=</span> <span class="st">"free"</span>, ncol <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op">+</span></span>
+<span>      <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>subtitle <span class="op">=</span> <span class="va">i</span><span class="op">)</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="op">}</span></span></code></pre></div>
+<p><img src="3-Topic-modeling_files/figure-html/unnamed-chunk-18-1.png" width="672"><img src="3-Topic-modeling_files/figure-html/unnamed-chunk-18-2.png" width="672"><img src="3-Topic-modeling_files/figure-html/unnamed-chunk-18-3.png" width="672"><img src="3-Topic-modeling_files/figure-html/unnamed-chunk-18-4.png" width="672"></p>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">doc_topics</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">lda_models</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">x</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu">tidytext</span><span class="fu">::</span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span>matrix <span class="op">=</span> <span class="st">"gamma"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu">tidytext</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/tidytext/man/document_term_casters.html" class="external-link">cast_dfm</a></span><span class="op">(</span><span class="va">document</span>, <span class="va">topic</span>, <span class="va">gamma</span><span class="op">)</span></span>
 <span><span class="op">}</span><span class="op">)</span></span>
+<span><span class="va">doc_topics</span></span>
 <span><span class="co">#&gt; $k_5</span></span>
 <span><span class="co">#&gt; Document-feature matrix of: 68 documents, 5 features (0.00% sparse) and 0 docvars.</span></span>
 <span><span class="co">#&gt;              features</span></span>
@@ -379,6 +1464,182 @@ evaluating coherence score.</p>
 <span><span class="co">#&gt;   Kemiönsaari 3.681230e-06 3.681230e-06 3.681230e-06 3.681230e-06 3.681230e-06 3.681230e-06 3.681230e-06 3.681230e-06 3.681230e-06 3.681230e-06 3.681230e-06 3.681230e-06 3.681230e-06 3.681230e-06 3.681230e-06 3.681230e-06 3.681230e-06 3.681230e-06 3.681230e-06 3.681230e-06</span></span>
 <span><span class="co">#&gt;   Kerava      9.235463e-06 9.235463e-06 9.235463e-06 9.235463e-06 9.235463e-06 9.235463e-06 9.235463e-06 9.235463e-06 9.235463e-06 9.235463e-06 9.235463e-06 9.235463e-06 9.235463e-06 9.235463e-06 9.235463e-06 9.235463e-06 9.235463e-06 9.235463e-06 9.998153e-01 9.235463e-06</span></span>
 <span><span class="co">#&gt; [ reached max_ndoc ... 48 more documents, reached max_nfeat ... 1 more feature ]</span></span></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># join_y &lt;- function(df) {</span></span>
+<span><span class="co">#   df |&gt;</span></span>
+<span><span class="co">#     left_join(taantuvat, by = join_by("doc_id" == "kunta")) |&gt;</span></span>
+<span><span class="co">#     filter(!is.na(luokka))</span></span>
+<span><span class="co"># }</span></span></code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># summarise_topics &lt;- function(df, ...) {</span></span>
+<span><span class="co">#   df |&gt;</span></span>
+<span><span class="co">#     mutate(topic = factor(as.integer(topic))) |&gt;</span></span>
+<span><span class="co">#     summarise(...)</span></span>
+<span><span class="co"># }</span></span></code></pre></div>
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># plot_topic_mean_prop &lt;- function(df, ...) {</span></span>
+<span><span class="co">#   df |&gt;</span></span>
+<span><span class="co">#     ggplot() +</span></span>
+<span><span class="co">#     geom_point(aes(...))</span></span>
+<span><span class="co"># }</span></span></code></pre></div>
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># lapply(doc_topics, function(x) { </span></span>
+<span><span class="co">#   x |&gt;</span></span>
+<span><span class="co">#     gather_topic_prob() |&gt;</span></span>
+<span><span class="co">#     join_y() |&gt;</span></span>
+<span><span class="co">#     summarise_topics(sum_prop = sum(prop), .by = c(luokka, topic)) |&gt;</span></span>
+<span><span class="co">#     plot_topic_mean_prop(x = topic, y = sum_prop, colour = luokka)</span></span>
+<span><span class="co"># }</span></span>
+<span><span class="co"># )</span></span></code></pre></div>
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># lapply(doc_topics, function(x) { </span></span>
+<span><span class="co">#   x |&gt;</span></span>
+<span><span class="co">#     gather_topic_prob() |&gt;</span></span>
+<span><span class="co">#     join_y() |&gt;</span></span>
+<span><span class="co">#     summarise_topics(mean_prop = mean(prop), .by = c(luokka, topic)) |&gt;</span></span>
+<span><span class="co">#     plot_topic_mean_prop(x = topic, y = mean_prop, colour = luokka)</span></span>
+<span><span class="co"># }</span></span>
+<span><span class="co"># )</span></span></code></pre></div>
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># taantuvat |&gt;</span></span>
+<span><span class="co">#   filter(kunta %in% unique(aspol$kunta)) |&gt;</span></span>
+<span><span class="co">#   mutate(luokka = if_else(suht_muutos_2010_2022 &gt; 0, "Kasvava", "Taantuva")) |&gt;</span></span>
+<span><span class="co">#   count(luokka, sort = TRUE)</span></span></code></pre></div>
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># purrr::imap(doc_topics, function(x, name) { </span></span>
+<span><span class="co">#   x |&gt;</span></span>
+<span><span class="co">#     gather_topic_prob() |&gt;</span></span>
+<span><span class="co">#     join_y() |&gt;</span></span>
+<span><span class="co">#     select(doc_id, topic, prop, suht_muutos_2010_2022, luokka) |&gt;</span></span>
+<span><span class="co">#     tidyr::pivot_wider(names_from = topic, values_from = prop) |&gt;</span></span>
+<span><span class="co">#     rename_with(~ paste0("topic_", .x, recycle0 = TRUE), matches("^[0-9]+$")) |&gt;</span></span>
+<span><span class="co">#     write.csv(paste0("topic_", name, ".csv"))</span></span>
+<span><span class="co"># })</span></span></code></pre></div>
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># dat &lt;- doc_topics$k_5 |&gt; </span></span>
+<span><span class="co">#   gather_topic_prob() |&gt;</span></span>
+<span><span class="co">#   join_y() |&gt;</span></span>
+<span><span class="co">#   mutate(luokka = if_else(suht_muutos_2010_2022 &gt; 0, "Kasvava", "Taantuva"),</span></span>
+<span><span class="co">#          topic = factor(as.integer(topic))) |&gt;</span></span>
+<span><span class="co">#   select(topic, prop, luokka)</span></span>
+<span><span class="co"># dat</span></span></code></pre></div>
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># for (i in seq_along(unique(dat$topic))) {</span></span>
+<span><span class="co">#   cat("Topic ", i)</span></span>
+<span><span class="co">#   print(</span></span>
+<span><span class="co">#     dat |&gt; filter(topic == i) |&gt;</span></span>
+<span><span class="co">#     ggplot() +</span></span>
+<span><span class="co">#     geom_boxplot(aes(x = luokka, y = prop)) +</span></span>
+<span><span class="co">#       labs(title = paste0("Topic ", i))</span></span>
+<span><span class="co">#     )</span></span>
+<span><span class="co">#   print(</span></span>
+<span><span class="co">#     dat |&gt;</span></span>
+<span><span class="co">#       filter(topic == i) |&gt;</span></span>
+<span><span class="co">#       kruskal.test(luokka ~ prop, data = _)</span></span>
+<span><span class="co">#   )</span></span>
+<span><span class="co"># } </span></span></code></pre></div>
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># doc_topics$k_5 |&gt;</span></span>
+<span><span class="co">#   gather_topic_prob() |&gt;</span></span>
+<span><span class="co">#   join_y() |&gt;</span></span>
+<span><span class="co">#   mutate(luokka = if_else(suht_muutos_2010_2022 &gt; 0, "Kasvava", "Taantuva"),</span></span>
+<span><span class="co">#          topic = factor(as.integer(topic))) |&gt;</span></span>
+<span><span class="co">#   summarise(topic_sum = sum(prop), </span></span>
+<span><span class="co">#             topic_mean = mean(prop),</span></span>
+<span><span class="co">#             .by = c(luokka, topic)) |&gt;</span></span>
+<span><span class="co">#   kruskal.test(topic_sum ~ luokka)</span></span></code></pre></div>
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># lapply(doc_topics, function(x) { </span></span>
+<span><span class="co">#   x |&gt;</span></span>
+<span><span class="co">#     gather_topic_prob() |&gt;</span></span>
+<span><span class="co">#     join_y() |&gt;</span></span>
+<span><span class="co">#     mutate(luokka = if_else(suht_muutos_2010_2022 &gt; 0, "Kasvava", "Taantuva"),</span></span>
+<span><span class="co">#            topic = factor(as.integer(topic))) |&gt;</span></span>
+<span><span class="co">#     summarise(mean_prop = mean(prop), .by = c(luokka, topic)) |&gt;</span></span>
+<span><span class="co">#     tidyr::pivot_wider(names_from = luokka, values_from = mean_prop) |&gt;</span></span>
+<span><span class="co">#     mutate(diff = Kasvava-Taantuva) |&gt;</span></span>
+<span><span class="co">#     ggplot() +</span></span>
+<span><span class="co">#     geom_point(aes(x = topic, y = diff)) +</span></span>
+<span><span class="co">#     ylim(-0.4, 0.4) +</span></span>
+<span><span class="co">#     geom_hline(yintercept = 0)</span></span>
+<span><span class="co"># })</span></span></code></pre></div>
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># lapply(doc_topics, function(x) { </span></span>
+<span><span class="co">#   x |&gt;</span></span>
+<span><span class="co">#     gather_topic_prob() |&gt;</span></span>
+<span><span class="co">#     join_y() |&gt;</span></span>
+<span><span class="co">#     mutate(luokka = if_else(suht_muutos_2010_2022 &gt; 0, "Kasvava", "Taantuva"),</span></span>
+<span><span class="co">#            topic = factor(as.integer(topic))) |&gt;</span></span>
+<span><span class="co">#     summarise(topic_sum = sum(prop), </span></span>
+<span><span class="co">#               topic_mean = mean(prop),</span></span>
+<span><span class="co">#               .by = c(luokka, topic)) |&gt;</span></span>
+<span><span class="co">#     ggplot() +</span></span>
+<span><span class="co">#     geom_tile(aes(x = topic, y = luokka, fill = topic_sum)) +</span></span>
+<span><span class="co">#     scale_fill_viridis_c(option = "A")</span></span>
+<span><span class="co"># }</span></span>
+<span><span class="co"># )</span></span></code></pre></div>
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># lapply(doc_topics, function(x) { </span></span>
+<span><span class="co">#   x |&gt;</span></span>
+<span><span class="co">#     gather_topic_prob() |&gt;</span></span>
+<span><span class="co">#     join_y() |&gt;</span></span>
+<span><span class="co">#     mutate(luokka = if_else(suht_muutos_2010_2022 &gt; 0, "Kasvava", "Taantuva"),</span></span>
+<span><span class="co">#            topic = factor(as.integer(topic))) |&gt;</span></span>
+<span><span class="co">#     summarise(topic_sum = sum(prop), </span></span>
+<span><span class="co">#               topic_mean = mean(prop),</span></span>
+<span><span class="co">#               .by = c(luokka, topic)) |&gt;</span></span>
+<span><span class="co">#     ggplot() +</span></span>
+<span><span class="co">#     geom_tile(aes(x = topic, y = luokka, fill = topic_mean)) +</span></span>
+<span><span class="co">#     scale_fill_viridis_c(option = "A")</span></span>
+<span><span class="co"># }</span></span>
+<span><span class="co"># )</span></span></code></pre></div>
+<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># lapply(doc_topics, function(x) { </span></span>
+<span><span class="co">#   x |&gt;</span></span>
+<span><span class="co">#     gather_topic_prob() |&gt;</span></span>
+<span><span class="co">#     join_y() |&gt;</span></span>
+<span><span class="co">#     mutate(luokka = if_else(suht_muutos_2010_2022 &gt; 0, "Kasvava", "Taantuva"),</span></span>
+<span><span class="co">#            topic = factor(as.integer(topic))) |&gt;</span></span>
+<span><span class="co">#     summarise(mean_prop = mean(prop), .by = c(luokka, topic)) |&gt;</span></span>
+<span><span class="co">#     tidyr::pivot_wider(names_from = luokka, values_from = mean_prop) |&gt;</span></span>
+<span><span class="co">#     mutate(diff = Kasvava-Taantuva) |&gt;</span></span>
+<span><span class="co">#     tidyr::pivot_longer(Kasvava:Taantuva, names_to = "luokka", values_to = "prop") |&gt;</span></span>
+<span><span class="co">#     ggplot() +</span></span>
+<span><span class="co">#     geom_tile(aes(x = topic, y = luokka, fill = diff)) +</span></span>
+<span><span class="co">#     scale_fill_distiller(palette = "Spectral")</span></span>
+<span><span class="co"># })</span></span></code></pre></div>
+<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># titles &lt;- aspol |&gt; </span></span>
+<span><span class="co">#   group_by(kunta) |&gt; </span></span>
+<span><span class="co">#   slice_head(n=10) |&gt; </span></span>
+<span><span class="co">#   summarise(title = paste(FORM, collapse = " ")) |&gt;</span></span>
+<span><span class="co">#   inner_join(taantuvat)</span></span>
+<span><span class="co"># titles</span></span></code></pre></div>
+<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># titles_per_topics &lt;- lapply(doc_topics, function(x) {</span></span>
+<span><span class="co">#   gather_topic_prob(x) |&gt;</span></span>
+<span><span class="co">#     slice_max(order_by = prop, n = 1, by = doc_id) |&gt;</span></span>
+<span><span class="co">#     left_join(titles, by = join_by("doc_id" == "kunta"))</span></span>
+<span><span class="co">#   })</span></span>
+<span><span class="co"># titles_per_topics</span></span></code></pre></div>
+<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># titles_per_topics$k_5 |&gt;</span></span>
+<span><span class="co">#   filter(topic==3) |&gt;</span></span>
+<span><span class="co">#   select(doc_id, title)</span></span></code></pre></div>
+<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># doc_topics$k_5 |&gt; convert(to = "data.frame") |&gt;</span></span>
+<span><span class="co">#   tidyr::pivot_longer(!doc_id, names_to = "topic", values_to = "prop") |&gt;</span></span>
+<span><span class="co">#   left_join(taantuvat, by = join_by("doc_id" == "kunta")) |&gt;</span></span>
+<span><span class="co">#   filter(!is.na(luokka)) |&gt;</span></span>
+<span><span class="co">#   group_by(luokka, topic) |&gt;</span></span>
+<span><span class="co">#   summarise(mean_prop = mean(prop)) |&gt;</span></span>
+<span><span class="co">#   ggplot() +</span></span>
+<span><span class="co">#   geom_point(aes(x = topic, y = mean_prop, colour = luokka))</span></span></code></pre></div>
+<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># doc_topics$k_5 |&gt; convert(to = "data.frame") |&gt;</span></span>
+<span><span class="co">#   tidyr::pivot_longer(!doc_id, names_to = "topic", values_to = "prop") |&gt;</span></span>
+<span><span class="co">#   ggplot() +</span></span>
+<span><span class="co">#   geom_col(aes(x = prop, y = topic))</span></span></code></pre></div>
   </main>
 </div>
 
