@@ -22,7 +22,7 @@ library(topicdoc)
 library(dplyr)
 library(tidyr)
 library(ggplot2)
-library(DT)
+# library(DT)
 library(kableExtra)
 library(doFuture)
 plan(multisession, workers = availableCores(logical = FALSE) - 1)
@@ -59,7 +59,7 @@ system.time(
 
 ```{r}
 # save(model_coherence, file = "./extdata/model_coherence.rda")  # Does not work!!??
-usethis::use_data(model_coherence)
+# usethis::use_data(model_coherence)
 ```
 
 ```{r}
@@ -160,7 +160,8 @@ kbl(topic_prevalence) |>
 ```{r}
 ggplot(topic_prevalence, aes(x = factor(topic), y = mean_gamma)) +
   geom_col() +
-  facet_wrap(~ factor(model, levels =  c("k_5", "k_15", "k_18", "k_21")), scales = "free_x")
+  facet_wrap(~ factor(model, levels =  c("k_5", "k_15", "k_18", "k_21")), scales = "free_x") +
+  labs(subtitle = "Topic prevalence")
 ```
 
 ```{r, fig.height=7, fig.width=21}
