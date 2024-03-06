@@ -128,9 +128,12 @@ optimal k-parameter. Using coherence score as a value of goodness.</p>
 <span><span class="co">#&gt;   Kerava           0   0          0         2    0         0        0   0        0    0             0          0     3           0              0        2       5    0       0              0</span></span>
 <span><span class="co">#&gt; [ reached max_ndoc ... 48 more documents, reached max_nfeat ... 3,041 more features ]</span></span></code></pre></div>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://quanteda.io/reference/topfeatures.html" class="external-link">topfeatures</a></span><span class="op">(</span><span class="va">dtm</span><span class="op">)</span></span>
-<span><span class="co">#&gt;        kaupunki        asuminen           tulla         ohjelma          asukas         palvelu          tontti    rakentaminen           määrä asunto#tuotanto </span></span>
-<span><span class="co">#&gt;            4081            3092            1306            1259            1253            1236            1214            1103            1092             921</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://quanteda.io/reference/topfeatures.html" class="external-link">topfeatures</a></span><span class="op">(</span><span class="va">dtm</span>, n <span class="op">=</span> <span class="fl">20</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://tibble.tidyverse.org/reference/as_tibble.html" class="external-link">as_tibble</a></span><span class="op">(</span>rownames <span class="op">=</span> <span class="st">"term"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">value</span>, y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/reorder.factor.html" class="external-link">reorder</a></span><span class="op">(</span><span class="va">term</span>, <span class="va">value</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_bar.html" class="external-link">geom_col</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>subtitle <span class="op">=</span> <span class="st">"20 most common terms"</span>, x <span class="op">=</span> <span class="st">"Count"</span>, y <span class="op">=</span> <span class="st">"Term"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="3-Topic-modeling_files/figure-html/unnamed-chunk-4-1.png" width="700"></p>
 <p>LDA needs one parameter <code>k</code>. Finding optimal values by
 evaluating coherence score.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
@@ -141,16 +144,18 @@ evaluating coherence score.</p>
 <span>    <span class="va">mean_coherence</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="fu">topicdoc</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/topicdoc/man/topic_coherence.html" class="external-link">topic_coherence</a></span><span class="op">(</span><span class="va">lda</span>, <span class="va">dtm</span><span class="op">)</span><span class="op">)</span></span>
 <span>    <span class="fu"><a href="https://tibble.tidyverse.org/reference/deprecated.html" class="external-link">data_frame</a></span><span class="op">(</span>k <span class="op">=</span> <span class="va">k</span>, mean_coherence <span class="op">=</span> <span class="va">mean_coherence</span><span class="op">)</span></span>
 <span>  <span class="op">}</span></span>
-<span><span class="op">)</span></span>
+<span><span class="op">)</span>  <span class="co"># Around 30 min.</span></span>
 <span><span class="co">#&gt;     user   system  elapsed </span></span>
-<span><span class="co">#&gt;   70.393    1.771 2339.346</span></span></code></pre></div>
+<span><span class="co">#&gt;   65.728    1.639 2124.278</span></span></code></pre></div>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># save(model_coherence, file = "./extdata/model_coherence.rda")  # Does not work!!??</span></span>
 <span><span class="co"># usethis::use_data(model_coherence)</span></span></code></pre></div>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">p</span> <span class="op">&lt;-</span> <span class="va">model_coherence</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">k</span>, y <span class="op">=</span> <span class="va">mean_coherence</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>subtitle <span class="op">=</span> <span class="st">"LDA model coherence with different topic numbers"</span>, </span>
+<span>       x <span class="op">=</span> <span class="st">"k (number of topics)"</span>, y <span class="op">=</span> <span class="st">"Mean coherence"</span><span class="op">)</span></span>
 <span><span class="va">p</span></span></code></pre></div>
 <p><img src="3-Topic-modeling_files/figure-html/unnamed-chunk-7-1.png" width="700"></p>
 <p>Visually selecting potentially best k values</p>
@@ -160,7 +165,8 @@ evaluating coherence score.</p>
 <code class="sourceCode R"><span><span class="va">p</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_vline</a></span><span class="op">(</span>xintercept <span class="op">=</span> <span class="va">optimal_k</span>, linetype<span class="op">=</span><span class="st">'dashed'</span>, color<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'red'</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">optimal_k</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">{</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_text.html" class="external-link">geom_text</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x<span class="op">=</span><span class="va">x</span><span class="op">+</span><span class="fl">1</span>, label<span class="op">=</span><span class="va">x</span>, y<span class="op">=</span><span class="op">-</span><span class="fl">5</span><span class="op">)</span>, colour<span class="op">=</span><span class="st">"red"</span>, angle<span class="op">=</span><span class="fl">90</span><span class="op">)</span><span class="op">}</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Optimal k values"</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>subtitle <span class="op">=</span> <span class="st">"Optimal k values"</span>,</span>
+<span>       x <span class="op">=</span> <span class="st">"k (number of topics)"</span>, y <span class="op">=</span> <span class="st">"Mean coherence"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Warning in geom_text(aes(x = x + 1, label = x, y = -5), colour = "red", : All aesthetics have length 1, but the data has 69 rows.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Did you mean to use `annotate()`?</span></span>
 <span><span class="co">#&gt; All aesthetics have length 1, but the data has 69 rows.</span></span>
@@ -1342,147 +1348,60 @@ k_21
 <span>      <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">model</span> <span class="op">==</span> <span class="va">i</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>      <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">topic</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>      <span class="fu"><a href="https://dplyr.tidyverse.org/reference/slice.html" class="external-link">slice_max</a></span><span class="op">(</span><span class="va">beta</span>, n <span class="op">=</span> <span class="fl">25</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>      <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>topic <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">as.factor</a></span><span class="op">(</span><span class="va">topic</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>      <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>topic <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">as.factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"Topic_"</span>, <span class="va">topic</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>      <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">beta</span>, y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/reorder.factor.html" class="external-link">reorder</a></span><span class="op">(</span><span class="va">term</span>, <span class="va">beta</span><span class="op">)</span>, fill <span class="op">=</span> <span class="va">topic</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>      <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_bar.html" class="external-link">geom_col</a></span><span class="op">(</span>show.legend <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">+</span></span>
+<span>      <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_viridis.html" class="external-link">scale_fill_viridis_d</a></span><span class="op">(</span>option <span class="op">=</span> <span class="st">"A"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>      <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">topic</span>, scales <span class="op">=</span> <span class="st">"free"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>      <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Top 25 terms by topic"</span>, subtitle <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"Model_"</span>, <span class="va">i</span><span class="op">)</span>, x <span class="op">=</span> <span class="st">"Probability"</span>, y <span class="op">=</span> <span class="st">"Term"</span><span class="op">)</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="op">}</span></span></code></pre></div>
+<p><img src="3-Topic-modeling_files/figure-html/unnamed-chunk-18-1.png" width="1344"><img src="3-Topic-modeling_files/figure-html/unnamed-chunk-18-2.png" width="1344"><img src="3-Topic-modeling_files/figure-html/unnamed-chunk-18-3.png" width="1344"><img src="3-Topic-modeling_files/figure-html/unnamed-chunk-18-4.png" width="1344"></p>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">beta_matrix</span><span class="op">$</span><span class="va">model</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span></span>
+<span>    <span class="va">beta_matrix</span> <span class="op">|&gt;</span></span>
+<span>      <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">model</span> <span class="op">==</span> <span class="va">i</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>      <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">topic</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>      <span class="fu"><a href="https://dplyr.tidyverse.org/reference/slice.html" class="external-link">slice_max</a></span><span class="op">(</span><span class="va">beta</span>, n <span class="op">=</span> <span class="fl">25</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>      <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>topic <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">as.factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"Topic_"</span>, <span class="va">topic</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>      <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">ungroup</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>      <span class="fu"><a href="https://dplyr.tidyverse.org/reference/count.html" class="external-link">add_count</a></span><span class="op">(</span><span class="va">term</span>, name <span class="op">=</span> <span class="st">"in_topics"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>      <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="op">(</span><span class="va">in_topics</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">as.integer</a></span><span class="op">(</span><span class="va">topic</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">&lt;</span> <span class="fl">0.75</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>      <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">in_topics</span> <span class="op">==</span> <span class="fl">1</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>      <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">beta</span>, y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/reorder.factor.html" class="external-link">reorder</a></span><span class="op">(</span><span class="va">term</span>, <span class="va">beta</span><span class="op">)</span>, fill <span class="op">=</span> <span class="va">topic</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>      <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_bar.html" class="external-link">geom_col</a></span><span class="op">(</span>show.legend <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">+</span></span>
 <span>      <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_viridis.html" class="external-link">scale_fill_viridis_d</a></span><span class="op">(</span>option <span class="op">=</span> <span class="st">"A"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>      <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">topic</span>, scales <span class="op">=</span> <span class="st">"free"</span>, ncol <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op">+</span></span>
-<span>      <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>subtitle <span class="op">=</span> <span class="va">i</span><span class="op">)</span></span>
+<span>      <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Unique terms out of top 25 terms by topic"</span>, subtitle <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"Model_"</span>, <span class="va">i</span><span class="op">)</span>, x <span class="op">=</span> <span class="st">"Probability"</span>, y <span class="op">=</span> <span class="st">"Term"</span><span class="op">)</span></span>
 <span>  <span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p><img src="3-Topic-modeling_files/figure-html/unnamed-chunk-18-1.png" width="672"><img src="3-Topic-modeling_files/figure-html/unnamed-chunk-18-2.png" width="672"><img src="3-Topic-modeling_files/figure-html/unnamed-chunk-18-3.png" width="672"><img src="3-Topic-modeling_files/figure-html/unnamed-chunk-18-4.png" width="672"></p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">doc_topics</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">lda_models</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">x</span> <span class="op">|&gt;</span></span>
-<span>    <span class="fu">tidytext</span><span class="fu">::</span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span>matrix <span class="op">=</span> <span class="st">"gamma"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>    <span class="fu">tidytext</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/tidytext/man/document_term_casters.html" class="external-link">cast_dfm</a></span><span class="op">(</span><span class="va">document</span>, <span class="va">topic</span>, <span class="va">gamma</span><span class="op">)</span></span>
-<span><span class="op">}</span><span class="op">)</span></span>
-<span><span class="va">doc_topics</span></span>
-<span><span class="co">#&gt; $k_5</span></span>
-<span><span class="co">#&gt; Document-feature matrix of: 68 documents, 5 features (0.00% sparse) and 0 docvars.</span></span>
-<span><span class="co">#&gt;              features</span></span>
-<span><span class="co">#&gt; docs                     1            2            3            4            5</span></span>
-<span><span class="co">#&gt;   Enontekiö   9.032638e-05 9.032833e-05 9.996387e-01 9.033274e-05 9.033364e-05</span></span>
-<span><span class="co">#&gt;   Espoo       6.083062e-01 3.916177e-01 2.536362e-05 2.536342e-05 2.536336e-05</span></span>
-<span><span class="co">#&gt;   Eura        8.721847e-05 8.723096e-05 8.358125e-01 8.722709e-05 1.639258e-01</span></span>
-<span><span class="co">#&gt;   Hartola     1.065831e-04 5.937241e-02 9.403078e-01 1.066054e-04 1.065918e-04</span></span>
-<span><span class="co">#&gt;   Hattula     2.160958e-01 1.411757e-04 1.466987e-01 3.504088e-01 2.866555e-01</span></span>
-<span><span class="co">#&gt;   Helsinki    1.288224e-05 9.999485e-01 1.288144e-05 1.288136e-05 1.288121e-05</span></span>
-<span><span class="co">#&gt;   Huittinen   2.602115e-02 4.139870e-02 2.239730e-01 3.582770e-01 3.503302e-01</span></span>
-<span><span class="co">#&gt;   Hyvinkää    5.001871e-02 4.341314e-01 1.971469e-04 1.393909e-01 3.762619e-01</span></span>
-<span><span class="co">#&gt;   Hämeenlinna 4.560199e-05 1.671002e-02 4.094647e-01 2.718928e-01 3.018868e-01</span></span>
-<span><span class="co">#&gt;   Iitti       5.997081e-01 2.195865e-04 3.764446e-01 2.340814e-02 2.195796e-04</span></span>
-<span><span class="co">#&gt;   Imatra      2.528021e-04 4.310569e-01 2.528459e-04 3.828590e-01 1.855784e-01</span></span>
-<span><span class="co">#&gt;   Inkoo       6.957614e-01 3.379557e-02 6.115260e-05 1.358971e-01 1.344848e-01</span></span>
-<span><span class="co">#&gt;   Joensuu     7.061641e-02 1.959810e-01 3.038128e-02 4.203315e-01 2.826898e-01</span></span>
-<span><span class="co">#&gt;   Juva        6.268576e-05 6.269581e-05 9.997492e-01 6.269661e-05 6.270234e-05</span></span>
-<span><span class="co">#&gt;   Järvenpää   1.161159e-04 6.719541e-01 1.161162e-04 2.464807e-01 8.133289e-02</span></span>
-<span><span class="co">#&gt;   Kaarina     9.215531e-01 5.076300e-02 3.400035e-05 3.400405e-05 2.761594e-02</span></span>
-<span><span class="co">#&gt;   Kalajoki    7.101379e-04 4.845004e-01 1.204904e-01 2.702683e-01 1.240308e-01</span></span>
-<span><span class="co">#&gt;   Kauniainen  2.945008e-01 5.195131e-01 5.235316e-02 2.719194e-02 1.064409e-01</span></span>
-<span><span class="co">#&gt;   Kemiönsaari 8.999793e-01 2.894659e-05 9.993387e-02 2.895200e-05 2.894976e-05</span></span>
-<span><span class="co">#&gt;   Kerava      9.997095e-01 7.263020e-05 7.261330e-05 7.262255e-05 7.262309e-05</span></span>
-<span><span class="co">#&gt; [ reached max_ndoc ... 48 more documents ]</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $k_15</span></span>
-<span><span class="co">#&gt; Document-feature matrix of: 68 documents, 15 features (0.00% sparse) and 0 docvars.</span></span>
-<span><span class="co">#&gt;              features</span></span>
-<span><span class="co">#&gt; docs                     1            2            3            4            5            6            7            8            9           10           11           12           13           14           15</span></span>
-<span><span class="co">#&gt;   Enontekiö   1.847205e-05 1.847205e-05 9.997414e-01 1.847205e-05 1.847205e-05 1.847205e-05 1.847205e-05 1.847205e-05 1.847205e-05 1.847205e-05 1.847205e-05 1.847205e-05 1.847205e-05 1.847205e-05 1.847205e-05</span></span>
-<span><span class="co">#&gt;   Espoo       2.571659e-01 5.185437e-06 5.185437e-06 5.185437e-06 5.185437e-06 5.185437e-06 4.901010e-01 5.185437e-06 2.526708e-01 5.185437e-06 5.185437e-06 5.185437e-06 5.185437e-06 5.185437e-06 5.185437e-06</span></span>
-<span><span class="co">#&gt;   Eura        1.783824e-05 1.783824e-05 8.712944e-01 1.783824e-05 1.284737e-01 1.783824e-05 1.783824e-05 1.783824e-05 1.783824e-05 1.783824e-05 1.783824e-05 1.783824e-05 1.783824e-05 1.783824e-05 1.783824e-05</span></span>
-<span><span class="co">#&gt;   Hartola     2.179911e-05 2.179911e-05 9.996948e-01 2.179911e-05 2.179911e-05 2.179911e-05 2.179911e-05 2.179911e-05 2.179911e-05 2.179911e-05 2.179911e-05 2.179911e-05 2.179911e-05 2.179911e-05 2.179911e-05</span></span>
-<span><span class="co">#&gt;   Hattula     1.318274e-01 2.886974e-05 2.886974e-05 3.451349e-02 2.886974e-05 4.942984e-02 2.886974e-05 2.886974e-05 2.886974e-05 2.886974e-05 2.380413e-01 4.463843e-01 9.954383e-02 2.886974e-05 2.886974e-05</span></span>
-<span><span class="co">#&gt;   Helsinki    2.633718e-06 2.633718e-06 2.633718e-06 2.633718e-06 2.633718e-06 2.633718e-06 2.633718e-06 2.633718e-06 9.999631e-01 2.633718e-06 2.633718e-06 2.633718e-06 2.633718e-06 2.633718e-06 2.633718e-06</span></span>
-<span><span class="co">#&gt;   Huittinen   8.854705e-06 8.854705e-06 7.099825e-02 8.854705e-06 8.854705e-06 8.854705e-06 8.854705e-06 8.854705e-06 8.854705e-06 8.854705e-06 1.817732e-01 8.854705e-06 8.854705e-06 8.854705e-06 7.471223e-01</span></span>
-<span><span class="co">#&gt;   Hyvinkää    1.529172e-01 2.039554e-01 4.031906e-05 4.031906e-05 4.031906e-05 4.031906e-05 4.031906e-05 4.031906e-05 4.031906e-05 2.925015e-01 4.031906e-05 3.501824e-01 4.031906e-05 4.031906e-05 4.031906e-05</span></span>
-<span><span class="co">#&gt;   Hämeenlinna 9.323907e-06 9.323907e-06 9.323907e-06 9.323907e-06 3.621443e-02 9.323907e-06 9.323907e-06 9.323907e-06 9.323907e-06 9.260803e-01 9.323907e-06 3.195973e-02 9.323907e-06 5.642948e-03 9.323907e-06</span></span>
-<span><span class="co">#&gt;   Iitti       4.491028e-05 4.491028e-05 4.491028e-05 3.774786e-02 6.396132e-02 8.438659e-01 4.491028e-05 4.491028e-05 5.393090e-02 4.491028e-05 4.491028e-05 4.491028e-05 4.491028e-05 4.491028e-05 4.491028e-05</span></span>
-<span><span class="co">#&gt;   Imatra      5.171267e-05 5.171267e-05 5.171267e-05 5.171267e-05 5.171267e-05 5.171267e-05 5.171267e-05 2.459378e-02 5.171267e-05 8.540750e-01 5.171267e-05 5.171267e-05 5.171267e-05 1.207107e-01 5.171267e-05</span></span>
-<span><span class="co">#&gt;   Inkoo       3.010774e-01 1.250435e-05 1.250435e-05 1.250435e-05 1.250435e-05 1.722674e-01 1.250435e-05 1.653030e-01 1.250435e-05 2.608699e-01 1.250435e-05 1.250435e-05 1.003573e-01 1.250435e-05 1.250435e-05</span></span>
-<span><span class="co">#&gt;   Joensuu     4.146722e-06 4.146722e-06 4.146722e-06 1.148913e-02 4.146722e-06 4.146722e-06 7.236814e-02 2.505442e-02 9.811375e-03 3.098657e-01 4.146722e-06 4.146722e-06 4.146722e-06 2.126302e-01 3.587478e-01</span></span>
-<span><span class="co">#&gt;   Juva        1.281970e-05 1.281970e-05 9.998205e-01 1.281970e-05 1.281970e-05 1.281970e-05 1.281970e-05 1.281970e-05 1.281970e-05 1.281970e-05 1.281970e-05 1.281970e-05 1.281970e-05 1.281970e-05 1.281970e-05</span></span>
-<span><span class="co">#&gt;   Järvenpää   2.374517e-05 2.374517e-05 2.374517e-05 2.374517e-05 2.374517e-05 2.374517e-05 2.374517e-05 1.441686e-02 1.328049e-01 2.374517e-05 2.374517e-05 2.271941e-01 2.374517e-05 6.253229e-01 2.374517e-05</span></span>
-<span><span class="co">#&gt;   Kaarina     1.798605e-01 6.952084e-06 6.952084e-06 6.952084e-06 6.952084e-06 4.831281e-02 6.952084e-06 7.717433e-01 6.952084e-06 6.952084e-06 6.952084e-06 6.952084e-06 6.952084e-06 6.952084e-06 6.952084e-06</span></span>
-<span><span class="co">#&gt;   Kalajoki    1.324648e-01 2.727010e-01 7.696495e-02 2.833133e-02 1.453813e-04 1.453813e-04 1.453813e-04 1.453813e-04 1.453813e-04 1.453813e-04 1.453813e-04 1.453813e-04 1.453813e-04 1.453813e-04 4.880841e-01</span></span>
-<span><span class="co">#&gt;   Kauniainen  7.499072e-06 7.499072e-06 7.499072e-06 7.499072e-06 7.499072e-06 7.499072e-06 7.499072e-06 7.499072e-06 7.499072e-06 7.499072e-06 7.499072e-06 7.499072e-06 9.998950e-01 7.499072e-06 7.499072e-06</span></span>
-<span><span class="co">#&gt;   Kemiönsaari 5.919439e-06 5.919439e-06 5.919439e-06 5.919439e-06 5.919439e-06 9.999171e-01 5.919439e-06 5.919439e-06 5.919439e-06 5.919439e-06 5.919439e-06 5.919439e-06 5.919439e-06 5.919439e-06 5.919439e-06</span></span>
-<span><span class="co">#&gt;   Kerava      9.997921e-01 1.485042e-05 1.485042e-05 1.485042e-05 1.485042e-05 1.485042e-05 1.485042e-05 1.485042e-05 1.485042e-05 1.485042e-05 1.485042e-05 1.485042e-05 1.485042e-05 1.485042e-05 1.485042e-05</span></span>
-<span><span class="co">#&gt; [ reached max_ndoc ... 48 more documents ]</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $k_18</span></span>
-<span><span class="co">#&gt; Document-feature matrix of: 68 documents, 18 features (0.00% sparse) and 0 docvars.</span></span>
-<span><span class="co">#&gt;              features</span></span>
-<span><span class="co">#&gt; docs                     1            2            3            4            5            6            7            8            9           10           11           12           13           14           15           16           17           18</span></span>
-<span><span class="co">#&gt;   Enontekiö   1.337088e-05 1.337088e-05 9.997727e-01 1.337088e-05 1.337088e-05 1.337088e-05 1.337088e-05 1.337088e-05 1.337088e-05 1.337088e-05 1.337088e-05 1.337088e-05 1.337088e-05 1.337088e-05 1.337088e-05 1.337088e-05 1.337088e-05 1.337088e-05</span></span>
-<span><span class="co">#&gt;   Espoo       2.535587e-02 3.753348e-06 3.753348e-06 3.753348e-06 3.753348e-06 3.753348e-06 1.629021e-01 3.753348e-06 8.116857e-01 3.753348e-06 3.753348e-06 3.753348e-06 3.753348e-06 3.753348e-06 3.753348e-06 3.753348e-06 3.753348e-06 3.753348e-06</span></span>
-<span><span class="co">#&gt;   Eura        1.291208e-05 1.291208e-05 8.553672e-01 1.291208e-05 1.291208e-05 1.291208e-05 1.291208e-05 1.291208e-05 1.291208e-05 1.291208e-05 1.291208e-05 1.291208e-05 1.291208e-05 1.291208e-05 1.291208e-05 1.291208e-05 1.444262e-01 1.291208e-05</span></span>
-<span><span class="co">#&gt;   Hartola     1.577925e-05 1.577925e-05 9.910494e-01 1.577925e-05 1.577925e-05 1.577925e-05 1.577925e-05 1.577925e-05 1.577925e-05 1.577925e-05 1.577925e-05 1.577925e-05 1.577925e-05 1.577925e-05 1.577925e-05 8.698131e-03 1.577925e-05 1.577925e-05</span></span>
-<span><span class="co">#&gt;   Hattula     8.402685e-02 2.089761e-05 2.089761e-05 8.995674e-02 2.089761e-05 5.903744e-02 2.089761e-05 2.089761e-05 2.089761e-05 2.089761e-05 2.704816e-01 3.863750e-01 1.098716e-01 2.089761e-05 2.089761e-05 2.089761e-05 2.089761e-05 2.089761e-05</span></span>
-<span><span class="co">#&gt;   Helsinki    1.906341e-06 1.906341e-06 1.906341e-06 1.906341e-06 1.906341e-06 1.906341e-06 1.906341e-06 1.906341e-06 1.906341e-06 1.906341e-06 1.906341e-06 1.906341e-06 1.906341e-06 1.906341e-06 1.906341e-06 9.999676e-01 1.906341e-06 1.906341e-06</span></span>
-<span><span class="co">#&gt;   Huittinen   6.409301e-06 6.409301e-06 8.481066e-02 1.361348e-01 6.409301e-06 6.409301e-06 6.409301e-06 6.409301e-06 6.409301e-06 6.409301e-06 1.636941e-01 6.409301e-06 6.409301e-06 6.409301e-06 6.152707e-01 6.409301e-06 6.409301e-06 6.409301e-06</span></span>
-<span><span class="co">#&gt;   Hyvinkää    1.341747e-01 1.658064e-01 2.918596e-05 2.918596e-05 2.918596e-05 2.918596e-05 2.918596e-05 1.939339e-02 2.918596e-05 3.625177e-01 2.918596e-05 2.094209e-01 2.918596e-05 1.083367e-01 2.918596e-05 2.918596e-05 2.918596e-05 2.918596e-05</span></span>
-<span><span class="co">#&gt;   Hämeenlinna 6.748930e-06 6.748930e-06 6.748930e-06 6.748930e-06 6.748930e-06 6.748930e-06 6.748930e-06 6.748930e-06 6.748930e-06 9.835218e-01 6.748930e-06 4.046524e-03 6.748930e-06 6.748930e-06 6.748930e-06 6.748930e-06 1.233045e-02 6.748930e-06</span></span>
-<span><span class="co">#&gt;   Iitti       3.250972e-05 3.250972e-05 3.250972e-05 3.250972e-05 1.347056e-01 7.615752e-01 3.250972e-05 3.250972e-05 3.250972e-05 3.250972e-05 3.250972e-05 3.250972e-05 3.250972e-05 3.250972e-05 3.250972e-05 4.385556e-02 2.107598e-02 3.836499e-02</span></span>
-<span><span class="co">#&gt;   Imatra      3.743434e-05 3.743434e-05 3.743434e-05 3.743434e-05 1.564314e-01 3.743434e-05 3.743434e-05 3.743434e-05 3.743434e-05 7.484984e-01 3.743434e-05 3.743434e-05 3.743434e-05 3.743434e-05 3.743434e-05 9.450871e-02 3.743434e-05 3.743434e-05</span></span>
-<span><span class="co">#&gt;   Inkoo       2.494704e-01 9.051087e-06 9.051087e-06 9.051087e-06 9.051087e-06 2.874225e-01 9.051087e-06 2.173536e-01 9.051087e-06 1.581486e-01 9.051087e-06 9.051087e-06 6.994065e-02 9.051087e-06 1.755563e-02 9.051087e-06 9.051087e-06 9.051087e-06</span></span>
-<span><span class="co">#&gt;   Joensuu     3.001494e-06 3.001494e-06 3.001494e-06 3.001494e-06 3.001494e-06 3.001494e-06 3.640514e-02 3.710358e-02 3.001494e-06 1.163882e-01 3.001494e-06 3.001494e-06 3.001494e-06 3.001494e-06 7.172273e-01 5.512200e-02 3.001494e-06 3.771772e-02</span></span>
-<span><span class="co">#&gt;   Juva        9.279355e-06 9.279355e-06 9.998423e-01 9.279355e-06 9.279355e-06 9.279355e-06 9.279355e-06 9.279355e-06 9.279355e-06 9.279355e-06 9.279355e-06 9.279355e-06 9.279355e-06 9.279355e-06 9.279355e-06 9.279355e-06 9.279355e-06 9.279355e-06</span></span>
-<span><span class="co">#&gt;   Järvenpää   1.718797e-05 1.718797e-05 1.718797e-05 1.718797e-05 1.718797e-05 1.718797e-05 1.718797e-05 1.718797e-05 1.718797e-05 1.718797e-05 1.718797e-05 1.431578e-01 1.718797e-05 6.918080e-01 1.718797e-05 1.647764e-01 1.718797e-05 1.718797e-05</span></span>
-<span><span class="co">#&gt;   Kaarina     9.429077e-02 5.032108e-06 5.032108e-06 5.032108e-06 5.032108e-06 2.819987e-02 2.522839e-02 8.522105e-01 5.032108e-06 5.032108e-06 5.032108e-06 5.032108e-06 5.032108e-06 5.032108e-06 5.032108e-06 5.032108e-06 5.032108e-06 5.032108e-06</span></span>
-<span><span class="co">#&gt;   Kalajoki    1.052597e-04 1.052597e-04 1.052597e-04 8.466917e-02 1.052597e-04 1.052597e-04 1.052597e-04 1.052597e-04 4.640728e-02 1.052597e-04 7.981237e-02 1.052597e-04 1.052597e-04 4.277338e-01 2.321634e-01 8.019986e-02 1.052597e-04 4.785623e-02</span></span>
-<span><span class="co">#&gt;   Kauniainen  5.428039e-06 5.428039e-06 5.428039e-06 5.428039e-06 5.428039e-06 5.428039e-06 5.428039e-06 5.428039e-06 5.428039e-06 5.428039e-06 5.428039e-06 5.428039e-06 9.999077e-01 5.428039e-06 5.428039e-06 5.428039e-06 5.428039e-06 5.428039e-06</span></span>
-<span><span class="co">#&gt;   Kemiönsaari 4.284643e-06 4.284643e-06 4.284643e-06 4.284643e-06 4.284643e-06 9.999272e-01 4.284643e-06 4.284643e-06 4.284643e-06 4.284643e-06 4.284643e-06 4.284643e-06 4.284643e-06 4.284643e-06 4.284643e-06 4.284643e-06 4.284643e-06 4.284643e-06</span></span>
-<span><span class="co">#&gt;   Kerava      9.998173e-01 1.074931e-05 1.074931e-05 1.074931e-05 1.074931e-05 1.074931e-05 1.074931e-05 1.074931e-05 1.074931e-05 1.074931e-05 1.074931e-05 1.074931e-05 1.074931e-05 1.074931e-05 1.074931e-05 1.074931e-05 1.074931e-05 1.074931e-05</span></span>
-<span><span class="co">#&gt; [ reached max_ndoc ... 48 more documents ]</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $k_21</span></span>
-<span><span class="co">#&gt; Document-feature matrix of: 68 documents, 21 features (0.00% sparse) and 0 docvars.</span></span>
-<span><span class="co">#&gt;              features</span></span>
-<span><span class="co">#&gt; docs                     1            2            3            4            5            6            7            8            9           10           11           12           13           14           15           16           17           18           19           20</span></span>
-<span><span class="co">#&gt;   Enontekiö   1.148784e-05 1.148784e-05 9.997702e-01 1.148784e-05 1.148784e-05 1.148784e-05 1.148784e-05 1.148784e-05 1.148784e-05 1.148784e-05 1.148784e-05 1.148784e-05 1.148784e-05 1.148784e-05 1.148784e-05 1.148784e-05 1.148784e-05 1.148784e-05 1.148784e-05 1.148784e-05</span></span>
-<span><span class="co">#&gt;   Espoo       3.751543e-02 3.224758e-06 3.224758e-06 3.224758e-06 3.224758e-06 3.224758e-06 2.639322e-02 3.224758e-06 9.360333e-01 3.224758e-06 3.224758e-06 3.224758e-06 3.224758e-06 3.224758e-06 3.224758e-06 3.224758e-06 3.224758e-06 3.224758e-06 3.224758e-06 3.224758e-06</span></span>
-<span><span class="co">#&gt;   Eura        1.109365e-05 1.109365e-05 9.997781e-01 1.109365e-05 1.109365e-05 1.109365e-05 1.109365e-05 1.109365e-05 1.109365e-05 1.109365e-05 1.109365e-05 1.109365e-05 1.109365e-05 1.109365e-05 1.109365e-05 1.109365e-05 1.109365e-05 1.109365e-05 1.109365e-05 1.109365e-05</span></span>
-<span><span class="co">#&gt;   Hartola     1.355703e-05 1.355703e-05 9.064946e-01 1.355703e-05 1.355703e-05 9.324785e-02 1.355703e-05 1.355703e-05 1.355703e-05 1.355703e-05 1.355703e-05 1.355703e-05 1.355703e-05 1.355703e-05 1.355703e-05 1.355703e-05 1.355703e-05 1.355703e-05 1.355703e-05 1.355703e-05</span></span>
-<span><span class="co">#&gt;   Hattula     1.411036e-01 1.795456e-05 3.089126e-02 1.209986e-01 1.795456e-05 1.795456e-05 1.795456e-05 1.795456e-05 1.795456e-05 1.795456e-05 1.746148e-01 2.951927e-01 1.035559e-01 1.795456e-05 1.795456e-05 1.795456e-05 1.795456e-05 1.795456e-05 1.795456e-05 1.795456e-05</span></span>
-<span><span class="co">#&gt;   Helsinki    1.637868e-06 1.637868e-06 1.637868e-06 1.637868e-06 1.637868e-06 1.637868e-06 1.637868e-06 1.637868e-06 1.637868e-06 1.637868e-06 1.637868e-06 1.637868e-06 1.637868e-06 1.637868e-06 1.637868e-06 9.999672e-01 1.637868e-06 1.637868e-06 1.637868e-06 1.637868e-06</span></span>
-<span><span class="co">#&gt;   Huittinen   5.506669e-06 1.851798e-01 5.506669e-06 2.524699e-01 8.179620e-02 9.652350e-02 5.506669e-06 5.506669e-06 5.506669e-06 5.506669e-06 1.584532e-01 5.506669e-06 5.506669e-06 5.506669e-06 1.486547e-01 5.506669e-06 5.506669e-06 5.506669e-06 7.684557e-02 5.506669e-06</span></span>
-<span><span class="co">#&gt;   Hyvinkää    2.507563e-05 2.507563e-05 2.507563e-05 2.507563e-05 2.507563e-05 2.507563e-05 2.507563e-05 2.507563e-05 2.507563e-05 1.515906e-01 2.507563e-05 2.507563e-05 2.507563e-05 2.507563e-05 2.507563e-05 2.507563e-05 2.507563e-05 2.507563e-05 8.479330e-01 2.507563e-05</span></span>
-<span><span class="co">#&gt;   Hämeenlinna 5.798467e-06 5.798467e-06 5.798467e-06 5.798467e-06 5.798467e-06 5.798467e-06 5.798467e-06 5.798467e-06 5.798467e-06 9.864797e-01 5.798467e-06 1.341009e-02 5.798467e-06 5.798467e-06 5.798467e-06 5.798467e-06 5.798467e-06 5.798467e-06 5.798467e-06 5.798467e-06</span></span>
-<span><span class="co">#&gt;   Iitti       1.103697e-01 2.793129e-05 2.793129e-05 2.793129e-05 2.793129e-05 3.831504e-01 2.793129e-05 2.793129e-05 2.793129e-05 2.793129e-05 2.793129e-05 2.793129e-05 2.793129e-05 2.793129e-05 2.793129e-05 2.793129e-05 2.793129e-05 5.472339e-02 2.793129e-05 2.793129e-05</span></span>
-<span><span class="co">#&gt;   Imatra      3.216236e-05 3.216236e-05 3.216236e-05 3.216236e-05 3.216236e-05 3.216236e-05 3.216236e-05 3.216236e-05 3.216236e-05 8.405213e-01 3.216236e-05 3.216236e-05 3.216236e-05 3.216236e-05 3.216236e-05 1.588676e-01 3.216236e-05 3.216236e-05 3.216236e-05 3.216236e-05</span></span>
-<span><span class="co">#&gt;   Inkoo       7.776407e-06 7.776407e-06 7.776407e-06 7.776407e-06 7.776407e-06 7.776407e-06 7.776407e-06 2.405108e-01 7.776407e-06 2.269880e-02 7.776407e-06 7.776407e-06 7.776407e-06 7.776407e-06 7.776407e-06 7.776407e-06 7.776407e-06 7.776407e-06 4.829238e-02 7.776407e-06</span></span>
-<span><span class="co">#&gt;   Joensuu     2.578789e-06 2.578789e-06 2.578789e-06 2.578789e-06 2.578789e-06 2.578789e-06 2.578789e-06 2.578789e-06 2.578789e-06 1.158905e-02 2.578789e-06 2.578789e-06 2.578789e-06 2.578789e-06 9.883620e-01 2.578789e-06 2.578789e-06 2.578789e-06 2.578789e-06 2.578789e-06</span></span>
-<span><span class="co">#&gt;   Juva        7.972528e-06 7.972528e-06 9.998405e-01 7.972528e-06 7.972528e-06 7.972528e-06 7.972528e-06 7.972528e-06 7.972528e-06 7.972528e-06 7.972528e-06 7.972528e-06 7.972528e-06 7.972528e-06 7.972528e-06 7.972528e-06 7.972528e-06 7.972528e-06 7.972528e-06 7.972528e-06</span></span>
-<span><span class="co">#&gt;   Järvenpää   1.476735e-05 1.476735e-05 1.476735e-05 1.476735e-05 1.476735e-05 1.476735e-05 1.476735e-05 1.476735e-05 1.476735e-05 1.476735e-05 1.476735e-05 1.014059e-01 1.476735e-05 3.295210e-01 1.476735e-05 1.183156e-01 1.476735e-05 1.476735e-05 3.134447e-01 1.370765e-01</span></span>
-<span><span class="co">#&gt;   Kaarina     4.323429e-06 4.323429e-06 4.323429e-06 4.323429e-06 4.323429e-06 4.323429e-06 4.323429e-06 9.999135e-01 4.323429e-06 4.323429e-06 4.323429e-06 4.323429e-06 4.323429e-06 4.323429e-06 4.323429e-06 4.323429e-06 4.323429e-06 4.323429e-06 4.323429e-06 4.323429e-06</span></span>
-<span><span class="co">#&gt;   Kalajoki    7.225404e-02 7.393303e-01 9.043539e-05 1.867879e-01 9.043539e-05 9.043539e-05 9.043539e-05 9.043539e-05 9.043539e-05 9.043539e-05 9.043539e-05 9.043539e-05 9.043539e-05 9.043539e-05 9.043539e-05 9.043539e-05 9.043539e-05 9.043539e-05 9.043539e-05 9.043539e-05</span></span>
-<span><span class="co">#&gt;   Kauniainen  4.663600e-06 4.663600e-06 4.663600e-06 4.663600e-06 4.663600e-06 4.663600e-06 4.663600e-06 4.663600e-06 4.663600e-06 4.663600e-06 4.663600e-06 4.663600e-06 9.999067e-01 4.663600e-06 4.663600e-06 4.663600e-06 4.663600e-06 4.663600e-06 4.663600e-06 4.663600e-06</span></span>
-<span><span class="co">#&gt;   Kemiönsaari 3.681230e-06 3.681230e-06 3.681230e-06 3.681230e-06 3.681230e-06 3.681230e-06 3.681230e-06 3.681230e-06 3.681230e-06 3.681230e-06 3.681230e-06 3.681230e-06 3.681230e-06 3.681230e-06 3.681230e-06 3.681230e-06 3.681230e-06 3.681230e-06 3.681230e-06 3.681230e-06</span></span>
-<span><span class="co">#&gt;   Kerava      9.235463e-06 9.235463e-06 9.235463e-06 9.235463e-06 9.235463e-06 9.235463e-06 9.235463e-06 9.235463e-06 9.235463e-06 9.235463e-06 9.235463e-06 9.235463e-06 9.235463e-06 9.235463e-06 9.235463e-06 9.235463e-06 9.235463e-06 9.235463e-06 9.998153e-01 9.235463e-06</span></span>
-<span><span class="co">#&gt; [ reached max_ndoc ... 48 more documents, reached max_nfeat ... 1 more feature ]</span></span></code></pre></div>
+<p><img src="3-Topic-modeling_files/figure-html/unnamed-chunk-19-1.png" width="1344"><img src="3-Topic-modeling_files/figure-html/unnamed-chunk-19-2.png" width="1344"><img src="3-Topic-modeling_files/figure-html/unnamed-chunk-19-3.png" width="1344"><img src="3-Topic-modeling_files/figure-html/unnamed-chunk-19-4.png" width="1344"></p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># doc_topics &lt;- lapply(lda_models, function(x) {</span></span>
+<span><span class="co">#   x |&gt;</span></span>
+<span><span class="co">#     tidytext::tidy(matrix = "gamma") |&gt;</span></span>
+<span><span class="co">#     tidytext::cast_dfm(document, topic, gamma)</span></span>
+<span><span class="co"># })</span></span>
+<span><span class="co"># doc_topics</span></span></code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># join_y &lt;- function(df) {</span></span>
 <span><span class="co">#   df |&gt;</span></span>
 <span><span class="co">#     left_join(taantuvat, by = join_by("doc_id" == "kunta")) |&gt;</span></span>
 <span><span class="co">#     filter(!is.na(luokka))</span></span>
 <span><span class="co"># }</span></span></code></pre></div>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># summarise_topics &lt;- function(df, ...) {</span></span>
 <span><span class="co">#   df |&gt;</span></span>
 <span><span class="co">#     mutate(topic = factor(as.integer(topic))) |&gt;</span></span>
 <span><span class="co">#     summarise(...)</span></span>
 <span><span class="co"># }</span></span></code></pre></div>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># plot_topic_mean_prop &lt;- function(df, ...) {</span></span>
 <span><span class="co">#   df |&gt;</span></span>
 <span><span class="co">#     ggplot() +</span></span>
 <span><span class="co">#     geom_point(aes(...))</span></span>
 <span><span class="co"># }</span></span></code></pre></div>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># lapply(doc_topics, function(x) { </span></span>
 <span><span class="co">#   x |&gt;</span></span>
 <span><span class="co">#     gather_topic_prob() |&gt;</span></span>
@@ -1491,7 +1410,7 @@ k_21
 <span><span class="co">#     plot_topic_mean_prop(x = topic, y = sum_prop, colour = luokka)</span></span>
 <span><span class="co"># }</span></span>
 <span><span class="co"># )</span></span></code></pre></div>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># lapply(doc_topics, function(x) { </span></span>
 <span><span class="co">#   x |&gt;</span></span>
 <span><span class="co">#     gather_topic_prob() |&gt;</span></span>
@@ -1500,12 +1419,12 @@ k_21
 <span><span class="co">#     plot_topic_mean_prop(x = topic, y = mean_prop, colour = luokka)</span></span>
 <span><span class="co"># }</span></span>
 <span><span class="co"># )</span></span></code></pre></div>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># taantuvat |&gt;</span></span>
 <span><span class="co">#   filter(kunta %in% unique(aspol$kunta)) |&gt;</span></span>
 <span><span class="co">#   mutate(luokka = if_else(suht_muutos_2010_2022 &gt; 0, "Kasvava", "Taantuva")) |&gt;</span></span>
 <span><span class="co">#   count(luokka, sort = TRUE)</span></span></code></pre></div>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># purrr::imap(doc_topics, function(x, name) { </span></span>
 <span><span class="co">#   x |&gt;</span></span>
 <span><span class="co">#     gather_topic_prob() |&gt;</span></span>
@@ -1515,7 +1434,7 @@ k_21
 <span><span class="co">#     rename_with(~ paste0("topic_", .x, recycle0 = TRUE), matches("^[0-9]+$")) |&gt;</span></span>
 <span><span class="co">#     write.csv(paste0("topic_", name, ".csv"))</span></span>
 <span><span class="co"># })</span></span></code></pre></div>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># dat &lt;- doc_topics$k_5 |&gt; </span></span>
 <span><span class="co">#   gather_topic_prob() |&gt;</span></span>
 <span><span class="co">#   join_y() |&gt;</span></span>
@@ -1523,7 +1442,7 @@ k_21
 <span><span class="co">#          topic = factor(as.integer(topic))) |&gt;</span></span>
 <span><span class="co">#   select(topic, prop, luokka)</span></span>
 <span><span class="co"># dat</span></span></code></pre></div>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># for (i in seq_along(unique(dat$topic))) {</span></span>
 <span><span class="co">#   cat("Topic ", i)</span></span>
 <span><span class="co">#   print(</span></span>
@@ -1538,7 +1457,7 @@ k_21
 <span><span class="co">#       kruskal.test(luokka ~ prop, data = _)</span></span>
 <span><span class="co">#   )</span></span>
 <span><span class="co"># } </span></span></code></pre></div>
-<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># doc_topics$k_5 |&gt;</span></span>
 <span><span class="co">#   gather_topic_prob() |&gt;</span></span>
 <span><span class="co">#   join_y() |&gt;</span></span>
@@ -1548,7 +1467,7 @@ k_21
 <span><span class="co">#             topic_mean = mean(prop),</span></span>
 <span><span class="co">#             .by = c(luokka, topic)) |&gt;</span></span>
 <span><span class="co">#   kruskal.test(topic_sum ~ luokka)</span></span></code></pre></div>
-<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># lapply(doc_topics, function(x) { </span></span>
 <span><span class="co">#   x |&gt;</span></span>
 <span><span class="co">#     gather_topic_prob() |&gt;</span></span>
@@ -1563,7 +1482,7 @@ k_21
 <span><span class="co">#     ylim(-0.4, 0.4) +</span></span>
 <span><span class="co">#     geom_hline(yintercept = 0)</span></span>
 <span><span class="co"># })</span></span></code></pre></div>
-<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># lapply(doc_topics, function(x) { </span></span>
 <span><span class="co">#   x |&gt;</span></span>
 <span><span class="co">#     gather_topic_prob() |&gt;</span></span>
@@ -1578,7 +1497,7 @@ k_21
 <span><span class="co">#     scale_fill_viridis_c(option = "A")</span></span>
 <span><span class="co"># }</span></span>
 <span><span class="co"># )</span></span></code></pre></div>
-<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># lapply(doc_topics, function(x) { </span></span>
 <span><span class="co">#   x |&gt;</span></span>
 <span><span class="co">#     gather_topic_prob() |&gt;</span></span>
@@ -1593,7 +1512,7 @@ k_21
 <span><span class="co">#     scale_fill_viridis_c(option = "A")</span></span>
 <span><span class="co"># }</span></span>
 <span><span class="co"># )</span></span></code></pre></div>
-<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># lapply(doc_topics, function(x) { </span></span>
 <span><span class="co">#   x |&gt;</span></span>
 <span><span class="co">#     gather_topic_prob() |&gt;</span></span>
@@ -1608,25 +1527,25 @@ k_21
 <span><span class="co">#     geom_tile(aes(x = topic, y = luokka, fill = diff)) +</span></span>
 <span><span class="co">#     scale_fill_distiller(palette = "Spectral")</span></span>
 <span><span class="co"># })</span></span></code></pre></div>
-<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># titles &lt;- aspol |&gt; </span></span>
 <span><span class="co">#   group_by(kunta) |&gt; </span></span>
 <span><span class="co">#   slice_head(n=10) |&gt; </span></span>
 <span><span class="co">#   summarise(title = paste(FORM, collapse = " ")) |&gt;</span></span>
 <span><span class="co">#   inner_join(taantuvat)</span></span>
 <span><span class="co"># titles</span></span></code></pre></div>
-<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># titles_per_topics &lt;- lapply(doc_topics, function(x) {</span></span>
 <span><span class="co">#   gather_topic_prob(x) |&gt;</span></span>
 <span><span class="co">#     slice_max(order_by = prop, n = 1, by = doc_id) |&gt;</span></span>
 <span><span class="co">#     left_join(titles, by = join_by("doc_id" == "kunta"))</span></span>
 <span><span class="co">#   })</span></span>
 <span><span class="co"># titles_per_topics</span></span></code></pre></div>
-<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># titles_per_topics$k_5 |&gt;</span></span>
 <span><span class="co">#   filter(topic==3) |&gt;</span></span>
 <span><span class="co">#   select(doc_id, title)</span></span></code></pre></div>
-<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># doc_topics$k_5 |&gt; convert(to = "data.frame") |&gt;</span></span>
 <span><span class="co">#   tidyr::pivot_longer(!doc_id, names_to = "topic", values_to = "prop") |&gt;</span></span>
 <span><span class="co">#   left_join(taantuvat, by = join_by("doc_id" == "kunta")) |&gt;</span></span>
@@ -1635,7 +1554,7 @@ k_21
 <span><span class="co">#   summarise(mean_prop = mean(prop)) |&gt;</span></span>
 <span><span class="co">#   ggplot() +</span></span>
 <span><span class="co">#   geom_point(aes(x = topic, y = mean_prop, colour = luokka))</span></span></code></pre></div>
-<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># doc_topics$k_5 |&gt; convert(to = "data.frame") |&gt;</span></span>
 <span><span class="co">#   tidyr::pivot_longer(!doc_id, names_to = "topic", values_to = "prop") |&gt;</span></span>
 <span><span class="co">#   ggplot() +</span></span>
