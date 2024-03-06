@@ -77,12 +77,12 @@ xgb_data
 ```{r, R.options=list(width=10000, pillar.print_max = 20, pillar.print_min = 20)}
 gs <- tidyr::expand_grid(
   booster = "gbtree",
-  eta = seq(0.01, 0.4, by = 0.1),
-  max_depth = seq(3, 9, by = 1),
+  eta = seq(0.01, 0.1, by = 0.2),
+  max_depth = seq(3, 7, by = 1),
   gamma = seq(0, 4, by = 2),
   subsample = seq(0.5, 1, by = 0.25),
   colsample_bylevel = seq(0.5, 1, by = 0.25),
-  nrounds = seq(5, 50, by = 20),
+  nrounds = seq(5, 55, by = 25),
   objective = "binary:logistic",
   num_parallel_tree = 2
 )

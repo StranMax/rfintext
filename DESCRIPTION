@@ -28,6 +28,7 @@ Suggests:
     stats,
     stringr,
     testthat (>= 3.0.0),
+    tidyr,
     tidytext,
     topicdoc,
     topicmodels,

@@ -20,9 +20,12 @@ library(tidytext)
 library(topicmodels)
 library(topicdoc)
 library(dplyr)
+library(tidyr)
 library(ggplot2)
+library(DT)
+library(kableExtra)
 library(doFuture)
-plan(multisession)
+plan(multisession, workers = availableCores(logical = FALSE) - 1)
 ```
 
 ```{r, include=FALSE}
@@ -42,17 +45,27 @@ topfeatures(dtm)
 
 LDA needs one parameter `k`. Finding optimal values by evaluating coherence score.
 
+
 ```{r, warning=FALSE}
 k_values <- c(seq(2, 70, by = 1))
 system.time(
-  coherence <- foreach(k = k_values, .combine = 'rbind', .inorder = FALSE) %dofuture% {
-    rfintext::get_coherence(dtm, k)
+  model_coherence <- foreach(k = k_values, .combine = 'rbind', .inorder = FALSE) %dofuture% {
+    lda <- topicmodels::LDA(quanteda::convert(dtm, to = "tm"), k = k, control = list(seed = 1234))
+    mean_coherence <- mean(topicdoc::topic_coherence(lda, dtm))
+    data_frame(k = k, mean_coherence = mean_coherence)
   }
 )
 ```
 
 ```{r}
-p <- plot_coherence(coherence)
+# save(model_coherence, file = "./extdata/model_coherence.rda")  # Does not work!!??
+usethis::use_data(model_coherence)
+```
+
+```{r}
+p <- model_coherence |>
+  ggplot(aes(x = k, y = mean_coherence)) +
+  geom_line()
 p
 ```
 
@@ -79,44 +92,103 @@ names(lda_models) <- paste0("k_", optimal_k)
 ```
 
 ```{r, R.options=list(width = 10000, pillar.print_max = 25, pillar.print_min = 25)}
-topic_terms <- lapply(lda_models, function(x) {
-  as.data.frame(terms(x, 25))
-})
-topic_terms
+beta_matrix <- bind_rows(
+  lapply(lda_models, function(x) {
+    tidytext::tidy(x, matrix = "beta")
+  }), 
+  .id = "model")
+beta_matrix
 ```
+
+```{r}
+topic_congruence <- beta_matrix |>
+  pivot_wider(values_from = beta, names_from = topic) |>
+  rename_with(~paste0("Topic_", .), where(is.numeric)) |>
+  select(-term)
+topic_congruence
+```
+
+```{r}
+k_5_k_15 <-  cor(topic_congruence[topic_congruence$model=="k_5", 2:6], topic_congruence[topic_congruence$model=="k_15", 2:16])
+k_5_k_18 <-  cor(topic_congruence[topic_congruence$model=="k_5", 2:6], topic_congruence[topic_congruence$model=="k_18", 2:19])
+k_5_k_21 <-  cor(topic_congruence[topic_congruence$model=="k_5", 2:6], topic_congruence[topic_congruence$model=="k_21", 2:22])
+k_15_k_18 <-  cor(topic_congruence[topic_congruence$model=="k_15", 2:16], topic_congruence[topic_congruence$model=="k_18", 2:19])
+k_15_k_21 <-  cor(topic_congruence[topic_congruence$model=="k_15", 2:16], topic_congruence[topic_congruence$model=="k_21", 2:22])
+k_18_k_21 <-  cor(topic_congruence[topic_congruence$model=="k_18", 2:19], topic_congruence[topic_congruence$model=="k_21", 2:22])
+topic_correlation <- list(k_5_k_15, k_5_k_18, k_5_k_21, k_15_k_18, k_15_k_21, k_18_k_21)
+names(topic_correlation) <-  c("k_5_vs_k_15", "k_5_vs_k_18", "k_5_vs_k_21", "k_15_vs_k_18", "k_15_vs_k_21", "k_18_vs_k_21")
+```
+
+```{r}
+for (i in seq_along(topic_correlation)) {
+  print(
+    pivot_longer(as_tibble(topic_correlation[[i]], rownames = "model1"), !model1, names_to = "model2", values_to = "correlation") |>
+      mutate(topic_nro1 = as.integer(stringr::str_extract(model1, "\\d+")),
+             topic_nro2 = as.integer(stringr::str_extract(model2, "\\d+"))) |>
+      ggplot(aes(x = forcats::fct_reorder(model1, topic_nro1, sum), y = forcats::fct_reorder(model2, topic_nro2, sum), fill = correlation, label = round(correlation, 2))) +
+      geom_tile(show.legend = FALSE) +
+      geom_text() +
+      theme(axis.text.x = element_text(angle = 90)) +
+      labs(subtitle = names(topic_correlation)[i]) +
+      scale_fill_viridis_c(option = "A")
+    )
+}
+```
+
+
+```{r, R.options=list(width = 10000, pillar.print_max = 25, pillar.print_min = 25)}
+theta_matrix <- bind_rows(
+  lapply(lda_models, function(x) {
+    tidytext::tidy(x, matrix = "gamma")
+  }),
+  .id = "model")
+theta_matrix
+```
+
+```{r}
+topic_prevalence <-  theta_matrix |>
+  summarise(mean_gamma = mean(gamma), median_gamma = median(gamma), .by = c(model, topic)) |>
+  mutate(gamma = paste0(round(mean_gamma, 2), " (", round(median_gamma, 2), ")")) #|>
+  # select(model, topic, gamma) |>
+  # tidyr::pivot_wider(names_from =  model, values_from = gamma, values_fill = "")
+
+kbl(topic_prevalence) |>
+  kable_styling(fixed_thead = T)
+```
+
+
+```{r}
+ggplot(topic_prevalence, aes(x = factor(topic), y = mean_gamma)) +
+  geom_col() +
+  facet_wrap(~ factor(model, levels =  c("k_5", "k_15", "k_18", "k_21")), scales = "free_x")
+```
+
+```{r, fig.height=7, fig.width=21}
+beta_matrix |>
+  filter(model == "k_5") |>
+  group_by(topic) |>
+  slice_max(beta, n = 25) |>
+  mutate(topic = as.factor(topic)) |>
+  ggplot(aes(x = beta, y = reorder(term, beta), fill = topic)) +
+  geom_col(show.legend = FALSE) +
+  scale_fill_viridis_d(option = "A") +
+  facet_wrap(~topic, scales = "free", ncol = 3)
+```
+
 
 ```{r, R.options=list(width = 10000)}
 doc_topics <- lapply(lda_models, function(x) {
-  x |> 
+  x |>
     tidytext::tidy(matrix = "gamma") |>
     tidytext::cast_dfm(document, topic, gamma)
 })
 doc_topics
 ```
 
-```{r}
-lapply(doc_topics, function(x) {
-  x |> as.matrix() |> cor() |>
-  as_tibble(rownames = "topic1") |>
-  tidyr::pivot_longer(!topic1, names_to = "topic2", values_to = "correlation") |>
-  ggplot() +
-  geom_tile(aes(x = topic1, y = topic2, fill = correlation)) +
-  scale_fill_viridis_c(option = "A")
-})
-```
-
-
-```{r}
-gather_topic_prob <- function(m) {
-  m |> 
-    convert(to = "data.frame") |>
-    tidyr::pivot_longer(!doc_id, names_to = "topic", values_to = "prop")
-}
-```
 
 ```{r}
 join_y <- function(df) {
-  df |> 
+  df |>
     left_join(taantuvat, by = join_by("doc_id" == "kunta")) |>
     filter(!is.na(luokka))
 }
@@ -124,7 +196,7 @@ join_y <- function(df) {
 
 ```{r}
 summarise_topics <- function(df, ...) {
-  df |> 
+  df |>
     mutate(topic = factor(as.integer(topic))) |>
     summarise(...)
 }
