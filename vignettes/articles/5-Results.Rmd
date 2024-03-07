@@ -9,7 +9,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r setup}
+```{r setup, message=FALSE, warning=FALSE}
 library(rfintext)
 library(rfinstats)
 library(topicmodels)
@@ -38,7 +38,7 @@ lda_models <- foreach(k = optimal_k) %dofuture% {
 names(lda_models) <- paste0("k_", optimal_k)
 ```
 
-```{r}
+```{r, R.options=list(width=10000)}
 y <- rfinstats::taantuvat |>
   filter(kunta %in% unique(aspol$kunta))
 y
@@ -77,10 +77,11 @@ for (i in unique(theta_matrix$model)) {
     theta_matrix |>
       filter(model == i) |>
       left_join(taantuvat, by = join_by("document" == "kunta")) |>
-      summarise(mean_gamma = mean(gamma), .by = c(luokka, topic)) |>
+      summarise(mean_gamma = mean(gamma), gamma_median = median(gamma), .by = c(luokka, topic)) |>
       mutate(topic = factor(topic)) |>
-      ggplot(aes(x = topic, y = mean_gamma, colour = luokka)) +
-      geom_point() +
+      ggplot() +
+      geom_point(aes(x = topic, y = mean_gamma, colour = luokka), shape = 16) +
+      geom_point(aes(x = topic, y = gamma_median, colour = luokka), shape = 17) +
       scale_colour_viridis_d(option = "A") +
       labs(title = "Most likely topic per class", subtitle = paste0("Model_", i))
   )
@@ -97,9 +98,30 @@ for (i in unique(theta_matrix$model)) {
              topic = factor(as.integer(topic))) |>
       summarise(gamma_sum = sum(gamma),
                 gamma_mean = mean(gamma),
+                gamma_median = median(gamma),
                 .by = c(luokka, topic)) |>
       ggplot() +
       geom_tile(aes(x = topic, y = luokka, fill = gamma_mean)) +
+      scale_fill_viridis_c(option = "A") +
+      labs(title = "Common topics per class", subtitle = paste0("Model_", i))
+  )
+}
+```
+
+```{r}
+for (i in unique(theta_matrix$model)) {
+  print(
+    theta_matrix |>
+      filter(model == i) |>
+      left_join(taantuvat, by = join_by("document" == "kunta")) |>
+      mutate(luokka = if_else(suht_muutos_2010_2022 > 0, "Kasvava", "Taantuva"),
+             topic = factor(as.integer(topic))) |>
+      summarise(gamma_sum = sum(gamma),
+                gamma_mean = mean(gamma),
+                gamma_median = median(gamma),
+                .by = c(luokka, topic)) |>
+      ggplot() +
+      geom_tile(aes(x = topic, y = luokka, fill = gamma_median)) +
       scale_fill_viridis_c(option = "A") +
       labs(title = "Common topics per class", subtitle = paste0("Model_", i))
   )
