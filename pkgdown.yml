@@ -8,7 +8,8 @@ articles:
   2-Document-term-matrix: 2-Document-term-matrix.html
   3-Topic-modeling: 3-Topic-modeling.html
   4-XGBoost-classification: 4-XGBoost-classification.html
-last_built: 2024-03-06T20:51Z
+  5-Results: 5-Results.html
+last_built: 2024-03-07T12:32Z
 urls:
   reference: https://stranmax.github.io/rfintext/reference
   article: https://stranmax.github.io/rfintext/articles
