@@ -21,7 +21,7 @@ library(quanteda)
 library(doFuture)
 library(forcats)
 library(purrr)
-plan(multisession)
+plan(multisession, workers = availableCores(logical = FALSE) - 1)
 ```
 
 ```{r, include=FALSE}
@@ -54,20 +54,24 @@ X
 ```{r, warning=FALSE}
 optimal_k <- c(5, 15, 18, 21)
 system.time(
-  lda_models <- foreach(k = optimal_k) %dofuture% {
-    get_doc_topic_prob(X, k = k)
+  theta_matrix <- foreach(k = optimal_k) %dofuture% {
+    # get_doc_topic_prob(X, k = k)
+    lda <- topicmodels::LDA(quanteda::convert(X, to = "tm"), k = k, control = list(seed = 1234))
+    lda |>
+      tidytext::tidy(matrix = "gamma") |>
+      tidytext::cast_dfm(document, topic, gamma)
   }
 )
 
-names(lda_models) <- paste0("k_", optimal_k)
+names(theta_matrix) <- paste0("k_", optimal_k)
 ```
 
 ```{r, R.options=list(width=10000)}
-lda_models
+theta_matrix
 ```
 
 ```{r}
-xgb_data <- lapply(lda_models, get_train_test_data, y, split_train_test(y, luokka, kunta))
+xgb_data <- lapply(theta_matrix, get_train_test_data, y, split_train_test(y, luokka, kunta))
 ```
 
 ```{r}
