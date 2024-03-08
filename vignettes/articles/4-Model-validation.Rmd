@@ -169,7 +169,7 @@ gs |> arrange(error)
 
 ```{r}
 gs |>
-  ggplot(aes(x = error, y = factor(lda_model, levels = names(lda_models)))) +
+  ggplot(aes(x = error, y = factor(lda_model, levels = names(theta_matrix)))) +
   geom_boxplot() +
   labs(title = "XGB model errors", y = "LDA model")
 ```
