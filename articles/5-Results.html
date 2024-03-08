@@ -46,7 +46,7 @@
     <a class="dropdown-item" href="../articles/1-Data-preprocessing.html">1 Data preprocessing</a>
     <a class="dropdown-item" href="../articles/2-Document-term-matrix.html">2 Document term matrix</a>
     <a class="dropdown-item" href="../articles/3-Topic-modeling.html">3 Topic modeling</a>
-    <a class="dropdown-item" href="../articles/4-XGBoost-classification.html">4 XGBoost classification</a>
+    <a class="dropdown-item" href="../articles/4-Model-validation.html">4 Model validation</a>
     <a class="dropdown-item" href="../articles/5-Results.html">5 Results</a>
   </div>
 </li>
@@ -128,7 +128,17 @@
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> Hyvinkää     <span style="text-decoration: underline;">45</span>489                <span style="text-decoration: underline;">1</span>527                  3.36 Hieman kasvava       </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> Hämeenlinna  <span style="text-decoration: underline;">66</span>829                <span style="text-decoration: underline;">1</span>588                  2.38 Hieman kasvava       </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> Iitti         <span style="text-decoration: underline;">7</span>005                -<span style="color: #BB0000;">557</span>                 -<span style="color: #BB0000;">7.95</span> Taantuva             </span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 56 more rows</span></span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">11</span> Imatra       <span style="text-decoration: underline;">28</span>540               -<span style="color: #BB0000; text-decoration: underline;">3</span><span style="color: #BB0000;">468</span>                -<span style="color: #BB0000;">12.2</span>  Voimakkaasti taantuva</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">12</span> Inkoo         <span style="text-decoration: underline;">5</span>546                -<span style="color: #BB0000;">225</span>                 -<span style="color: #BB0000;">4.06</span> Hieman taantuva      </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">13</span> Joensuu      <span style="text-decoration: underline;">73</span>305                <span style="text-decoration: underline;">4</span>809                  6.56 Kasvava              </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">14</span> Juva          <span style="text-decoration: underline;">6</span>962               -<span style="color: #BB0000; text-decoration: underline;">1</span><span style="color: #BB0000;">295</span>                -<span style="color: #BB0000;">18.6</span>  Voimakkaasti taantuva</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">15</span> Järvenpää    <span style="text-decoration: underline;">38</span>680                <span style="text-decoration: underline;">6</span>922                 17.9  Voimakkaasti kasvava </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">16</span> Kaarina      <span style="text-decoration: underline;">30</span>911                <span style="text-decoration: underline;">5</span>088                 16.5  Voimakkaasti kasvava </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">17</span> Kalajoki     <span style="text-decoration: underline;">12</span>562                -<span style="color: #BB0000;">205</span>                 -<span style="color: #BB0000;">1.63</span> Hieman taantuva      </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">18</span> Kauniainen    <span style="text-decoration: underline;">8</span>689                <span style="text-decoration: underline;">1</span>667                 19.2  Voimakkaasti kasvava </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">19</span> Kemiönsaari   <span style="text-decoration: underline;">7</span>191                -<span style="color: #BB0000;">749</span>                -<span style="color: #BB0000;">10.4</span>  Voimakkaasti taantuva</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">20</span> Kerava       <span style="text-decoration: underline;">34</span>282                <span style="text-decoration: underline;">3</span>843                 11.2  Voimakkaasti kasvava </span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 46 more rows</span></span></span></code></pre></div>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">theta_matrix</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind_rows.html" class="external-link">bind_rows</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">lda_models</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">{</span></span>
