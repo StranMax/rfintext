@@ -1,0 +1,303 @@
+---
+title: "4 Model validation"
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup, message=FALSE, warning=FALSE}
+library(rfintext)
+library(rfinstats)
+library(dplyr)
+library(tidytext)
+library(xgboost)
+library(caret)
+library(topicmodels)
+library(quanteda)
+library(doFuture)
+library(forcats)
+library(purrr)
+plan(multisession, workers = availableCores(logical = FALSE) - 1)
+```
+
+```{r, include=FALSE}
+quanteda_options(print_dfm_max_ndoc = 20, print_dfm_max_nfeat = 20)
+```
+
+```{r, message=FALSE, R.options=list(width=10000, pillar.print_max = 20, pillar.print_min = 20)}
+y <- rfinstats::taantuvat |>
+  filter(kunta %in% unique(aspol$kunta))
+y
+```
+
+```{r}
+dtm <- aspol |>
+  preprocess_corpus() |>
+  corpus_to_dtm(kunta, LEMMA)
+```
+
+```{r, warning=FALSE}
+optimal_k <- c(5, 15, 18, 21)
+system.time(
+  theta_matrix <- foreach(k = optimal_k) %dofuture% {
+    dtm |>
+      quanteda::convert(to = "tm") |>  # dfm to tm format
+      topicmodels::LDA(k = k, control = list(seed = 1234)) |>  # LDA model
+      tidytext::tidy(matrix = "gamma") |>  # Extract theta matrix with probabilities of topics per document
+      filter(document %in% y$kunta) |>  # Filter out docs made by regions
+      tidytext::cast_dfm(document = document, term = topic, value = gamma)  # Data frame to dfm matrix
+  }
+)
+names(theta_matrix) <- paste0("k_", optimal_k)
+```
+
+```{r, R.options=list(width=10000)}
+theta_matrix
+```
+
+```{r}
+trainidx <- createDataPartition(y$suht_muutos_2010_2022, p = .8, 
+                                list = FALSE, 
+                                times = 1)
+```
+
+```{r}
+response_var <- "suht_muutos_2010_2022"
+labels <- list(train = y[trainidx, ][[response_var]],
+               test = y[-trainidx, ][[response_var]])
+```
+
+```{r}
+dat <- list()
+for (i in seq_along(theta_matrix)) {
+  dat[[i]] <- list(
+    train = dfm_subset(theta_matrix[[i]], docname_ %in% y$kunta[trainidx]),
+    test = dfm_subset(theta_matrix[[i]], docname_ %in% y$kunta[-trainidx])
+  )
+}
+names(dat) <- names(theta_matrix)
+```
+
+
+```{r}
+xgb_data <- list()
+for (i in seq_along(dat)) {
+  train <- dat[[i]]$train
+  test <- dat[[i]]$test
+  xgb_data[[i]] <- list(
+    train = xgb.DMatrix(data = train, label = labels$train),
+    test =  xgb.DMatrix(data = test, label = labels$test)
+  )
+}
+names(xgb_data) <- names(dat)
+```
+
+```{r, R.options=list(width=10000, pillar.print_max = 20, pillar.print_min = 20)}
+gs <- tidyr::expand_grid(
+  booster = "gbtree",
+  eta = seq(0.01, 0.1, by = 0.2),
+  max_depth = seq(3, 7, by = 1),
+  gamma = seq(0, 4, by = 2),
+  subsample = seq(0.5, 1, by = 0.25),
+  colsample_bylevel = seq(0.5, 1, by = 0.25),
+  nrounds = seq(5, 55, by = 25),
+  objective = "reg:squarederror",
+  num_parallel_tree = 2
+)
+gs
+```
+
+```{r}
+# foreach(i = 1:nrow(gs[1:10,]), .combine = "rbind", .inorder = FALSE) %dofuture% {
+#   # print(
+#   gs[i, ] |> 
+#     mutate(xgb_model = purrr::pmap(gs[i, ], function(...) {
+#       xgboost::xgb.train(data = xgb_data$k_5[["train"]], ...)
+#     }
+#     ))
+#   
+#   # )
+# }
+```
+
+
+```{r}
+# for (i in 1:nrow(gs[1:10,])) {
+#   print(
+#     gs[i, ] |> 
+#       mutate(xgb_model = purrr::pmap(gs[i, ], function(...) xgb.train(data = xgb_data$k_5[["train"]], ...),                                
+#                                      .progress = TRUE))
+#     
+#   )
+# }
+```
+
+
+```{r, R.options=list(width=10000, pillar.print_max = 20, pillar.print_min = 20)}
+system.time(
+  gs <- bind_rows(
+    lapply(xgb_data, function(x) {
+    gs |> mutate(xgb_model = purrr::pmap(gs, function(...) mod(x[["train"]], ...), .progress = TRUE))
+  }), .id = "lda_model"
+  )
+)
+gs
+```
+
+```{r, R.options=list(width=10000, pillar.print_max = 20, pillar.print_min = 20)}
+# gs_list <- map2(xgb_data, gs_list, function(xgb_dat, xgb_mod) {
+#   xgb_mod |> mutate(error = purrr::map_dbl(xgb_model, function(mod) {
+#     compute_error(mod, xgb_dat[["test"]])
+#   }))
+# }  )
+# gs_list
+gs <- gs |> 
+  mutate(error = purrr::map2_dbl(xgb_model, lda_model, function(xgbmod, ldamod) {
+    pred <- stats::predict(xgbmod, xgb_data[[ldamod]][["test"]])
+    RMSE(labels$test, pred)
+  }))
+```
+
+```{r}
+gs |> arrange(error)
+```
+
+
+```{r}
+gs |>
+  ggplot(aes(x = error, y = factor(lda_model, levels = names(lda_models)))) +
+  geom_boxplot() +
+  labs(title = "XGB model errors", y = "LDA model")
+```
+
+```{r}
+xgb.importance(feature_names = colnames(theta_matrix[[ gs[1,]$lda_model]]), 
+               model = gs[1,]$xgb_model[[1]])
+```
+
+
+```{r}
+gs |>
+  slice_min(error, n = 1, by = lda_model) %>%
+  split(1:nrow(.)) |>
+  map(function(df) {
+    importance <- xgb.importance(feature_names = colnames(theta_matrix[[df$lda_model]]), model = df$xgb_model[[1]]) |>
+      ggplot(aes(x = Gain, y = reorder(Feature, Gain))) +
+      geom_col() +
+      labs(title = "Feature importance", subtitle = paste0("LDA_model_", df$lda_model), y = "Topic" , caption = paste0("RMSE: ", round(df$error, 2)))
+      # xgb.plot.importance(importance)
+  })
+  
+```
+
+
+
+```{r}
+# results |>
+#   ggplot() +
+#   geom_boxplot(aes(error)) +
+#   labs(y="") +
+#   theme(axis.text.y = element_blank(), axis.ticks.y = element_blank()) +
+#   facet_wrap(~lda_model, nrow = 4)
+```
+
+```{r, R.options=list(width=10000, pillar.print_max = 50, pillar.print_min = 50)}
+# results |> slice_max(order_by = -error, n = 1, by = lda_model, with_ties = FALSE)
+```
+
+
+```{r}
+# results |>
+#   mutate(importance = map2(results$lda_model, results$xgb_model, function(k_model, mdl) {
+#     results |> mutate(importance = tidyr::nest(
+#       xgb.importance(feature_names = colnames(xgb_data[[k_model]]),
+#                      model = mdl)
+#     ))
+#   }, .progress = TRUE))
+```
+
+
+```{r}
+# importance <-  map2(results$lda_model, results$xgb_model, function(k_model, mdl) {
+#   results |> mutate(importance = tidyr::nest(xgb.importance(feature_names = colnames(xgb_data[[k_model]]),
+#                  model = mdl)))
+# }, .progress = TRUE)
+```
+
+```{r}
+# importance
+```
+
+
+```{r}
+# results |>
+#   arrange(error) |>
+#   slice_head(n=10) |>
+#   select(lda_model, xgb_model) |>
+#   map2("lda_model", "xgb_model", function(x, y) {
+#     class(x)
+#   })
+  # map2(["xgb_model"], xgb_data, function(k, dat) {
+  #   xgb.importance(feature_names = colnames(dat), 
+  #                  model = k)
+  # })
+  # pmap(function(df) {
+  #   xgb.importance(feature_names = colnames(xgb_data[[df["lda_model"]]]), 
+  #                  model = df["xgb_model"])
+  # })
+```
+
+
+```{r}
+# bst <- results |> arrange(error) |> slice_head(n = 1) |> pull(xgb_model)
+# xgb.importance(feature_names = colnames(xgb_data$k_5),
+#                model = bst[[1]])
+```
+
+
+
+```{r}
+# importance <-  lapply(seq_along(xgb_models), function(i) {
+#   xgb.importance(
+#     feature_names = colnames(xgb_data[[i]]), 
+#     model = xgb_models[[i]]
+#   )
+# }
+# )
+# names(importance) <- paste0("k_", k_values)
+# importance
+```
+
+
+```{r}
+# xgb_preds <- lapply(seq_along(xgb_models), function(i) {
+#   xgb_preds <- predict(xgb_models[[i]], xgb_data[[i]]$Test, reshape = TRUE)
+#   xgb_preds <- as.data.frame(xgb_preds)
+#   
+#   colnames(xgb_preds) <- levels(y$luokka)
+#   rownames(xgb_preds) <- y$kunta[!y$kunta %in% trainNames]
+#   xgb_preds$PredictedClass <- factor(colnames(xgb_preds)[max.col(xgb_preds, ties.method='first')], levels = levels(y$luokka))
+#   xgb_preds$ActualClass <- factor(y[!y$kunta %in% trainNames, ]$luokka, levels = levels(y$luokka))
+#   xgb_preds
+# })
+# names(xgb_preds) <- paste0("k_", k_values)
+```
+
+
+```{r, rows.print=19}
+# xgb_preds
+```
+
+
+```{r}
+# conf_matrix <- lapply(seq_along(xgb_data), function(i) {
+#   confusionMatrix(xgb_preds[[i]]$ActualClass, xgb_preds[[i]]$PredictedClass)
+# })
+# names(conf_matrix) <- paste0("k_", k_values)
+# conf_matrix
+```
+

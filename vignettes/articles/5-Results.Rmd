@@ -30,7 +30,7 @@ dtm <- aspol |>
 ```
 
 
-```{r}
+```{r, warning=FALSE}
 optimal_k <- c(5, 15, 18, 21)
 lda_models <- foreach(k = optimal_k) %dofuture% {
   topicmodels::LDA(quanteda::convert(dtm, to = "tm"), k = k, control = list(seed = 1234))
@@ -38,7 +38,7 @@ lda_models <- foreach(k = optimal_k) %dofuture% {
 names(lda_models) <- paste0("k_", optimal_k)
 ```
 
-```{r, R.options=list(width=10000)}
+```{r, R.options=list(width=10000, pillar.print_max = 20, pillar.print_min = 20)}
 y <- rfinstats::taantuvat |>
   filter(kunta %in% unique(aspol$kunta))
 y
