@@ -1,110 +1,70 @@
 
-calculate_doc_freq <- function(df, doc = .data$kunta) {
+#' Calclulate document frequency
+#'
+#' Adds document frequencies to new column. Document frequency describes in how
+#' many documents term appears. Useful in finding very common terms appearing
+#' in almost all the documents and very rare terms appearing in only single or
+#' very few documents.
+#'
+#' @param df tidy data frame with one term per row
+#' @param doc column with document id
+#' @param term column with terms
+#'
+#' @return tidy data frame with added column df giving document frequencies for
+#'         terms and df_ratio giving relative document frequency
+#' @export
+#'
+#' @examples
+calculate_doc_freq <- function(df, doc, term) {
   dc <- df |>
-    dplyr::distinct({{doc}}, .data$LEMMA) |>
-    dplyr::count(.data$LEMMA, name = "dc_n")
+    dplyr::distinct({{doc}}, {{term}}) |>
+    dplyr::count({{term}}, name = "df")
 
   suppressMessages(
-    df |> dplyr::left_join(dc)
+    df |>
+      dplyr::left_join(dc) |>
+      dplyr::mutate(df_ratio = df / length(unique({{doc}})))
   )
 }
 
-calculate_doc <- function(df, doc = .data$kunta) {
-  dplyr::pull(df, {{doc}}) |>
-    unique() |>
-    length()
-}
-
-log_dropped <- function(df_old, df_new, print.message = TRUE) {
-  if (print.message) message("Dropped ", nrow(df_old) - nrow(df_new), " rows")
-}
-
-#' Title
+#' Remove short terms
 #'
 #' @param df data frame
-#' @param doc document
-#' @param ratio ratio for common terms, default 0.99
+#' @param len minimum length for terms/words to keep
 #'
 #' @return data frame
 #' @export
 #'
 #' @examples
-remove_common_terms <- function(df, doc = .data$kunta, ratio = 0.99) {
-  total_doc <- calculate_doc(df)
-
-  limit <- min(c(nrow(dplyr::distinct(df, {{doc}})) - 5, total_doc * ratio))
-
-  df_new <-  df |> calculate_doc_freq() |> dplyr::filter(.data$dc_n <= limit)
-  log_dropped(df, df_new)
-
-  df_new
+remove_short_term <- function(df, len) {
+   df |> dplyr::filter(nchar(.data$FORM) > len, nchar(.data$LEMMA) >= len)
 }
 
-#' Title
+#' Remove terms containing numbers
 #'
 #' @param df data frame
-#' @param doc document
-#' @param ratio ratio for rare terms, default 0.05
+#' @param term column with the terms
 #'
 #' @return data frame
 #' @export
 #'
 #' @examples
-remove_uncommon_terms <- function(df, doc = .data$kunta, ratio = 0.05) {
-  total_doc <- calculate_doc(df)
-
-  limit <- max(c(5, total_doc * ratio))
-
-  df_new <- df |> calculate_doc_freq() |> dplyr::filter(.data$dc_n >= limit)
-  log_dropped(df, df_new)
-
-  df_new
+remove_numbers <- function(df, term) {
+   df |> dplyr::filter(!stringr::str_detect({{term}}, "[0-9]"))
 }
 
-#' Title
+#' Remove foreign terms
 #'
-#' @param df data frame
-#' @param len minimum length for terms/words
+#' Foreign terms are defined as having UPOSTAX=="X" and FEATS=="Foreign=Yes"
 #'
-#' @return data frame
-#' @export
+#' @param df tidy data frame with one term per row
 #'
-#' @examples
-remove_short_term <- function(df, len = 3) {
-  df_new <- df |> dplyr::filter(nchar(.data$FORM) > len, nchar(.data$LEMMA) >= len)
-  log_dropped(df, df_new)
-
-  df_new
-}
-
-#' Title
-#'
-#' @param df data frame
-#'
-#' @return data frame
-#' @export
-#'
-#' @examples
-remove_numbers <- function(df) {
-  df_new <- df |> dplyr::filter(!stringr::str_detect(.data$FORM, "[0-9]"))
-  log_dropped(df, df_new)
-
-  df_new
-}
-
-#' Title
-#'
-#' @param df data frame
-#'
-#' @return data frame
+#' @return data frame with foreign terms removed
 #' @export
 #'
 #' @examples
 remove_foreign <- function(df) {
-  df_new <- df |> dplyr::filter(.data$UPOSTAG != "X", !stringr::str_detect(.data$FEATS, "Foreign=Yes"))
-  log_dropped(df, df_new)
-
-  df_new
+  df |> dplyr::filter(.data$UPOSTAG != "X", !stringr::str_detect(.data$FEATS, "Foreign=Yes"))
 }
 
 #' Title
@@ -117,14 +77,9 @@ remove_foreign <- function(df) {
 #'
 #' @examples
 filter_upostag <- function(df, upostag) {
-  # function(df) {
-  df_new <- df |> dplyr::filter(.data$UPOSTAG %in% upostag)
-  log_dropped(df, df_new)
+ df |> dplyr::filter(.data$UPOSTAG %in% upostag)
 
-  df_new
-  # }
 }
-# filter_noun_adj_verb <- filter_upostag(df, c("NOUN", "VERB", "ADJ"))
 
 #' Preprocess corpus object
 #'
@@ -135,6 +90,8 @@ filter_upostag <- function(df, upostag) {
 #' 4. Filter only nouns
 #'
 #' @param df Data frame in tidytext format one token per document per line
+#' @param doc column with document id
+#' @param term column with terms
 #'
 #' @return cleaned data frame
 #' @export
@@ -142,14 +99,14 @@ filter_upostag <- function(df, upostag) {
 #' @importFrom dplyr .data
 #'
 #' @examples
-#' preprocess_corpus(aspol)
+#' preprocess_corpus(aspol, kunta, LEMMA)
 #'
-preprocess_corpus <- function(df) {
+preprocess_corpus <- function(df, doc, term) {
   df |>
     filter_upostag(c("NOUN", "VERB", "ADJ")) |>
-    remove_numbers() |>
+    remove_numbers(term = .data$FORM) |>
     remove_foreign() |>
-    remove_uncommon_terms() |>
-    remove_common_terms() |>
-    remove_short_term()
+    remove_short_term(len = 4) |>
+    calculate_doc_freq({{doc}}, {{term}}) |>
+    dplyr::filter(df >= 5, df <= 65)
 }

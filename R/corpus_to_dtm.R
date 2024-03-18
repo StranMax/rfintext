@@ -9,7 +9,7 @@ dtc_to_dtm <- function(df, doc, term) {
 
 #' Title
 #'
-#' @param df data frame
+#' @param df tidy data frame with one term per row
 #' @param doc document column
 #' @param term term column
 #'
@@ -18,5 +18,7 @@ dtc_to_dtm <- function(df, doc, term) {
 #'
 #' @examples
 corpus_to_dtm <- function(df, doc, term) {
-  df |> calculate_term_per_doc({{doc}}, {{term}}) |> dtc_to_dtm({{doc}}, {{term}})
+  df |>
+    calculate_term_per_doc({{doc}}, {{term}}) |>
+    dtc_to_dtm({{doc}}, {{term}})
 }

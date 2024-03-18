@@ -6,8 +6,15 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
+Main purpose for this package is:  
+\* To share data sets easily.  
+\* Provide a few simple pre processing functions. Nothing special only
+wrappers around dplyr functionality.  
+\* Provide documentation which functions as examples as well.
+
 This package contains data set `aspol` created from Finnish housing
-policy documents.
+policy documents. Other data sets might be added later. Currently all
+the functionalities are tested with aspol data set only.
 
 ## Installation
 

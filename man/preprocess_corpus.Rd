@@ -4,10 +4,14 @@
 \alias{preprocess_corpus}
 \title{Preprocess corpus object}
 \usage{
-preprocess_corpus(df)
+preprocess_corpus(df, doc, term)
 }
 \arguments{
 \item{df}{Data frame in tidytext format one token per document per line}
+
+\item{doc}{column with document id}
+
+\item{term}{column with terms}
 }
 \value{
 cleaned data frame
@@ -20,6 +24,6 @@ Preprocessing pipeline:
 4. Filter only nouns
 }
 \examples{
-preprocess_corpus(aspol)
+preprocess_corpus(aspol, kunta, LEMMA)
 
 }

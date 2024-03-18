@@ -2,16 +2,18 @@
 % Please edit documentation in R/preprocess_corpus.R
 \name{remove_numbers}
 \alias{remove_numbers}
-\title{Title}
+\title{Remove terms containing numbers}
 \usage{
-remove_numbers(df)
+remove_numbers(df, term)
 }
 \arguments{
 \item{df}{data frame}
+
+\item{term}{column with the terms}
 }
 \value{
 data frame
 }
 \description{
-Title
+Remove terms containing numbers
 }

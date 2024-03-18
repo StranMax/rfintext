@@ -18,8 +18,15 @@ knitr::opts_chunk$set(
 <!-- badges: start -->
 <!-- badges: end -->
 
+Main purpose for this package is:   
+* To share data sets easily.  
+* Provide a few simple pre processing functions. Nothing special only wrappers 
+around dplyr functionality.  
+* Provide documentation which functions as examples as well.  
+
 This package contains data set `aspol` created from Finnish
-housing policy documents.
+housing policy documents. Other data sets might be added later. Currently all the 
+functionalities are tested with aspol data set only.
 
 ## Installation
 
@@ -38,7 +45,7 @@ library(tidyverse)
 
 Number of documents currently `r length(unique(aspol$kunta))`
 
-Example from dataset, sentence nro 43 from Espoo document:
+Example from dataset, sentence nro 43 from Espoo document: 
 
 ```{r, R.options = list(width = 10000, pillar.print_max = 26, pillar.print_min = 26)}
 aspol |> filter(kunta == "Espoo", sent == 43)

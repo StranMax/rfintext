@@ -17,9 +17,12 @@ BugReports: https://github.com/StranMax/rfintext/issues
 Config/Needs/website: rmarkdown
 Suggests: 
     caret,
+    combinat,
     devtools,
     doFuture,
     forcats,
+    furrr,
+    future,
     ggplot2,
     ggwordcloud,
     kableExtra,

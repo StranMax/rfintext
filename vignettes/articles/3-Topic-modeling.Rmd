@@ -9,66 +9,71 @@ knitr::opts_chunk$set(
 )
 ```
 
-Topic modeling with latent Dirichlet allocation (LDA). Finding optimal k-parameter.
-Using coherence score as a value of goodness.
+Topic modeling with latent Dirichlet allocation (LDA).
 
 ```{r setup, message=FALSE, warning=FALSE}
 library(rfintext)
-library(rfinstats)
+# library(rfinstats)
 library(quanteda)
 library(tidytext)
-library(topicmodels)
-library(topicdoc)
-library(dplyr)
-library(tidyr)
-library(ggplot2)
-# library(DT)
-library(kableExtra)
-library(doFuture)
-plan(multisession, workers = availableCores(logical = FALSE) - 1)
+library(topicmodels)  # LDA
+library(topicdoc)  # Coherence score
+library(dplyr)  # Tidyverse friends
+library(tidyr)  # Tidyverse friends
+library(forcats)  # Tidyverse friends
+library(purrr)  # Tidyverse friends
+library(tidyr)  # Tidyverse friends
+library(ggplot2)  # Tidyverse friends
+library(cowplot)  # Multiple plots made easy
+library(kableExtra)  # Pretty tables
+library(future)  # Parallel processing back-end
+library(furrr)  # Parallel processing front-end with future_ functions
+plan(multisession, workers = availableCores(logical = FALSE) - 1)  # Utilize multiple cores on time consuming tasks.
 ```
 
 ```{r, include=FALSE}
 quanteda_options(print_dfm_max_ndoc = 20, print_dfm_max_nfeat = 20)
 ```
 
+You know already how to pre process and convert to document term matrix: 
+
 ```{r, message=FALSE, R.options = list(width = 10000)}
 dtm <- aspol |>
-  preprocess_corpus() |>
+  preprocess_corpus(kunta, LEMMA) |>
   corpus_to_dtm(kunta, LEMMA)
 dtm
 ```
 
-```{r, R.options=list(width=10000)}
-topfeatures(dtm, n = 20) |>
-  as_tibble(rownames = "term") |>
-  ggplot(aes(x = value, y = reorder(term, value))) +
-  geom_col() +
-  labs(subtitle = "20 most common terms", x = "Count", y = "Term")
-```
+Let's get straight to business. Unsupervised classification with LDA:
 
 LDA needs one parameter `k`. Finding optimal values by evaluating coherence score.
 
+> Note! Following will take some time even with multiple cores. For me it took 
+around half an hour on laptop with 14 cores. Adjust number of K values 
+accordingly. Here we test the whole scale for number of topics ranging from two 
+to number of documents.
 
 ```{r, warning=FALSE}
-k_values <- c(seq(2, 70, by = 1))
-system.time(
-  model_coherence <- foreach(k = k_values, .combine = 'rbind', .inorder = FALSE) %dofuture% {
-    lda <- topicmodels::LDA(quanteda::convert(dtm, to = "tm"), k = k, control = list(seed = 1234))
-    mean_coherence <- mean(topicdoc::topic_coherence(lda, dtm))
-    data_frame(k = k, mean_coherence = mean_coherence)
-  }
-)  # Around 30 min.
+ptm <- proc.time()
+lda_models <- tibble(K = 2:68) |>
+  mutate(
+    # LDA models
+    topic_model = future_map(  
+      K, ~LDA(dtm, k = ., control = list(seed = 1234))
+    ),
+    # Model coherence
+    mean_coherence = map_dbl(
+      topic_model, \(x) mean(topic_coherence(x, dtm))
+    )
+  )
+proc.time() - ptm
+lda_models
 ```
 
-```{r}
-# save(model_coherence, file = "./extdata/model_coherence.rda")  # Does not work!!??
-# usethis::use_data(model_coherence)
-```
 
 ```{r}
-p <- model_coherence |>
-  ggplot(aes(x = k, y = mean_coherence)) +
+p <- lda_models |>
+  ggplot(aes(x = K, y = mean_coherence)) +
   geom_line() +
   labs(subtitle = "LDA model coherence with different topic numbers", 
        x = "k (number of topics)", y = "Mean coherence")
@@ -76,8 +81,9 @@ p
 ```
 
 Visually selecting potentially best k values
+
 ```{r}
-optimal_k <- c(5, 15, 18, 21)
+optimal_k <- c(5, 10, 15, 18, 21)
 ```
 
 
@@ -91,85 +97,147 @@ p +
 
 Highest coherence values: `r optimal_k`
 
-```{r, warning=FALSE}
-lda_models <- foreach(k = optimal_k) %dofuture% {
-  topicmodels::LDA(quanteda::convert(dtm, to = "tm"), k = k, control = list(seed = 1234))
-}
-names(lda_models) <- paste0("k_", optimal_k)
+```{r}
+selected_models <- lda_models |>
+  filter(K %in% optimal_k)
+selected_models
 ```
 
-```{r, R.options=list(width = 10000, pillar.print_max = 25, pillar.print_min = 25)}
-beta_matrix <- bind_rows(
-  lapply(lda_models, function(x) {
-    tidytext::tidy(x, matrix = "beta")
-  }), 
-  .id = "model")
-beta_matrix
-```
+Extract beta and theta matrices with probabilities for terms per topic and 
+documents per topic repectively.
+
+> Note! `r tidytext::tidy()` uses term gamma-matrix while in the research field 
+term theta-matrix is used to describe probability distribution of topics per document. 
+Here we rename gamma as theta. Do not get confused if at some point you come around 
+with gamma instead of theta.
+
 
 ```{r}
-topic_congruence <- beta_matrix |>
+selected_models <- selected_models |>
+  mutate(
+    # Beta matrix
+    beta = map(
+      topic_model, \(x) tidy(x, matrix = "beta")
+    ),
+    # Theta matrix (gamma)
+    theta = map(
+      topic_model, \(x) {
+        tidy(x, matrix = "gamma") |> 
+          rename(theta = gamma)
+      }
+    )
+  )
+selected_models
+```
+
+This is all good. Next parts look ugly but hopefully they work. We take a look 
+at correlation between topics from different models to see if different models 
+catch up same things. 
+
+```{r}
+topic_congruence <- list()
+for (i in selected_models$K) {
+  topic_congruence[[paste0("model-", i)]] <- selected_models |>
+  select(K, beta) |>
+  unnest(beta) |>
+  filter(K==i) |>
   pivot_wider(values_from = beta, names_from = topic) |>
-  rename_with(~paste0("Topic_", .), where(is.numeric)) |>
-  select(-term)
+  select(-term, -K)
+}
 topic_congruence
 ```
 
+Compare all possible pairs of models: 
+
 ```{r}
-k_5_k_15 <-  cor(topic_congruence[topic_congruence$model=="k_5", 2:6], topic_congruence[topic_congruence$model=="k_15", 2:16])
-k_5_k_18 <-  cor(topic_congruence[topic_congruence$model=="k_5", 2:6], topic_congruence[topic_congruence$model=="k_18", 2:19])
-k_5_k_21 <-  cor(topic_congruence[topic_congruence$model=="k_5", 2:6], topic_congruence[topic_congruence$model=="k_21", 2:22])
-k_15_k_18 <-  cor(topic_congruence[topic_congruence$model=="k_15", 2:16], topic_congruence[topic_congruence$model=="k_18", 2:19])
-k_15_k_21 <-  cor(topic_congruence[topic_congruence$model=="k_15", 2:16], topic_congruence[topic_congruence$model=="k_21", 2:22])
-k_18_k_21 <-  cor(topic_congruence[topic_congruence$model=="k_18", 2:19], topic_congruence[topic_congruence$model=="k_21", 2:22])
-topic_correlation <- list(k_5_k_15, k_5_k_18, k_5_k_21, k_15_k_18, k_15_k_21, k_18_k_21)
-names(topic_correlation) <-  c("k_5_vs_k_15", "k_5_vs_k_18", "k_5_vs_k_21", "k_15_vs_k_18", "k_15_vs_k_21", "k_18_vs_k_21")
+combn(selected_models$K, 2)
 ```
 
 ```{r}
-for (i in seq_along(topic_correlation)) {
-  print(
-    pivot_longer(as_tibble(topic_correlation[[i]], rownames = "model1"), !model1, names_to = "model2", values_to = "correlation") |>
-      mutate(topic_nro1 = as.integer(stringr::str_extract(model1, "\\d+")),
-             topic_nro2 = as.integer(stringr::str_extract(model2, "\\d+"))) |>
-      ggplot(aes(x = forcats::fct_reorder(model1, topic_nro1, sum), y = forcats::fct_reorder(model2, topic_nro2, sum), fill = correlation, label = round(correlation, 2))) +
-      geom_tile(show.legend = FALSE) +
-      geom_text() +
-      theme(axis.text.x = element_text(angle = 90)) +
-      labs(subtitle = names(topic_correlation)[i]) +
-      scale_fill_viridis_c(option = "A")
-    )
+topic_congruence2 <- list()
+for (idx_col in 1:ncol(combn(selected_models$K, 2))) {
+  idx <- combn(selected_models$K, 2)[, idx_col]
+  correlation <- cor(topic_congruence[[paste0("model-", idx[1])]], topic_congruence[[paste0("model-", idx[2])]])
+  topic_congruence2[[paste0("model-", idx[1], "-", idx[2])]] <- correlation |> 
+    as_tibble(rownames = "topic1") |>
+    pivot_longer(!topic1, names_to = "topic2", values_to = "r")
 }
+topic_congruence2 <- bind_rows(topic_congruence2, .id = "model-K")
+topic_congruence2
+```
+
+```{r, fig.width=14, fig.height=21}
+topic_congruence2 |>
+  mutate(`model-K`= factor(`model-K`),
+         topic1 = factor(as.integer(topic1)),
+         topic2 = factor(as.integer(topic2)),
+         r = round(r, 2)) |>
+  ggplot(aes(x = topic1, y = topic2, fill = r, label = r)) +
+  geom_tile(show.legend = FALSE) +
+  geom_text() +
+  theme(axis.text.x = element_text(angle = 90)) +
+  labs(title = "Topic congruence between different models") +
+  scale_fill_viridis_c(option = "A") +
+  facet_wrap(~`model-K`, scales = "free", ncol = 2)
+```
+
+```{r, fig.width=14, fig.height=7}
+selected_models |>
+  select(K, theta) |>
+  unnest(theta) |>
+  mutate(topic = factor(as.integer(topic))) |>
+  summarise(mean_theta = mean(theta),
+            total_theta = sum(theta), .by = c(K, topic)) |>
+  ggplot() +
+  geom_col(aes(x = topic, y = total_theta)) +
+  facet_wrap(~K, scales = "free", ncol = 2)
+```
+
+Theta value is probability of document belonging to or comprising of certain 
+topics. Histogram over topic probabilities shows how common it is for specific 
+topic to comprise the whole document (height of a column at theta 1.0).
+
+```{r, fig.width=14, fig.height=21}
+selected_models |>
+  select(K, theta) |>
+  unnest(theta) |>
+  ggplot(aes(x = theta)) +
+  geom_histogram(binwidth = 0.1) +
+  theme(axis.text.x = element_text(angle = 90)) +
+  facet_wrap(K~topic, scales = "free_y")
 ```
 
 
-```{r, R.options=list(width = 10000, pillar.print_max = 25, pillar.print_min = 25)}
-theta_matrix <- bind_rows(
-  lapply(lda_models, function(x) {
-    tidytext::tidy(x, matrix = "gamma")
-  }),
-  .id = "model")
-theta_matrix
+
+
+```{r, fig.height=14, fig.width=21}
+selected_models |>
+  select(K, theta) |>
+  unnest(theta) |>
+  mutate(topic = factor(as.integer(topic))) |>
+  ggplot(aes(x = topic, y = theta, group = topic)) +
+  geom_boxplot(show.legend = FALSE) +
+  facet_wrap(~K, scales = "free", ncol = 2)
 ```
 
-```{r}
-topic_prevalence <-  theta_matrix |>
-  summarise(mean_gamma = mean(gamma), median_gamma = median(gamma), .by = c(model, topic)) |>
-  mutate(gamma = paste0(round(mean_gamma, 2), " (", round(median_gamma, 2), ")")) #|>
-  # select(model, topic, gamma) |>
-  # tidyr::pivot_wider(names_from =  model, values_from = gamma, values_fill = "")
-
-kbl(topic_prevalence) |>
-  kable_styling(fixed_thead = T)
+```{r, fig.width=14, fig.height=42}
+selected_models |>
+  select(K, beta) |>
+  unnest(beta) |>
+  slice_max(beta, n = 25, by = c(K, topic)) |>
+  group_by(K) |>
+  add_count(term) |>
+  ungroup() |>
+  mutate(is_unique = n == 1,
+         K = factor(K),
+         topic = factor(topic),
+         term = reorder_within(term, beta, topic)) |>
+  ggplot(aes(x = beta, y = term, fill = K)) +
+  geom_col(show.legend = FALSE) +
+  scale_y_reordered() +
+  facet_wrap(K ~ topic, scales = "free", ncol = 7)
 ```
 
-
-```{r}
-ggplot(topic_prevalence, aes(x = factor(topic), y = mean_gamma)) +
-  geom_col() +
-  facet_wrap(~ factor(model, levels =  c("k_5", "k_15", "k_18", "k_21")), scales = "free_x") +
-  labs(subtitle = "Topic prevalence")
-```
 
 ```{r, fig.height=21, fig.width=14}
 for (i in unique(beta_matrix$model)) {
@@ -189,23 +257,23 @@ for (i in unique(beta_matrix$model)) {
 ```
 
 ```{r, fig.height=21, fig.width=14}
-for (i in unique(beta_matrix$model)) {
-  print(
-    beta_matrix |>
-      filter(model == i) |>
-      group_by(topic) |>
-      slice_max(beta, n = 25) |>
-      mutate(topic = as.factor(paste0("Topic_", topic))) |>
-      ungroup() |>
-      add_count(term, name = "in_topics") |>
-      filter(in_topics == 1) |>
-      ggplot(aes(x = beta, y = reorder(term, beta), fill = topic)) +
-      geom_col(show.legend = FALSE) +
-      scale_fill_viridis_d(option = "A") +
-      facet_wrap(~topic, scales = "free", ncol = 2) +
-      labs(title = "Unique terms out of top 25 terms by topic", subtitle = paste0("Model_", i), x = "Probability", y = "Term")
-  )
-}
+# for (i in unique(beta_matrix$model)) {
+#   print(
+#     beta_matrix |>
+#       filter(model == i) |>
+#       group_by(topic) |>
+#       slice_max(beta, n = 25) |>
+#       mutate(topic = as.factor(paste0("Topic_", topic))) |>
+#       ungroup() |>
+#       add_count(term, name = "in_topics") |>
+#       filter(in_topics == 1) |>
+#       ggplot(aes(x = beta, y = reorder(term, beta), fill = topic)) +
+#       geom_col(show.legend = FALSE) +
+#       scale_fill_viridis_d(option = "A") +
+#       facet_wrap(~topic, scales = "free", ncol = 2) +
+#       labs(title = "Unique terms out of top 25 terms by topic", subtitle = paste0("Model_", i), x = "Probability", y = "Term")
+#   )
+# }
 ```
 
 ```{r, R.options=list(width = 10000)}

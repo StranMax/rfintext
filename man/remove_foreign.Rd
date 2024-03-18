@@ -2,16 +2,16 @@
 % Please edit documentation in R/preprocess_corpus.R
 \name{remove_foreign}
 \alias{remove_foreign}
-\title{Title}
+\title{Remove foreign terms}
 \usage{
 remove_foreign(df)
 }
 \arguments{
-\item{df}{data frame}
+\item{df}{tidy data frame with one term per row}
 }
 \value{
-data frame
+data frame with foreign terms removed
 }
 \description{
-Title
+Foreign terms are defined as having UPOSTAX=="X" and FEATS=="Foreign=Yes"
 }

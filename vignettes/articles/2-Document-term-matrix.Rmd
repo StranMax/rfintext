@@ -13,7 +13,6 @@ Analysis expects input data to be in numerical form.
 
 ```{r setup, message=FALSE, warning=FALSE}
 library(rfintext)
-# devtools::install_github("StranMax/rfinstats")
 library(rfinstats)
 library(quanteda)
 ```
@@ -22,16 +21,29 @@ library(quanteda)
 quanteda_options(print_dfm_max_ndoc = 20, print_dfm_max_nfeat = 20)
 ```
 
+Pre processing aspol corpus and calculating document term count (dtc)
+
 ```{r, message=FALSE, R.options = list(width = 10000, pillar.print_max = 20, pillar.print_min = 20)}
 aspol |>
-  preprocess_corpus() |>
-  dplyr::count(kunta, LEMMA, name = "tc")
+  preprocess_corpus(kunta, LEMMA) |>
+  dplyr::count(kunta, LEMMA, name = "dtc")
 ```
 
+Converting original corpus to document term matrix with couple of helper functions: 
 
 ```{r, message=FALSE, R.options = list(width = 10000)}
 aspol |>
-  preprocess_corpus() |>
+  preprocess_corpus(kunta, LEMMA) |>
   corpus_to_dtm(kunta, LEMMA)
+```
+
+It is possible to convert from one format to another with `r quanteda::convert()` 
+function. For example some functions require data to be in `r tm` format.
+
+```{r}
+aspol |>
+  preprocess_corpus(kunta, LEMMA) |>
+  corpus_to_dtm(kunta, LEMMA) |>
+  quanteda::convert(to = "tm")
 ```
 

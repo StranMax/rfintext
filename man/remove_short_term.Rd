@@ -2,18 +2,18 @@
 % Please edit documentation in R/preprocess_corpus.R
 \name{remove_short_term}
 \alias{remove_short_term}
-\title{Title}
+\title{Remove short terms}
 \usage{
-remove_short_term(df, len = 3)
+remove_short_term(df, len)
 }
 \arguments{
 \item{df}{data frame}
 
-\item{len}{minimum length for terms/words}
+\item{len}{minimum length for terms/words to keep}
 }
 \value{
 data frame
 }
 \description{
-Title
+Remove short terms
 }

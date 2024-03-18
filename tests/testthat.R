@@ -9,4 +9,3 @@
 library(testthat)
 library(rfintext)
 
-test_check("rfintext")

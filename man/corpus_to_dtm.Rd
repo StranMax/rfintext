@@ -7,7 +7,7 @@
 corpus_to_dtm(df, doc, term)
 }
 \arguments{
-\item{df}{data frame}
+\item{df}{tidy data frame with one term per row}
 
 \item{doc}{document column}
 
