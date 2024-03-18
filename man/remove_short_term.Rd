@@ -4,7 +4,7 @@
 \alias{remove_short_term}
 \title{Remove short terms}
 \usage{
-remove_short_term(df, len)
+remove_short_term(df)
 }
 \arguments{
 \item{df}{data frame}

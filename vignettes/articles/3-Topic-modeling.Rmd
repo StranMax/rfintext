@@ -53,16 +53,19 @@ around half an hour on laptop with 14 cores. Adjust number of K values
 accordingly. Here we test the whole scale for number of topics ranging from two 
 to number of documents.
 
-```{r, warning=FALSE}
+
+```{r, warning=FALSE, message=FALSE}
 ptm <- proc.time()
 lda_models <- tibble(K = 2:68) |>
   mutate(
     # LDA models
     topic_model = future_map(  
-      K, ~LDA(dtm, k = ., control = list(seed = 1234))
+      # K, ~LDA(convert(dtm, to = "tm"), k = ., control = list(seed = 1234)),
+      K, ~LDA(convert(dtm, to = "tm"), k = .),
+      .options = furrr_options(seed = TRUE)
     ),
     # Model coherence
-    mean_coherence = map_dbl(
+    mean_coherence = future_map_dbl(
       topic_model, \(x) mean(topic_coherence(x, dtm))
     )
   )
@@ -83,7 +86,7 @@ p
 Visually selecting potentially best k values
 
 ```{r}
-optimal_k <- c(5, 10, 15, 18, 21)
+optimal_k <- c(5, 8, 11, 14, 19)
 ```
 
 
@@ -150,7 +153,7 @@ topic_congruence
 Compare all possible pairs of models: 
 
 ```{r}
-combn(selected_models$K, 2)
+# combn(selected_models$K, 2)
 ```
 
 ```{r}
@@ -190,7 +193,7 @@ selected_models |>
             total_theta = sum(theta), .by = c(K, topic)) |>
   ggplot() +
   geom_col(aes(x = topic, y = total_theta)) +
-  facet_wrap(~K, scales = "free", ncol = 2)
+  facet_wrap(~K, scales = "free", ncol = 3)
 ```
 
 Theta value is probability of document belonging to or comprising of certain 
@@ -240,20 +243,20 @@ selected_models |>
 
 
 ```{r, fig.height=21, fig.width=14}
-for (i in unique(beta_matrix$model)) {
-  print(
-    beta_matrix |>
-      filter(model == i) |>
-      group_by(topic) |>
-      slice_max(beta, n = 25) |>
-      mutate(topic = as.factor(paste0("Topic_", topic))) |>
-      ggplot(aes(x = beta, y = reorder(term, beta), fill = topic)) +
-      geom_col(show.legend = FALSE) +
-      scale_fill_viridis_d(option = "A") +
-      facet_wrap(~topic, scales = "free") +
-      labs(title = "Top 25 terms by topic", subtitle = paste0("Model_", i), x = "Probability", y = "Term")
-  )
-}
+# for (i in unique(beta_matrix$model)) {
+#   print(
+#     beta_matrix |>
+#       filter(model == i) |>
+#       group_by(topic) |>
+#       slice_max(beta, n = 25) |>
+#       mutate(topic = as.factor(paste0("Topic_", topic))) |>
+#       ggplot(aes(x = beta, y = reorder(term, beta), fill = topic)) +
+#       geom_col(show.legend = FALSE) +
+#       scale_fill_viridis_d(option = "A") +
+#       facet_wrap(~topic, scales = "free") +
+#       labs(title = "Top 25 terms by topic", subtitle = paste0("Model_", i), x = "Probability", y = "Term")
+#   )
+# }
 ```
 
 ```{r, fig.height=21, fig.width=14}

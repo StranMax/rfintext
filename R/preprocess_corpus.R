@@ -30,14 +30,13 @@ calculate_doc_freq <- function(df, doc, term) {
 #' Remove short terms
 #'
 #' @param df data frame
-#' @param len minimum length for terms/words to keep
 #'
 #' @return data frame
 #' @export
 #'
 #' @examples
-remove_short_term <- function(df, len) {
-   df |> dplyr::filter(nchar(.data$FORM) > len, nchar(.data$LEMMA) >= len)
+remove_short_term <- function(df) {
+   df |> dplyr::filter(nchar(.data$FORM) >= 2, nchar(.data$LEMMA) >= 3)
 }
 
 #' Remove terms containing numbers
@@ -106,7 +105,7 @@ preprocess_corpus <- function(df, doc, term) {
     filter_upostag(c("NOUN", "VERB", "ADJ")) |>
     remove_numbers(term = .data$FORM) |>
     remove_foreign() |>
-    remove_short_term(len = 4) |>
+    remove_short_term() |>
     calculate_doc_freq({{doc}}, {{term}}) |>
     dplyr::filter(df >= 5, df <= 65)
 }

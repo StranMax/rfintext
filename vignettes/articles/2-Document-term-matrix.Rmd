@@ -37,8 +37,8 @@ aspol |>
   corpus_to_dtm(kunta, LEMMA)
 ```
 
-It is possible to convert from one format to another with `r quanteda::convert()` 
-function. For example some functions require data to be in `r tm` format.
+It is possible to convert from one format to another with `quanteda::convert()` 
+function. For example some functions require data to be in `tm` format.
 
 ```{r}
 aspol |>

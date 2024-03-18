@@ -11,120 +11,220 @@ knitr::opts_chunk$set(
 
 ```{r setup, message=FALSE, warning=FALSE}
 library(rfintext)
+# devtools::install_github("StranMax/rfinstats")
 library(rfinstats)
+library(tidymodels)
 library(topicmodels)
-library(dplyr)
+library(tidyverse)
+library(cowplot)
+# library(dplyr)
 library(tidytext)
-library(ggplot2)
+# library(ggplot2)
 library(quanteda)
-library(doFuture)
-library(forcats)
-library(purrr)
+# library(doFuture)
+# library(forcats)
+# library(purrr)
+library(future)  # Parallel processing back-end
+library(furrr)  # Parallel processing front-end with future_ functions
 plan(multisession, workers = availableCores(logical = FALSE) - 1)
 ```
 
 ```{r}
 dtm <- aspol |>
-  preprocess_corpus() |>
+  preprocess_corpus(kunta, LEMMA) |>
   corpus_to_dtm(kunta, LEMMA)
+```
+
+```{r}
+y <- rfinstats::taantuvat |>
+  filter(kunta %in% unique(aspol$kunta)) |>
+  mutate(luokka = if_else(suht_muutos_2010_2022 > 0, "kasvava", "taantuva"))
 ```
 
 
 ```{r, warning=FALSE}
-optimal_k <- c(5, 15, 18, 21)
-lda_models <- foreach(k = optimal_k) %dofuture% {
-  topicmodels::LDA(quanteda::convert(dtm, to = "tm"), k = k, control = list(seed = 1234))
-}
-names(lda_models) <- paste0("k_", optimal_k)
+# optimal_k <- c(5, 15, 18, 21)
+optimal_k <- c(5, 8, 11, 14, 19)
+ptm <- proc.time()
+lda_models <- tibble(K = optimal_k) |>
+  mutate(
+    # LDA model
+    topic_model = future_map(  
+      # K, ~LDA(convert(dtm, to = "tm"), k = ., control = list(seed = 1234)),
+      K, ~LDA(convert(dtm, to = "tm"), k = .),
+      .options = furrr_options(seed = TRUE)
+    ),
+    # Beta matrix
+    beta = map(
+      topic_model, \(x) tidy(x, matrix = "beta")
+    ),
+    # Theta matrix (gamma)
+    theta = map(
+      topic_model, \(x) {
+        tidy(x, matrix = "gamma") |> 
+          filter(document %in% y$kunta) |>
+          rename(kunta = document, theta = gamma)
+      }
+    )
+  )
+proc.time() - ptm
+lda_models
 ```
 
 ```{r, R.options=list(width=10000, pillar.print_max = 20, pillar.print_min = 20)}
-y <- rfinstats::taantuvat |>
-  filter(kunta %in% unique(aspol$kunta))
-y
+# y <- rfinstats::taantuvat |>
+#   filter(kunta %in% unique(aspol$kunta))
+# y
 ```
 
 ```{r}
-theta_matrix <- bind_rows(
-  lapply(lda_models, function(x) {
-    tidytext::tidy(x, matrix = "gamma") |>
-      filter(document %in% y$kunta)
-  }),
-  .id = "model")
-theta_matrix
+# theta_matrix <- bind_rows(
+#   lapply(lda_models, function(x) {
+#     tidytext::tidy(x, matrix = "gamma") |>
+#       filter(document %in% y$kunta)
+#   }),
+#   .id = "model")
+# theta_matrix
 ```
 
 ```{r}
-for (i in unique(theta_matrix$model)) {
-  print(
-    theta_matrix |>
-      filter(model == i) |>
-      slice_max(gamma, by = document) |>
-      arrange(topic) |>
-      left_join(taantuvat, by = join_by("document" == "kunta")) |>
-      mutate(topic = factor(topic)) |>
-      ggplot(aes(x = topic, y = suht_muutos_2010_2022, colour = gamma)) +
-      geom_point() +
-      scale_colour_viridis_c(option = "A") +
-      labs(title = "Most likely topic per document", subtitle = paste0("Model_", i))
+lda_models <- lda_models |>
+  mutate(theta = map(theta, \(df) {
+    df |>
+      left_join(y) |>
+      select(aihe = topic, theta, luokka) |>
+      mutate(luokka = factor(luokka))
+  }))
+```
+
+
+```{r}
+t_distributions <- lda_models |>
+  select(K, theta) |>
+  unnest(theta) |>
+  nest(data = c(theta, luokka)) |>
+  mutate(
+    null_dist = future_map(data, \(df) {
+      # t-distribution under null hypothesis
+      df |>
+        specify(theta ~ luokka) |>
+        hypothesize(null = "independence") |>
+        generate(reps = 10000, type = "permute") |>
+        calculate("diff in means", order = c("kasvava", "taantuva"))
+    }, .options = furrr_options(seed = TRUE)),
+    # t-value for estimation
+    t_val = map_dbl(data, \(df) {
+      df |>
+        specify(theta ~ luokka) |>
+        calculate("diff in means", order = c("kasvava", "taantuva")) |>
+        pull(stat)
+    })#,
+    # p-value for t-estimation under null hypotheses
+    # p_value = pmap_dbl(null_dist, t_val, \(null_dist, t_val) {
+    #   null_dist |>
+    #     get_p_value(obs_stat = t_val, direction = "two-sided")
+    # })
   )
-}
+t_distributions
 ```
 
 ```{r}
-for (i in unique(theta_matrix$model)) {
-  print(
-    theta_matrix |>
-      filter(model == i) |>
-      left_join(taantuvat, by = join_by("document" == "kunta")) |>
-      summarise(mean_gamma = mean(gamma), gamma_median = median(gamma), .by = c(luokka, topic)) |>
-      mutate(topic = factor(topic)) |>
-      ggplot() +
-      geom_point(aes(x = topic, y = mean_gamma, colour = luokka), shape = 16) +
-      geom_point(aes(x = topic, y = gamma_median, colour = luokka), shape = 17) +
-      scale_colour_viridis_d(option = "A") +
-      labs(title = "Most likely topic per class", subtitle = paste0("Model_", i))
+t_distributions <- t_distributions |>
+  mutate(
+    p_value = pmap_dbl(select(t_distributions, null_dist, t_val), \(null_dist, t_val) {
+      null_dist |>
+        get_p_value(obs_stat = t_val, direction = "two-sided") |>
+        pull(p_value)
+    })
   )
-}
+t_distributions
+```
+
+
+```{r, fig.width=21, fig.height=28}
+plot_grid(plotlist = pmap(select(t_distributions, -data), \(K, aihe, null_dist, t_val, p_value) {
+  visualise(null_dist) +
+    shade_p_value(obs_stat = t_val, direction = "two_sided") +
+    labs(subtitle = paste0("Aihe nro ", aihe), 
+         title = paste0("Malli K=", K),
+         caption = paste0("P value: ", p_value)) 
+}),
+ncol = 4
+)
+```
+
+
+```{r}
+# for (i in unique(theta_matrix$model)) {
+#   print(
+#     theta_matrix |>
+#       filter(model == i) |>
+#       slice_max(gamma, by = document) |>
+#       arrange(topic) |>
+#       left_join(taantuvat, by = join_by("document" == "kunta")) |>
+#       mutate(topic = factor(topic)) |>
+#       ggplot(aes(x = topic, y = suht_muutos_2010_2022, colour = gamma)) +
+#       geom_point() +
+#       scale_colour_viridis_c(option = "A") +
+#       labs(title = "Most likely topic per document", subtitle = paste0("Model_", i))
+#   )
+# }
 ```
 
 ```{r}
-for (i in unique(theta_matrix$model)) {
-  print(
-    theta_matrix |>
-      filter(model == i) |>
-      left_join(taantuvat, by = join_by("document" == "kunta")) |>
-      mutate(luokka = if_else(suht_muutos_2010_2022 > 0, "Kasvava", "Taantuva"),
-             topic = factor(as.integer(topic))) |>
-      summarise(gamma_sum = sum(gamma),
-                gamma_mean = mean(gamma),
-                gamma_median = median(gamma),
-                .by = c(luokka, topic)) |>
-      ggplot() +
-      geom_tile(aes(x = topic, y = luokka, fill = gamma_mean)) +
-      scale_fill_viridis_c(option = "A") +
-      labs(title = "Common topics per class", subtitle = paste0("Model_", i))
-  )
-}
+# for (i in unique(theta_matrix$model)) {
+#   print(
+#     theta_matrix |>
+#       filter(model == i) |>
+#       left_join(taantuvat, by = join_by("document" == "kunta")) |>
+#       summarise(mean_gamma = mean(gamma), gamma_median = median(gamma), .by = c(luokka, topic)) |>
+#       mutate(topic = factor(topic)) |>
+#       ggplot() +
+#       geom_point(aes(x = topic, y = mean_gamma, colour = luokka), shape = 16) +
+#       geom_point(aes(x = topic, y = gamma_median, colour = luokka), shape = 17) +
+#       scale_colour_viridis_d(option = "A") +
+#       labs(title = "Most likely topic per class", subtitle = paste0("Model_", i))
+#   )
+# }
 ```
 
 ```{r}
-for (i in unique(theta_matrix$model)) {
-  print(
-    theta_matrix |>
-      filter(model == i) |>
-      left_join(taantuvat, by = join_by("document" == "kunta")) |>
-      mutate(luokka = if_else(suht_muutos_2010_2022 > 0, "Kasvava", "Taantuva"),
-             topic = factor(as.integer(topic))) |>
-      summarise(gamma_sum = sum(gamma),
-                gamma_mean = mean(gamma),
-                gamma_median = median(gamma),
-                .by = c(luokka, topic)) |>
-      ggplot() +
-      geom_tile(aes(x = topic, y = luokka, fill = gamma_median)) +
-      scale_fill_viridis_c(option = "A") +
-      labs(title = "Common topics per class", subtitle = paste0("Model_", i))
-  )
-}
+# for (i in unique(theta_matrix$model)) {
+#   print(
+#     theta_matrix |>
+#       filter(model == i) |>
+#       left_join(taantuvat, by = join_by("document" == "kunta")) |>
+#       mutate(luokka = if_else(suht_muutos_2010_2022 > 0, "Kasvava", "Taantuva"),
+#              topic = factor(as.integer(topic))) |>
+#       summarise(gamma_sum = sum(gamma),
+#                 gamma_mean = mean(gamma),
+#                 gamma_median = median(gamma),
+#                 .by = c(luokka, topic)) |>
+#       ggplot() +
+#       geom_tile(aes(x = topic, y = luokka, fill = gamma_mean)) +
+#       scale_fill_viridis_c(option = "A") +
+#       labs(title = "Common topics per class", subtitle = paste0("Model_", i))
+#   )
+# }
+```
+
+```{r}
+# for (i in unique(theta_matrix$model)) {
+#   print(
+#     theta_matrix |>
+#       filter(model == i) |>
+#       left_join(taantuvat, by = join_by("document" == "kunta")) |>
+#       mutate(luokka = if_else(suht_muutos_2010_2022 > 0, "Kasvava", "Taantuva"),
+#              topic = factor(as.integer(topic))) |>
+#       summarise(gamma_sum = sum(gamma),
+#                 gamma_mean = mean(gamma),
+#                 gamma_median = median(gamma),
+#                 .by = c(luokka, topic)) |>
+#       ggplot() +
+#       geom_tile(aes(x = topic, y = luokka, fill = gamma_median)) +
+#       scale_fill_viridis_c(option = "A") +
+#       labs(title = "Common topics per class", subtitle = paste0("Model_", i))
+#   )
+# }
 ```
 
