@@ -74,6 +74,10 @@ aspol |>
 
 Very common terms in terms of document frequency:
 
+> NOTE! Document frequency is easy to get by following dplyr functions:  
+> `aspol |> distinct(kunta, LEMMA) |> count(LEMMA, name = "doc_freq")`
+
+
 ```{r}
 aspol |>
   filter(UPOSTAG %in% c("NOUN", "VERB", "ADJ")) |>

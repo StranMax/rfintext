@@ -44,7 +44,8 @@ y <- rfinstats::taantuvat |>
 
 ```{r, warning=FALSE}
 # optimal_k <- c(5, 15, 18, 21)
-optimal_k <- c(5, 8, 11, 14, 19)
+# optimal_k <- c(5, 8, 11, 14, 19)
+optimal_k <- c(6, 10, 16)  # Visually selected based on mean topic coherence (see article 3)
 ptm <- proc.time()
 lda_models <- tibble(K = optimal_k) |>
   mutate(

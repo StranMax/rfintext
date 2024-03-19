@@ -12,6 +12,11 @@ Main purpose for this package is:
 wrappers around dplyr functionality.  
 \* Document all the work done.
 
+> NOTE! It is strongly recommended to use dplyr and functions provided
+> by other packages directly since all the helper functions provided
+> here are highly likely to change many times before I decide how they
+> should look like and function.
+
 This package contains data set `aspol` created from Finnish housing
 policy documents. Other data sets might be added later. Currently all
 the functionalities are tested with aspol data set only.

@@ -3,6 +3,7 @@ pkgs <- c(
   "NLP",
   "usethis",
   "dplyr",
+  "tidyr",
   "stringr"
 )
 uninst <- pkgs[!pkgs %in% installed.packages()]
@@ -11,30 +12,30 @@ lapply(pkgs, library, character.only =TRUE)
 
 
 # Path to somewhere on local machine with all the lemmatized files
-txt_dir <- "C:/Users/maxs/Documents/data/kuntastrategiat_kopio"
 
-txt_files <- list.files(txt_dir, pattern = "_lemm\\.txt$", full.names = TRUE)
+pdf_dir <- "C:/Users/maxs/Documents/data/kuntastrategiat_kopio"
+txt_file <-"C:/Users/maxs/Documents/data/kuntastrategiat_kopio/kuntastrategiat.conllu"
 
-doc_list <- lapply(txt_files, NLP::CoNLLUTextDocument)
+strategia <- CoNLLUTextDocument(txt_file) |>
+  content() |>
+  as_tibble()
 
-names(doc_list) <- basename(txt_files)  # List names make up the row names
+kunnat <- list.files(pdf_dir, pattern = ".pdf$", full.names = FALSE)
 
-data_list <- lapply(doc_list, NLP::content)
+# Beginning of every doc coded by text "Tästä alkaa dokumentti file_name.pdf."
+# Looks ugly as hell but for now on it will suffice
+strategia$kunta[strategia$FORM=="Tästä" & strategia$ID==1] <- kunnat
 
-strategia <- do.call("rbind", data_list)
+strategia <- strategia |> fill(kunta)
 
-# Row names have incremental number added to them
-strategia <- cbind(doc = gsub("\\.\\d+$", "", rownames(strategia)), strategia)
+strategia <- strategia |> select(kunta, everything()) |> filter(!is.na(kunta))
 
-# Column is prettier than row name
-rownames(strategia) <- NULL
+# Removing document boundary coding
+to_drop <- strategia |> filter(
+  (ID==1 & FORM == "Tästä") | (ID==2 & FORM=="alkaa") |
+    (ID==3 & FORM=="dokumentti") | (ID==4 & FORM==paste0(kunta, "."))
+  )
 
-strategia <- strategia |>
-  tidyr::as_tibble() |>
-  mutate(kunta = str_trim(str_to_title(str_replace_all(str_extract(doc, "[A-Öa-ö_-]+"), "_", " ")))) |>
-  select(kunta, sent:MISC, doc)
-
-# Large, almost 30Mb csv
-# readr::write_csv2(strategia, "data-raw/strategia.csv")
+strategia <- strategia |> anti_join(to_drop)
 
 usethis::use_data(strategia, overwrite = TRUE)

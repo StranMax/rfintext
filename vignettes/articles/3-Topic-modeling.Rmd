@@ -112,7 +112,7 @@ selected_models
 Extract beta and theta matrices with probabilities for terms per topic and 
 documents per topic repectively.
 
-> Note! `r tidytext::tidy()` uses term gamma-matrix while in the research field 
+> Note! `tidytext::tidy()` uses term gamma-matrix while in the research field 
 term theta-matrix is used to describe probability distribution of topics per document. 
 Here we rename gamma as theta. Do not get confused if at some point you come around 
 with gamma instead of theta.
