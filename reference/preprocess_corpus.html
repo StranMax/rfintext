@@ -72,13 +72,21 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">preprocess_corpus</span><span class="op">(</span><span class="va">df</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">preprocess_corpus</span><span class="op">(</span><span class="va">df</span>, <span class="va">doc</span>, <span class="va">term</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>df</dt>
 <dd><p>Data frame in tidytext format one token per document per line</p></dd>
+
+
+<dt>doc</dt>
+<dd><p>column with document id</p></dd>
+
+
+<dt>term</dt>
+<dd><p>column with terms</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -90,28 +98,8 @@
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">preprocess_corpus</span><span class="op">(</span><span class="va">aspol</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Dropped 216172 rows</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Dropped 2263 rows</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Dropped 18 rows</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Dropped 31789 rows</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Dropped 21951 rows</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Dropped 4834 rows</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 174,633 × 14</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    kunta   sent ID    FORM  LEMMA UPOSTAG XPOSTAG FEATS HEAD  DEPREL DEPS  MISC </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> Enont…     5 1     <span style="color: #949494;">"</span>VUO… vuok… NOUN    _       Case… 2     nmod:… _     <span style="color: #949494;">"</span>Spa…</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> Enont…     5 2     <span style="color: #949494;">"</span>KEH… kehi… NOUN    _       Case… 0     root   _     <span style="color: #949494;">"</span>Spa…</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> Enont…    19 2     <span style="color: #949494;">"</span>teh… tehdä VERB    _       Mood… 0     root   _     <span style="color: #949494;">"</span>_<span style="color: #949494;">"</span>  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> Enont…    21 1     <span style="color: #949494;">"</span>\fS… sisä… NOUN    _       Case… 0     root   _     <span style="color: #949494;">"</span>Spa…</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> Enont…    21 3     <span style="color: #949494;">"</span>Joh… johd… NOUN    _       Case… 1     appos  _     <span style="color: #949494;">"</span>_<span style="color: #949494;">"</span>  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> Enont…    24 2     <span style="color: #949494;">"</span>Väe… väes… NOUN    _       Case… 0     root   _     <span style="color: #949494;">"</span>Spa…</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> Enont…    26 1     <span style="color: #949494;">"</span>Eli… elin… NOUN    _       Case… 0     root   _     <span style="color: #949494;">"</span>_<span style="color: #949494;">"</span>  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> Enont…    26 3     <span style="color: #949494;">"</span>työ… työ#… NOUN    _       Case… 1     conj   _     <span style="color: #949494;">"</span>Spa…</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> Enont…    38 1     <span style="color: #949494;">"</span>Kii… kiin… NOUN    _       Case… 4     nsubj… _     <span style="color: #949494;">"</span>_<span style="color: #949494;">"</span>  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> Enont…    39 1     <span style="color: #949494;">"</span>Tal… talo… NOUN    _       Case… 0     root   _     <span style="color: #949494;">"</span>_<span style="color: #949494;">"</span>  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 174,623 more rows</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 2 more variables: doc &lt;chr&gt;, dc_n &lt;int&gt;</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">preprocess_corpus</span><span class="op">(</span><span class="va">aspol</span>, <span class="va">kunta</span>, <span class="va">LEMMA</span><span class="op">)</span></span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in preprocess_corpus(aspol, kunta, LEMMA):</span> unused argument (LEMMA)</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

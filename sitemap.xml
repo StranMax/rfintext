@@ -43,6 +43,9 @@
     <loc>https://stranmax.github.io/rfintext/reference/aspol.html</loc>
   </url>
   <url>
+    <loc>https://stranmax.github.io/rfintext/reference/calculate_doc_freq.html</loc>
+  </url>
+  <url>
     <loc>https://stranmax.github.io/rfintext/reference/compute_error.html</loc>
   </url>
   <url>
@@ -76,9 +79,6 @@
     <loc>https://stranmax.github.io/rfintext/reference/preprocess_corpus.html</loc>
   </url>
   <url>
-    <loc>https://stranmax.github.io/rfintext/reference/remove_common_terms.html</loc>
-  </url>
-  <url>
     <loc>https://stranmax.github.io/rfintext/reference/remove_foreign.html</loc>
   </url>
   <url>
@@ -86,9 +86,6 @@
   </url>
   <url>
     <loc>https://stranmax.github.io/rfintext/reference/remove_short_term.html</loc>
-  </url>
-  <url>
-    <loc>https://stranmax.github.io/rfintext/reference/remove_uncommon_terms.html</loc>
   </url>
   <url>
     <loc>https://stranmax.github.io/rfintext/reference/split_train_test.html</loc>

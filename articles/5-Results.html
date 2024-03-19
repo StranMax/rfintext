@@ -85,152 +85,318 @@
     
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/StranMax/rfintext" class="external-link">rfintext</a></span><span class="op">)</span></span>
+<span><span class="co"># devtools::install_github("StranMax/rfinstats")</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/StranMax/rfinstats" class="external-link">rfinstats</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidymodels.tidymodels.org" class="external-link">tidymodels</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">topicmodels</span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://wilkelab.org/cowplot/" class="external-link">cowplot</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/juliasilge/tidytext" class="external-link">tidytext</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://quanteda.io" class="external-link">quanteda</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://doFuture.futureverse.org" class="external-link">doFuture</a></span><span class="op">)</span></span>
+<span><span class="co"># library(doFuture)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://forcats.tidyverse.org/" class="external-link">forcats</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://purrr.tidyverse.org/" class="external-link">purrr</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://future.futureverse.org" class="external-link">future</a></span><span class="op">)</span>  <span class="co"># Parallel processing back-end</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/DavisVaughan/furrr" class="external-link">furrr</a></span><span class="op">)</span>  <span class="co"># Parallel processing front-end with future_ functions</span></span>
 <span><span class="fu"><a href="https://future.futureverse.org/reference/plan.html" class="external-link">plan</a></span><span class="op">(</span><span class="va">multisession</span>, workers <span class="op">=</span> <span class="fu"><a href="https://parallelly.futureverse.org/reference/availableCores.html" class="external-link">availableCores</a></span><span class="op">(</span>logical <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dtm</span> <span class="op">&lt;-</span> <span class="va">aspol</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/preprocess_corpus.html">preprocess_corpus</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/corpus_to_dtm.html">corpus_to_dtm</a></span><span class="op">(</span><span class="va">kunta</span>, <span class="va">LEMMA</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Dropped 216172 rows</span></span>
-<span><span class="co">#&gt; Dropped 2263 rows</span></span>
-<span><span class="co">#&gt; Dropped 18 rows</span></span>
-<span><span class="co">#&gt; Dropped 31789 rows</span></span>
-<span><span class="co">#&gt; Dropped 21951 rows</span></span>
-<span><span class="co">#&gt; Dropped 4834 rows</span></span></code></pre></div>
+<span>  <span class="fu"><a href="../reference/preprocess_corpus.html">preprocess_corpus</a></span><span class="op">(</span><span class="va">kunta</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/corpus_to_dtm.html">corpus_to_dtm</a></span><span class="op">(</span><span class="va">kunta</span>, <span class="va">LEMMA</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">optimal_k</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">15</span>, <span class="fl">18</span>, <span class="fl">21</span><span class="op">)</span></span>
-<span><span class="va">lda_models</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/foreach/man/foreach.html" class="external-link">foreach</a></span><span class="op">(</span>k <span class="op">=</span> <span class="va">optimal_k</span><span class="op">)</span> <span class="op"><a href="https://doFuture.futureverse.org/reference/grapes-dofuture-grapes.html" class="external-link">%dofuture%</a></span> <span class="op">{</span></span>
-<span>  <span class="fu">topicmodels</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/topicmodels/man/lda.html" class="external-link">LDA</a></span><span class="op">(</span><span class="fu">quanteda</span><span class="fu">::</span><span class="fu"><a href="https://quanteda.io/reference/convert.html" class="external-link">convert</a></span><span class="op">(</span><span class="va">dtm</span>, to <span class="op">=</span> <span class="st">"tm"</span><span class="op">)</span>, k <span class="op">=</span> <span class="va">k</span>, control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>seed <span class="op">=</span> <span class="fl">1234</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="op">}</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">lda_models</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"k_"</span>, <span class="va">optimal_k</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu">rfinstats</span><span class="fu">::</span><span class="va"><a href="https://stranmax.github.io/rfinstats/reference/taantuvat.html" class="external-link">taantuvat</a></span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">kunta</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">aspol</span><span class="op">$</span><span class="va">kunta</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">kunta</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">aspol</span><span class="op">$</span><span class="va">kunta</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>luokka <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/if_else.html" class="external-link">if_else</a></span><span class="op">(</span><span class="va">suht_muutos_2010_2022</span> <span class="op">&gt;</span> <span class="fl">0</span>, <span class="st">"kasvava"</span>, <span class="st">"taantuva"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">y</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 66 × 5</span></span></span>
-<span><span class="co">#&gt;    kunta       vaesto kokmuutos_2010_2022 suht_muutos_2010_2022 luokka               </span></span>
-<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>               <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>                 <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>                </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> Enontekiö     <span style="text-decoration: underline;">1</span>876                 -<span style="color: #BB0000;">71</span>                 -<span style="color: #BB0000;">3.78</span> Hieman taantuva      </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> Espoo       <span style="text-decoration: underline;">247</span>970               <span style="text-decoration: underline;">60</span>944                 24.6  Voimakkaasti kasvava </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> Eura         <span style="text-decoration: underline;">12</span>507               -<span style="color: #BB0000; text-decoration: underline;">1</span><span style="color: #BB0000;">278</span>                -<span style="color: #BB0000;">10.2</span>  Voimakkaasti taantuva</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> Hartola       <span style="text-decoration: underline;">3</span>355                -<span style="color: #BB0000;">814</span>                -<span style="color: #BB0000;">24.3</span>  Voimakkaasti taantuva</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> Hattula       <span style="text-decoration: underline;">9</span>657                -<span style="color: #BB0000;">266</span>                 -<span style="color: #BB0000;">2.75</span> Hieman taantuva      </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> Helsinki    <span style="text-decoration: underline;">588</span>549               <span style="text-decoration: underline;">80</span>678                 13.7  Voimakkaasti kasvava </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> Huittinen    <span style="text-decoration: underline;">10</span>663                -<span style="color: #BB0000;">955</span>                 -<span style="color: #BB0000;">8.96</span> Taantuva             </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> Hyvinkää     <span style="text-decoration: underline;">45</span>489                <span style="text-decoration: underline;">1</span>527                  3.36 Hieman kasvava       </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> Hämeenlinna  <span style="text-decoration: underline;">66</span>829                <span style="text-decoration: underline;">1</span>588                  2.38 Hieman kasvava       </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> Iitti         <span style="text-decoration: underline;">7</span>005                -<span style="color: #BB0000;">557</span>                 -<span style="color: #BB0000;">7.95</span> Taantuva             </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">11</span> Imatra       <span style="text-decoration: underline;">28</span>540               -<span style="color: #BB0000; text-decoration: underline;">3</span><span style="color: #BB0000;">468</span>                -<span style="color: #BB0000;">12.2</span>  Voimakkaasti taantuva</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">12</span> Inkoo         <span style="text-decoration: underline;">5</span>546                -<span style="color: #BB0000;">225</span>                 -<span style="color: #BB0000;">4.06</span> Hieman taantuva      </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">13</span> Joensuu      <span style="text-decoration: underline;">73</span>305                <span style="text-decoration: underline;">4</span>809                  6.56 Kasvava              </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">14</span> Juva          <span style="text-decoration: underline;">6</span>962               -<span style="color: #BB0000; text-decoration: underline;">1</span><span style="color: #BB0000;">295</span>                -<span style="color: #BB0000;">18.6</span>  Voimakkaasti taantuva</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">15</span> Järvenpää    <span style="text-decoration: underline;">38</span>680                <span style="text-decoration: underline;">6</span>922                 17.9  Voimakkaasti kasvava </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">16</span> Kaarina      <span style="text-decoration: underline;">30</span>911                <span style="text-decoration: underline;">5</span>088                 16.5  Voimakkaasti kasvava </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">17</span> Kalajoki     <span style="text-decoration: underline;">12</span>562                -<span style="color: #BB0000;">205</span>                 -<span style="color: #BB0000;">1.63</span> Hieman taantuva      </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">18</span> Kauniainen    <span style="text-decoration: underline;">8</span>689                <span style="text-decoration: underline;">1</span>667                 19.2  Voimakkaasti kasvava </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">19</span> Kemiönsaari   <span style="text-decoration: underline;">7</span>191                -<span style="color: #BB0000;">749</span>                -<span style="color: #BB0000;">10.4</span>  Voimakkaasti taantuva</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">20</span> Kerava       <span style="text-decoration: underline;">34</span>282                <span style="text-decoration: underline;">3</span>843                 11.2  Voimakkaasti kasvava </span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 46 more rows</span></span></span></code></pre></div>
+<span><span class="co">#&gt;    kunta       vaesto kokmuutos_2010_2022 suht_muutos_2010_2022 luokka  </span></span>
+<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>               <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>                 <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> Enontekiö     <span style="text-decoration: underline;">1</span>876                 -<span style="color: #BB0000;">71</span>                 -<span style="color: #BB0000;">3.78</span> taantuva</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> Espoo       <span style="text-decoration: underline;">247</span>970               <span style="text-decoration: underline;">60</span>944                 24.6  kasvava </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> Eura         <span style="text-decoration: underline;">12</span>507               -<span style="color: #BB0000; text-decoration: underline;">1</span><span style="color: #BB0000;">278</span>                -<span style="color: #BB0000;">10.2</span>  taantuva</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> Hartola       <span style="text-decoration: underline;">3</span>355                -<span style="color: #BB0000;">814</span>                -<span style="color: #BB0000;">24.3</span>  taantuva</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> Hattula       <span style="text-decoration: underline;">9</span>657                -<span style="color: #BB0000;">266</span>                 -<span style="color: #BB0000;">2.75</span> taantuva</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> Helsinki    <span style="text-decoration: underline;">588</span>549               <span style="text-decoration: underline;">80</span>678                 13.7  kasvava </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> Huittinen    <span style="text-decoration: underline;">10</span>663                -<span style="color: #BB0000;">955</span>                 -<span style="color: #BB0000;">8.96</span> taantuva</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> Hyvinkää     <span style="text-decoration: underline;">45</span>489                <span style="text-decoration: underline;">1</span>527                  3.36 kasvava </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> Hämeenlinna  <span style="text-decoration: underline;">66</span>829                <span style="text-decoration: underline;">1</span>588                  2.38 kasvava </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> Iitti         <span style="text-decoration: underline;">7</span>005                -<span style="color: #BB0000;">557</span>                 -<span style="color: #BB0000;">7.95</span> taantuva</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 56 more rows</span></span></span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># optimal_k &lt;- c(5, 15, 18, 21)</span></span>
+<span><span class="co"># optimal_k &lt;- c(5, 8, 11, 14, 19)</span></span>
+<span><span class="va">optimal_k</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">6</span>, <span class="fl">10</span>, <span class="fl">16</span><span class="op">)</span>  <span class="co"># Visually selected based on mean topic coherence (see article 3)</span></span>
+<span><span class="va">ptm</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/proc.time.html" class="external-link">proc.time</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">lda_models</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span>K <span class="op">=</span> <span class="va">optimal_k</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
+<span>    <span class="co"># LDA model</span></span>
+<span>    topic_model <span class="op">=</span> <span class="fu"><a href="https://furrr.futureverse.org/reference/future_map.html" class="external-link">future_map</a></span><span class="op">(</span>  </span>
+<span>      <span class="co"># K, ~LDA(convert(dtm, to = "tm"), k = ., control = list(seed = 1234)),</span></span>
+<span>      <span class="va">K</span>, <span class="op">~</span><span class="fu"><a href="https://rdrr.io/pkg/topicmodels/man/lda.html" class="external-link">LDA</a></span><span class="op">(</span><span class="fu"><a href="https://quanteda.io/reference/convert.html" class="external-link">convert</a></span><span class="op">(</span><span class="va">dtm</span>, to <span class="op">=</span> <span class="st">"tm"</span><span class="op">)</span>, k <span class="op">=</span> <span class="va">.</span><span class="op">)</span>,</span>
+<span>      .options <span class="op">=</span> <span class="fu"><a href="https://furrr.futureverse.org/reference/furrr_options.html" class="external-link">furrr_options</a></span><span class="op">(</span>seed <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span>    <span class="op">)</span>,</span>
+<span>    <span class="co"># Beta matrix</span></span>
+<span>    beta <span class="op">=</span> <span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map</a></span><span class="op">(</span></span>
+<span>      <span class="va">topic_model</span>, \<span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x</span>, matrix <span class="op">=</span> <span class="st">"beta"</span><span class="op">)</span></span>
+<span>    <span class="op">)</span>,</span>
+<span>    <span class="co"># Theta matrix (gamma)</span></span>
+<span>    theta <span class="op">=</span> <span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map</a></span><span class="op">(</span></span>
+<span>      <span class="va">topic_model</span>, \<span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">{</span></span>
+<span>        <span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x</span>, matrix <span class="op">=</span> <span class="st">"gamma"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>          <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">document</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">y</span><span class="op">$</span><span class="va">kunta</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>          <span class="fu"><a href="https://dplyr.tidyverse.org/reference/rename.html" class="external-link">rename</a></span><span class="op">(</span>kunta <span class="op">=</span> <span class="va">document</span>, theta <span class="op">=</span> <span class="va">gamma</span><span class="op">)</span></span>
+<span>      <span class="op">}</span></span>
+<span>    <span class="op">)</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/proc.time.html" class="external-link">proc.time</a></span><span class="op">(</span><span class="op">)</span> <span class="op">-</span> <span class="va">ptm</span></span>
+<span><span class="co">#&gt;    user  system elapsed </span></span>
+<span><span class="co">#&gt;   1.582   0.033  41.648</span></span>
+<span><span class="va">lda_models</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 3 × 4</span></span></span>
+<span><span class="co">#&gt;       K topic_model beta                  theta               </span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>                <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>              </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>     6 <span style="color: #949494;">&lt;LDA_VEM&gt;</span>   <span style="color: #949494;">&lt;tibble [18,228 × 3]&gt;</span> <span style="color: #949494;">&lt;tibble [396 × 3]&gt;</span>  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span>    10 <span style="color: #949494;">&lt;LDA_VEM&gt;</span>   <span style="color: #949494;">&lt;tibble [30,380 × 3]&gt;</span> <span style="color: #949494;">&lt;tibble [660 × 3]&gt;</span>  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span>    16 <span style="color: #949494;">&lt;LDA_VEM&gt;</span>   <span style="color: #949494;">&lt;tibble [48,608 × 3]&gt;</span> <span style="color: #949494;">&lt;tibble [1,056 × 3]&gt;</span></span></span></code></pre></div>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">theta_matrix</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind_rows.html" class="external-link">bind_rows</a></span><span class="op">(</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">lda_models</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="fu">tidytext</span><span class="fu">::</span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x</span>, matrix <span class="op">=</span> <span class="st">"gamma"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>      <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">document</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">y</span><span class="op">$</span><span class="va">kunta</span><span class="op">)</span></span>
-<span>  <span class="op">}</span><span class="op">)</span>,</span>
-<span>  .id <span class="op">=</span> <span class="st">"model"</span><span class="op">)</span></span>
-<span><span class="va">theta_matrix</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 3,894 × 4</span></span></span>
-<span><span class="co">#&gt;    model document    topic     gamma</span></span>
-<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> k_5   Enontekiö       1 0.000<span style="text-decoration: underline;">090</span>3</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> k_5   Espoo           1 0.608    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> k_5   Eura            1 0.000<span style="text-decoration: underline;">087</span>2</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> k_5   Hartola         1 0.000<span style="text-decoration: underline;">107</span> </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> k_5   Hattula         1 0.216    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> k_5   Helsinki        1 0.000<span style="text-decoration: underline;">012</span>9</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> k_5   Huittinen       1 0.026<span style="text-decoration: underline;">0</span>   </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> k_5   Hyvinkää        1 0.050<span style="text-decoration: underline;">0</span>   </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> k_5   Hämeenlinna     1 0.000<span style="text-decoration: underline;">045</span>6</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> k_5   Iitti           1 0.600    </span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 3,884 more rows</span></span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># y &lt;- rfinstats::taantuvat |&gt;</span></span>
+<span><span class="co">#   filter(kunta %in% unique(aspol$kunta))</span></span>
+<span><span class="co"># y</span></span></code></pre></div>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">theta_matrix</span><span class="op">$</span><span class="va">model</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span></span>
-<span>    <span class="va">theta_matrix</span> <span class="op">|&gt;</span></span>
-<span>      <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">model</span> <span class="op">==</span> <span class="va">i</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>      <span class="fu"><a href="https://dplyr.tidyverse.org/reference/slice.html" class="external-link">slice_max</a></span><span class="op">(</span><span class="va">gamma</span>, by <span class="op">=</span> <span class="va">document</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>      <span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html" class="external-link">arrange</a></span><span class="op">(</span><span class="va">topic</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>      <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">left_join</a></span><span class="op">(</span><span class="va">taantuvat</span>, by <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/join_by.html" class="external-link">join_by</a></span><span class="op">(</span><span class="st">"document"</span> <span class="op">==</span> <span class="st">"kunta"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>      <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>topic <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">topic</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>      <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">topic</span>, y <span class="op">=</span> <span class="va">suht_muutos_2010_2022</span>, colour <span class="op">=</span> <span class="va">gamma</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>      <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
-<span>      <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_viridis.html" class="external-link">scale_colour_viridis_c</a></span><span class="op">(</span>option <span class="op">=</span> <span class="st">"A"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>      <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Most likely topic per document"</span>, subtitle <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"Model_"</span>, <span class="va">i</span><span class="op">)</span><span class="op">)</span></span>
-<span>  <span class="op">)</span></span>
-<span><span class="op">}</span></span></code></pre></div>
-<p><img src="5-Results_files/figure-html/unnamed-chunk-6-1.png" width="700"><img src="5-Results_files/figure-html/unnamed-chunk-6-2.png" width="700"><img src="5-Results_files/figure-html/unnamed-chunk-6-3.png" width="700"><img src="5-Results_files/figure-html/unnamed-chunk-6-4.png" width="700"></p>
+<code class="sourceCode R"><span><span class="co"># theta_matrix &lt;- bind_rows(</span></span>
+<span><span class="co">#   lapply(lda_models, function(x) {</span></span>
+<span><span class="co">#     tidytext::tidy(x, matrix = "gamma") |&gt;</span></span>
+<span><span class="co">#       filter(document %in% y$kunta)</span></span>
+<span><span class="co">#   }),</span></span>
+<span><span class="co">#   .id = "model")</span></span>
+<span><span class="co"># theta_matrix</span></span></code></pre></div>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">theta_matrix</span><span class="op">$</span><span class="va">model</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span></span>
-<span>    <span class="va">theta_matrix</span> <span class="op">|&gt;</span></span>
-<span>      <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">model</span> <span class="op">==</span> <span class="va">i</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>      <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">left_join</a></span><span class="op">(</span><span class="va">taantuvat</span>, by <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/join_by.html" class="external-link">join_by</a></span><span class="op">(</span><span class="st">"document"</span> <span class="op">==</span> <span class="st">"kunta"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>      <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarise</a></span><span class="op">(</span>mean_gamma <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">gamma</span><span class="op">)</span>, gamma_median <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/median.html" class="external-link">median</a></span><span class="op">(</span><span class="va">gamma</span><span class="op">)</span>, .by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">luokka</span>, <span class="va">topic</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>      <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>topic <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">topic</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>      <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
-<span>      <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">topic</span>, y <span class="op">=</span> <span class="va">mean_gamma</span>, colour <span class="op">=</span> <span class="va">luokka</span><span class="op">)</span>, shape <span class="op">=</span> <span class="fl">16</span><span class="op">)</span> <span class="op">+</span></span>
-<span>      <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">topic</span>, y <span class="op">=</span> <span class="va">gamma_median</span>, colour <span class="op">=</span> <span class="va">luokka</span><span class="op">)</span>, shape <span class="op">=</span> <span class="fl">17</span><span class="op">)</span> <span class="op">+</span></span>
-<span>      <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_viridis.html" class="external-link">scale_colour_viridis_d</a></span><span class="op">(</span>option <span class="op">=</span> <span class="st">"A"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>      <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Most likely topic per class"</span>, subtitle <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"Model_"</span>, <span class="va">i</span><span class="op">)</span><span class="op">)</span></span>
-<span>  <span class="op">)</span></span>
-<span><span class="op">}</span></span></code></pre></div>
-<p><img src="5-Results_files/figure-html/unnamed-chunk-7-1.png" width="700"><img src="5-Results_files/figure-html/unnamed-chunk-7-2.png" width="700"><img src="5-Results_files/figure-html/unnamed-chunk-7-3.png" width="700"><img src="5-Results_files/figure-html/unnamed-chunk-7-4.png" width="700"></p>
+<code class="sourceCode R"><span><span class="va">lda_models</span> <span class="op">&lt;-</span> <span class="va">lda_models</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>theta <span class="op">=</span> <span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map</a></span><span class="op">(</span><span class="va">theta</span>, \<span class="op">(</span><span class="va">df</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="va">df</span> <span class="op">|&gt;</span></span>
+<span>      <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">left_join</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>      <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span>aihe <span class="op">=</span> <span class="va">topic</span>, <span class="va">theta</span>, <span class="va">luokka</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>      <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>luokka <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">luokka</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="op">}</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Joining with `by = join_by(kunta)`</span></span>
+<span><span class="co">#&gt; Joining with `by = join_by(kunta)`</span></span>
+<span><span class="co">#&gt; Joining with `by = join_by(kunta)`</span></span></code></pre></div>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">theta_matrix</span><span class="op">$</span><span class="va">model</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span></span>
-<span>    <span class="va">theta_matrix</span> <span class="op">|&gt;</span></span>
-<span>      <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">model</span> <span class="op">==</span> <span class="va">i</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>      <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">left_join</a></span><span class="op">(</span><span class="va">taantuvat</span>, by <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/join_by.html" class="external-link">join_by</a></span><span class="op">(</span><span class="st">"document"</span> <span class="op">==</span> <span class="st">"kunta"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>      <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>luokka <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/if_else.html" class="external-link">if_else</a></span><span class="op">(</span><span class="va">suht_muutos_2010_2022</span> <span class="op">&gt;</span> <span class="fl">0</span>, <span class="st">"Kasvava"</span>, <span class="st">"Taantuva"</span><span class="op">)</span>,</span>
-<span>             topic <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">as.integer</a></span><span class="op">(</span><span class="va">topic</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>      <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarise</a></span><span class="op">(</span>gamma_sum <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">gamma</span><span class="op">)</span>,</span>
-<span>                gamma_mean <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">gamma</span><span class="op">)</span>,</span>
-<span>                gamma_median <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/median.html" class="external-link">median</a></span><span class="op">(</span><span class="va">gamma</span><span class="op">)</span>,</span>
-<span>                .by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">luokka</span>, <span class="va">topic</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>      <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
-<span>      <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_tile.html" class="external-link">geom_tile</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">topic</span>, y <span class="op">=</span> <span class="va">luokka</span>, fill <span class="op">=</span> <span class="va">gamma_mean</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>      <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_viridis.html" class="external-link">scale_fill_viridis_c</a></span><span class="op">(</span>option <span class="op">=</span> <span class="st">"A"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>      <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Common topics per class"</span>, subtitle <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"Model_"</span>, <span class="va">i</span><span class="op">)</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">t_distributions</span> <span class="op">&lt;-</span> <span class="va">lda_models</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">K</span>, <span class="va">theta</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://tidyr.tidyverse.org/reference/unnest.html" class="external-link">unnest</a></span><span class="op">(</span><span class="va">theta</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://tidyr.tidyverse.org/reference/nest.html" class="external-link">nest</a></span><span class="op">(</span>data <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">theta</span>, <span class="va">luokka</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
+<span>    null_dist <span class="op">=</span> <span class="fu"><a href="https://furrr.futureverse.org/reference/future_map.html" class="external-link">future_map</a></span><span class="op">(</span><span class="va">data</span>, \<span class="op">(</span><span class="va">df</span><span class="op">)</span> <span class="op">{</span></span>
+<span>      <span class="co"># t-distribution under null hypothesis</span></span>
+<span>      <span class="va">df</span> <span class="op">|&gt;</span></span>
+<span>        <span class="fu">specify</span><span class="op">(</span><span class="va">theta</span> <span class="op">~</span> <span class="va">luokka</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>        <span class="fu">hypothesize</span><span class="op">(</span>null <span class="op">=</span> <span class="st">"independence"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>        <span class="fu">generate</span><span class="op">(</span>reps <span class="op">=</span> <span class="fl">10000</span>, type <span class="op">=</span> <span class="st">"permute"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>        <span class="fu">calculate</span><span class="op">(</span><span class="st">"diff in means"</span>, order <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"kasvava"</span>, <span class="st">"taantuva"</span><span class="op">)</span><span class="op">)</span></span>
+<span>    <span class="op">}</span>, .options <span class="op">=</span> <span class="fu"><a href="https://furrr.futureverse.org/reference/furrr_options.html" class="external-link">furrr_options</a></span><span class="op">(</span>seed <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>    <span class="co"># t-value for estimation</span></span>
+<span>    t_val <span class="op">=</span> <span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map_dbl</a></span><span class="op">(</span><span class="va">data</span>, \<span class="op">(</span><span class="va">df</span><span class="op">)</span> <span class="op">{</span></span>
+<span>      <span class="va">df</span> <span class="op">|&gt;</span></span>
+<span>        <span class="fu">specify</span><span class="op">(</span><span class="va">theta</span> <span class="op">~</span> <span class="va">luokka</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>        <span class="fu">calculate</span><span class="op">(</span><span class="st">"diff in means"</span>, order <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"kasvava"</span>, <span class="st">"taantuva"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>        <span class="fu"><a href="https://dplyr.tidyverse.org/reference/pull.html" class="external-link">pull</a></span><span class="op">(</span><span class="va">stat</span><span class="op">)</span></span>
+<span>    <span class="op">}</span><span class="op">)</span><span class="co">#,</span></span>
+<span>    <span class="co"># p-value for t-estimation under null hypotheses</span></span>
+<span>    <span class="co"># p_value = pmap_dbl(null_dist, t_val, \(null_dist, t_val) {</span></span>
+<span>    <span class="co">#   null_dist |&gt;</span></span>
+<span>    <span class="co">#     get_p_value(obs_stat = t_val, direction = "two-sided")</span></span>
+<span>    <span class="co"># })</span></span>
 <span>  <span class="op">)</span></span>
-<span><span class="op">}</span></span></code></pre></div>
-<p><img src="5-Results_files/figure-html/unnamed-chunk-8-1.png" width="700"><img src="5-Results_files/figure-html/unnamed-chunk-8-2.png" width="700"><img src="5-Results_files/figure-html/unnamed-chunk-8-3.png" width="700"><img src="5-Results_files/figure-html/unnamed-chunk-8-4.png" width="700"></p>
+<span><span class="va">t_distributions</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 32 × 5</span></span></span>
+<span><span class="co">#&gt;        K  aihe data              null_dist               t_val</span></span>
+<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>                  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span>     6     1 <span style="color: #949494;">&lt;tibble [66 × 2]&gt;</span> <span style="color: #949494;">&lt;infer [10,000 × 2]&gt;</span> -<span style="color: #BB0000;">0.059</span><span style="color: #BB0000; text-decoration: underline;">7</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span>     6     2 <span style="color: #949494;">&lt;tibble [66 × 2]&gt;</span> <span style="color: #949494;">&lt;infer [10,000 × 2]&gt;</span>  0.132  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span>     6     3 <span style="color: #949494;">&lt;tibble [66 × 2]&gt;</span> <span style="color: #949494;">&lt;infer [10,000 × 2]&gt;</span>  0.042<span style="text-decoration: underline;">0</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span>     6     4 <span style="color: #949494;">&lt;tibble [66 × 2]&gt;</span> <span style="color: #949494;">&lt;infer [10,000 × 2]&gt;</span>  0.106  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span>     6     5 <span style="color: #949494;">&lt;tibble [66 × 2]&gt;</span> <span style="color: #949494;">&lt;infer [10,000 × 2]&gt;</span> -<span style="color: #BB0000;">0.384</span>  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span>     6     6 <span style="color: #949494;">&lt;tibble [66 × 2]&gt;</span> <span style="color: #949494;">&lt;infer [10,000 × 2]&gt;</span>  0.165  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span>    10     1 <span style="color: #949494;">&lt;tibble [66 × 2]&gt;</span> <span style="color: #949494;">&lt;infer [10,000 × 2]&gt;</span> -<span style="color: #BB0000;">0.102</span>  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span>    10     2 <span style="color: #949494;">&lt;tibble [66 × 2]&gt;</span> <span style="color: #949494;">&lt;infer [10,000 × 2]&gt;</span>  0.040<span style="text-decoration: underline;">6</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span>    10     3 <span style="color: #949494;">&lt;tibble [66 × 2]&gt;</span> <span style="color: #949494;">&lt;infer [10,000 × 2]&gt;</span> -<span style="color: #BB0000;">0.006</span><span style="color: #BB0000; text-decoration: underline;">09</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span>    10     4 <span style="color: #949494;">&lt;tibble [66 × 2]&gt;</span> <span style="color: #949494;">&lt;infer [10,000 × 2]&gt;</span>  0.067<span style="text-decoration: underline;">8</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 22 more rows</span></span></span></code></pre></div>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">theta_matrix</span><span class="op">$</span><span class="va">model</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span></span>
-<span>    <span class="va">theta_matrix</span> <span class="op">|&gt;</span></span>
-<span>      <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">model</span> <span class="op">==</span> <span class="va">i</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>      <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">left_join</a></span><span class="op">(</span><span class="va">taantuvat</span>, by <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/join_by.html" class="external-link">join_by</a></span><span class="op">(</span><span class="st">"document"</span> <span class="op">==</span> <span class="st">"kunta"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>      <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>luokka <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/if_else.html" class="external-link">if_else</a></span><span class="op">(</span><span class="va">suht_muutos_2010_2022</span> <span class="op">&gt;</span> <span class="fl">0</span>, <span class="st">"Kasvava"</span>, <span class="st">"Taantuva"</span><span class="op">)</span>,</span>
-<span>             topic <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">as.integer</a></span><span class="op">(</span><span class="va">topic</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>      <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarise</a></span><span class="op">(</span>gamma_sum <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">gamma</span><span class="op">)</span>,</span>
-<span>                gamma_mean <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">gamma</span><span class="op">)</span>,</span>
-<span>                gamma_median <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/median.html" class="external-link">median</a></span><span class="op">(</span><span class="va">gamma</span><span class="op">)</span>,</span>
-<span>                .by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">luokka</span>, <span class="va">topic</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>      <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
-<span>      <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_tile.html" class="external-link">geom_tile</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">topic</span>, y <span class="op">=</span> <span class="va">luokka</span>, fill <span class="op">=</span> <span class="va">gamma_median</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>      <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_viridis.html" class="external-link">scale_fill_viridis_c</a></span><span class="op">(</span>option <span class="op">=</span> <span class="st">"A"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>      <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Common topics per class"</span>, subtitle <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"Model_"</span>, <span class="va">i</span><span class="op">)</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">t_distributions</span> <span class="op">&lt;-</span> <span class="va">t_distributions</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
+<span>    p_value <span class="op">=</span> <span class="fu"><a href="https://purrr.tidyverse.org/reference/pmap.html" class="external-link">pmap_dbl</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">t_distributions</span>, <span class="va">null_dist</span>, <span class="va">t_val</span><span class="op">)</span>, \<span class="op">(</span><span class="va">null_dist</span>, <span class="va">t_val</span><span class="op">)</span> <span class="op">{</span></span>
+<span>      <span class="va">null_dist</span> <span class="op">|&gt;</span></span>
+<span>        <span class="fu">get_p_value</span><span class="op">(</span>obs_stat <span class="op">=</span> <span class="va">t_val</span>, direction <span class="op">=</span> <span class="st">"two-sided"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>        <span class="fu"><a href="https://dplyr.tidyverse.org/reference/pull.html" class="external-link">pull</a></span><span class="op">(</span><span class="va">p_value</span><span class="op">)</span></span>
+<span>    <span class="op">}</span><span class="op">)</span></span>
 <span>  <span class="op">)</span></span>
-<span><span class="op">}</span></span></code></pre></div>
-<p><img src="5-Results_files/figure-html/unnamed-chunk-9-1.png" width="700"><img src="5-Results_files/figure-html/unnamed-chunk-9-2.png" width="700"><img src="5-Results_files/figure-html/unnamed-chunk-9-3.png" width="700"><img src="5-Results_files/figure-html/unnamed-chunk-9-4.png" width="700"></p>
+<span><span class="co">#&gt; Warning: There were 3 warnings in `mutate()`.</span></span>
+<span><span class="co">#&gt; The first warning was:</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> In argument: `p_value = pmap_dbl(...)`.</span></span>
+<span><span class="co">#&gt; Caused by warning:</span></span>
+<span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> Please be cautious in reporting a p-value of 0. This result is an approximation</span></span>
+<span><span class="co">#&gt; based on the number of `reps` chosen in the `generate()` step.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> See `get_p_value()` (`?infer::get_p_value()`) for more information.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Run `dplyr::last_dplyr_warnings()` to see the 2 remaining warnings.</span></span>
+<span><span class="va">t_distributions</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 32 × 6</span></span></span>
+<span><span class="co">#&gt;        K  aihe data              null_dist               t_val p_value</span></span>
+<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>                  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span>     6     1 <span style="color: #949494;">&lt;tibble [66 × 2]&gt;</span> <span style="color: #949494;">&lt;infer [10,000 × 2]&gt;</span> -<span style="color: #BB0000;">0.059</span><span style="color: #BB0000; text-decoration: underline;">7</span>   0.339 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span>     6     2 <span style="color: #949494;">&lt;tibble [66 × 2]&gt;</span> <span style="color: #949494;">&lt;infer [10,000 × 2]&gt;</span>  0.132    0.054<span style="text-decoration: underline;">6</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span>     6     3 <span style="color: #949494;">&lt;tibble [66 × 2]&gt;</span> <span style="color: #949494;">&lt;infer [10,000 × 2]&gt;</span>  0.042<span style="text-decoration: underline;">0</span>   0.466 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span>     6     4 <span style="color: #949494;">&lt;tibble [66 × 2]&gt;</span> <span style="color: #949494;">&lt;infer [10,000 × 2]&gt;</span>  0.106    0.033<span style="text-decoration: underline;">8</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span>     6     5 <span style="color: #949494;">&lt;tibble [66 × 2]&gt;</span> <span style="color: #949494;">&lt;infer [10,000 × 2]&gt;</span> -<span style="color: #BB0000;">0.384</span>    0     </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span>     6     6 <span style="color: #949494;">&lt;tibble [66 × 2]&gt;</span> <span style="color: #949494;">&lt;infer [10,000 × 2]&gt;</span>  0.165    0.000<span style="text-decoration: underline;">8</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span>    10     1 <span style="color: #949494;">&lt;tibble [66 × 2]&gt;</span> <span style="color: #949494;">&lt;infer [10,000 × 2]&gt;</span> -<span style="color: #BB0000;">0.102</span>    0.035 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span>    10     2 <span style="color: #949494;">&lt;tibble [66 × 2]&gt;</span> <span style="color: #949494;">&lt;infer [10,000 × 2]&gt;</span>  0.040<span style="text-decoration: underline;">6</span>   0.477 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span>    10     3 <span style="color: #949494;">&lt;tibble [66 × 2]&gt;</span> <span style="color: #949494;">&lt;infer [10,000 × 2]&gt;</span> -<span style="color: #BB0000;">0.006</span><span style="color: #BB0000; text-decoration: underline;">09</span>  0.922 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span>    10     4 <span style="color: #949494;">&lt;tibble [66 × 2]&gt;</span> <span style="color: #949494;">&lt;infer [10,000 × 2]&gt;</span>  0.067<span style="text-decoration: underline;">8</span>   0.039<span style="text-decoration: underline;">6</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 22 more rows</span></span></span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://wilkelab.org/cowplot/reference/plot_grid.html" class="external-link">plot_grid</a></span><span class="op">(</span>plotlist <span class="op">=</span> <span class="fu"><a href="https://purrr.tidyverse.org/reference/pmap.html" class="external-link">pmap</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">t_distributions</span>, <span class="op">-</span><span class="va">data</span><span class="op">)</span>, \<span class="op">(</span><span class="va">K</span>, <span class="va">aihe</span>, <span class="va">null_dist</span>, <span class="va">t_val</span>, <span class="va">p_value</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu">visualise</span><span class="op">(</span><span class="va">null_dist</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu">shade_p_value</span><span class="op">(</span>obs_stat <span class="op">=</span> <span class="va">t_val</span>, direction <span class="op">=</span> <span class="st">"two_sided"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>subtitle <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"Aihe nro "</span>, <span class="va">aihe</span><span class="op">)</span>, </span>
+<span>         title <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"Malli K="</span>, <span class="va">K</span><span class="op">)</span>,</span>
+<span>         caption <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"P value: "</span>, <span class="va">p_value</span><span class="op">)</span><span class="op">)</span> </span>
+<span><span class="op">}</span><span class="op">)</span>,</span>
+<span>ncol <span class="op">=</span> <span class="fl">4</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning in (function (mapping = NULL, data = NULL, stat = "identity", position = "identity", : All aesthetics have length 1, but the data has 10000 rows.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Did you mean to use `annotate()`?</span></span>
+<span><span class="co">#&gt; Warning in (function (mapping = NULL, data = NULL, stat = "identity", position = "identity", : All aesthetics have length 1, but the data has 10000 rows.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Did you mean to use `annotate()`?</span></span>
+<span><span class="co">#&gt; Warning in (function (mapping = NULL, data = NULL, stat = "identity", position = "identity", : All aesthetics have length 1, but the data has 10000 rows.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Did you mean to use `annotate()`?</span></span>
+<span><span class="co">#&gt; Warning in (function (mapping = NULL, data = NULL, stat = "identity", position = "identity", : All aesthetics have length 1, but the data has 10000 rows.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Did you mean to use `annotate()`?</span></span>
+<span><span class="co">#&gt; Warning in (function (mapping = NULL, data = NULL, stat = "identity", position = "identity", : All aesthetics have length 1, but the data has 10000 rows.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Did you mean to use `annotate()`?</span></span>
+<span><span class="co">#&gt; Warning in (function (mapping = NULL, data = NULL, stat = "identity", position = "identity", : All aesthetics have length 1, but the data has 10000 rows.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Did you mean to use `annotate()`?</span></span>
+<span><span class="co">#&gt; Warning in (function (mapping = NULL, data = NULL, stat = "identity", position = "identity", : All aesthetics have length 1, but the data has 10000 rows.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Did you mean to use `annotate()`?</span></span>
+<span><span class="co">#&gt; Warning in (function (mapping = NULL, data = NULL, stat = "identity", position = "identity", : All aesthetics have length 1, but the data has 10000 rows.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Did you mean to use `annotate()`?</span></span>
+<span><span class="co">#&gt; Warning in (function (mapping = NULL, data = NULL, stat = "identity", position = "identity", : All aesthetics have length 1, but the data has 10000 rows.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Did you mean to use `annotate()`?</span></span>
+<span><span class="co">#&gt; Warning in (function (mapping = NULL, data = NULL, stat = "identity", position = "identity", : All aesthetics have length 1, but the data has 10000 rows.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Did you mean to use `annotate()`?</span></span>
+<span><span class="co">#&gt; Warning in (function (mapping = NULL, data = NULL, stat = "identity", position = "identity", : All aesthetics have length 1, but the data has 10000 rows.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Did you mean to use `annotate()`?</span></span>
+<span><span class="co">#&gt; Warning in (function (mapping = NULL, data = NULL, stat = "identity", position = "identity", : All aesthetics have length 1, but the data has 10000 rows.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Did you mean to use `annotate()`?</span></span>
+<span><span class="co">#&gt; Warning in (function (mapping = NULL, data = NULL, stat = "identity", position = "identity", : All aesthetics have length 1, but the data has 10000 rows.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Did you mean to use `annotate()`?</span></span>
+<span><span class="co">#&gt; Warning in (function (mapping = NULL, data = NULL, stat = "identity", position = "identity", : All aesthetics have length 1, but the data has 10000 rows.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Did you mean to use `annotate()`?</span></span>
+<span><span class="co">#&gt; Warning in (function (mapping = NULL, data = NULL, stat = "identity", position = "identity", : All aesthetics have length 1, but the data has 10000 rows.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Did you mean to use `annotate()`?</span></span>
+<span><span class="co">#&gt; Warning in (function (mapping = NULL, data = NULL, stat = "identity", position = "identity", : All aesthetics have length 1, but the data has 10000 rows.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Did you mean to use `annotate()`?</span></span>
+<span><span class="co">#&gt; Warning in (function (mapping = NULL, data = NULL, stat = "identity", position = "identity", : All aesthetics have length 1, but the data has 10000 rows.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Did you mean to use `annotate()`?</span></span>
+<span><span class="co">#&gt; Warning in (function (mapping = NULL, data = NULL, stat = "identity", position = "identity", : All aesthetics have length 1, but the data has 10000 rows.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Did you mean to use `annotate()`?</span></span>
+<span><span class="co">#&gt; Warning in (function (mapping = NULL, data = NULL, stat = "identity", position = "identity", : All aesthetics have length 1, but the data has 10000 rows.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Did you mean to use `annotate()`?</span></span>
+<span><span class="co">#&gt; Warning in (function (mapping = NULL, data = NULL, stat = "identity", position = "identity", : All aesthetics have length 1, but the data has 10000 rows.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Did you mean to use `annotate()`?</span></span>
+<span><span class="co">#&gt; Warning in (function (mapping = NULL, data = NULL, stat = "identity", position = "identity", : All aesthetics have length 1, but the data has 10000 rows.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Did you mean to use `annotate()`?</span></span>
+<span><span class="co">#&gt; Warning in (function (mapping = NULL, data = NULL, stat = "identity", position = "identity", : All aesthetics have length 1, but the data has 10000 rows.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Did you mean to use `annotate()`?</span></span>
+<span><span class="co">#&gt; Warning in (function (mapping = NULL, data = NULL, stat = "identity", position = "identity", : All aesthetics have length 1, but the data has 10000 rows.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Did you mean to use `annotate()`?</span></span>
+<span><span class="co">#&gt; Warning in (function (mapping = NULL, data = NULL, stat = "identity", position = "identity", : All aesthetics have length 1, but the data has 10000 rows.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Did you mean to use `annotate()`?</span></span>
+<span><span class="co">#&gt; Warning in (function (mapping = NULL, data = NULL, stat = "identity", position = "identity", : All aesthetics have length 1, but the data has 10000 rows.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Did you mean to use `annotate()`?</span></span>
+<span><span class="co">#&gt; Warning in (function (mapping = NULL, data = NULL, stat = "identity", position = "identity", : All aesthetics have length 1, but the data has 10000 rows.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Did you mean to use `annotate()`?</span></span>
+<span><span class="co">#&gt; Warning in (function (mapping = NULL, data = NULL, stat = "identity", position = "identity", : All aesthetics have length 1, but the data has 10000 rows.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Did you mean to use `annotate()`?</span></span>
+<span><span class="co">#&gt; Warning in (function (mapping = NULL, data = NULL, stat = "identity", position = "identity", : All aesthetics have length 1, but the data has 10000 rows.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Did you mean to use `annotate()`?</span></span>
+<span><span class="co">#&gt; Warning in (function (mapping = NULL, data = NULL, stat = "identity", position = "identity", : All aesthetics have length 1, but the data has 10000 rows.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Did you mean to use `annotate()`?</span></span>
+<span><span class="co">#&gt; Warning in (function (mapping = NULL, data = NULL, stat = "identity", position = "identity", : All aesthetics have length 1, but the data has 10000 rows.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Did you mean to use `annotate()`?</span></span>
+<span><span class="co">#&gt; Warning in (function (mapping = NULL, data = NULL, stat = "identity", position = "identity", : All aesthetics have length 1, but the data has 10000 rows.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Did you mean to use `annotate()`?</span></span>
+<span><span class="co">#&gt; Warning in (function (mapping = NULL, data = NULL, stat = "identity", position = "identity", : All aesthetics have length 1, but the data has 10000 rows.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Did you mean to use `annotate()`?</span></span></code></pre></div>
+<p><img src="5-Results_files/figure-html/unnamed-chunk-10-1.png" width="2016"></p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># for (i in unique(theta_matrix$model)) {</span></span>
+<span><span class="co">#   print(</span></span>
+<span><span class="co">#     theta_matrix |&gt;</span></span>
+<span><span class="co">#       filter(model == i) |&gt;</span></span>
+<span><span class="co">#       slice_max(gamma, by = document) |&gt;</span></span>
+<span><span class="co">#       arrange(topic) |&gt;</span></span>
+<span><span class="co">#       left_join(taantuvat, by = join_by("document" == "kunta")) |&gt;</span></span>
+<span><span class="co">#       mutate(topic = factor(topic)) |&gt;</span></span>
+<span><span class="co">#       ggplot(aes(x = topic, y = suht_muutos_2010_2022, colour = gamma)) +</span></span>
+<span><span class="co">#       geom_point() +</span></span>
+<span><span class="co">#       scale_colour_viridis_c(option = "A") +</span></span>
+<span><span class="co">#       labs(title = "Most likely topic per document", subtitle = paste0("Model_", i))</span></span>
+<span><span class="co">#   )</span></span>
+<span><span class="co"># }</span></span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># for (i in unique(theta_matrix$model)) {</span></span>
+<span><span class="co">#   print(</span></span>
+<span><span class="co">#     theta_matrix |&gt;</span></span>
+<span><span class="co">#       filter(model == i) |&gt;</span></span>
+<span><span class="co">#       left_join(taantuvat, by = join_by("document" == "kunta")) |&gt;</span></span>
+<span><span class="co">#       summarise(mean_gamma = mean(gamma), gamma_median = median(gamma), .by = c(luokka, topic)) |&gt;</span></span>
+<span><span class="co">#       mutate(topic = factor(topic)) |&gt;</span></span>
+<span><span class="co">#       ggplot() +</span></span>
+<span><span class="co">#       geom_point(aes(x = topic, y = mean_gamma, colour = luokka), shape = 16) +</span></span>
+<span><span class="co">#       geom_point(aes(x = topic, y = gamma_median, colour = luokka), shape = 17) +</span></span>
+<span><span class="co">#       scale_colour_viridis_d(option = "A") +</span></span>
+<span><span class="co">#       labs(title = "Most likely topic per class", subtitle = paste0("Model_", i))</span></span>
+<span><span class="co">#   )</span></span>
+<span><span class="co"># }</span></span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># for (i in unique(theta_matrix$model)) {</span></span>
+<span><span class="co">#   print(</span></span>
+<span><span class="co">#     theta_matrix |&gt;</span></span>
+<span><span class="co">#       filter(model == i) |&gt;</span></span>
+<span><span class="co">#       left_join(taantuvat, by = join_by("document" == "kunta")) |&gt;</span></span>
+<span><span class="co">#       mutate(luokka = if_else(suht_muutos_2010_2022 &gt; 0, "Kasvava", "Taantuva"),</span></span>
+<span><span class="co">#              topic = factor(as.integer(topic))) |&gt;</span></span>
+<span><span class="co">#       summarise(gamma_sum = sum(gamma),</span></span>
+<span><span class="co">#                 gamma_mean = mean(gamma),</span></span>
+<span><span class="co">#                 gamma_median = median(gamma),</span></span>
+<span><span class="co">#                 .by = c(luokka, topic)) |&gt;</span></span>
+<span><span class="co">#       ggplot() +</span></span>
+<span><span class="co">#       geom_tile(aes(x = topic, y = luokka, fill = gamma_mean)) +</span></span>
+<span><span class="co">#       scale_fill_viridis_c(option = "A") +</span></span>
+<span><span class="co">#       labs(title = "Common topics per class", subtitle = paste0("Model_", i))</span></span>
+<span><span class="co">#   )</span></span>
+<span><span class="co"># }</span></span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># for (i in unique(theta_matrix$model)) {</span></span>
+<span><span class="co">#   print(</span></span>
+<span><span class="co">#     theta_matrix |&gt;</span></span>
+<span><span class="co">#       filter(model == i) |&gt;</span></span>
+<span><span class="co">#       left_join(taantuvat, by = join_by("document" == "kunta")) |&gt;</span></span>
+<span><span class="co">#       mutate(luokka = if_else(suht_muutos_2010_2022 &gt; 0, "Kasvava", "Taantuva"),</span></span>
+<span><span class="co">#              topic = factor(as.integer(topic))) |&gt;</span></span>
+<span><span class="co">#       summarise(gamma_sum = sum(gamma),</span></span>
+<span><span class="co">#                 gamma_mean = mean(gamma),</span></span>
+<span><span class="co">#                 gamma_median = median(gamma),</span></span>
+<span><span class="co">#                 .by = c(luokka, topic)) |&gt;</span></span>
+<span><span class="co">#       ggplot() +</span></span>
+<span><span class="co">#       geom_tile(aes(x = topic, y = luokka, fill = gamma_median)) +</span></span>
+<span><span class="co">#       scale_fill_viridis_c(option = "A") +</span></span>
+<span><span class="co">#       labs(title = "Common topics per class", subtitle = paste0("Model_", i))</span></span>
+<span><span class="co">#   )</span></span>
+<span><span class="co"># }</span></span></code></pre></div>
   </main>
 </div>
 

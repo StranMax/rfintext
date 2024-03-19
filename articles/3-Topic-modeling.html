@@ -71,7 +71,7 @@
 
 
 
-<script src="3-Topic-modeling_files/kePrint-0.0.1/kePrint.js"></script><link href="3-Topic-modeling_files/lightable-0.0.1/lightable.css" rel="stylesheet">
+
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="" class="logo" alt=""><h1>3 Topic modeling</h1>
@@ -83,1300 +83,363 @@
 
     
     
-<p>Topic modeling with latent Dirichlet allocation (LDA). Finding
-optimal k-parameter. Using coherence score as a value of goodness.</p>
+<p>Topic modeling with latent Dirichlet allocation (LDA).</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/StranMax/rfintext" class="external-link">rfintext</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/StranMax/rfinstats" class="external-link">rfinstats</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://quanteda.io" class="external-link">quanteda</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/juliasilge/tidytext" class="external-link">tidytext</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">topicmodels</span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/doug-friedman/topicdoc" class="external-link">topicdoc</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyr.tidyverse.org" class="external-link">tidyr</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
-<span><span class="co"># library(DT)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://haozhu233.github.io/kableExtra/" class="external-link">kableExtra</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://doFuture.futureverse.org" class="external-link">doFuture</a></span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://future.futureverse.org/reference/plan.html" class="external-link">plan</a></span><span class="op">(</span><span class="va">multisession</span>, workers <span class="op">=</span> <span class="fu"><a href="https://parallelly.futureverse.org/reference/availableCores.html" class="external-link">availableCores</a></span><span class="op">(</span>logical <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">topicmodels</span><span class="op">)</span>  <span class="co"># LDA</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/doug-friedman/topicdoc" class="external-link">topicdoc</a></span><span class="op">)</span>  <span class="co"># Coherence score</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span>  <span class="co"># Tidyverse friends</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyr.tidyverse.org" class="external-link">tidyr</a></span><span class="op">)</span>  <span class="co"># Tidyverse friends</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://forcats.tidyverse.org/" class="external-link">forcats</a></span><span class="op">)</span>  <span class="co"># Tidyverse friends</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://purrr.tidyverse.org/" class="external-link">purrr</a></span><span class="op">)</span>  <span class="co"># Tidyverse friends</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyr.tidyverse.org" class="external-link">tidyr</a></span><span class="op">)</span>  <span class="co"># Tidyverse friends</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span>  <span class="co"># Tidyverse friends</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://wilkelab.org/cowplot/" class="external-link">cowplot</a></span><span class="op">)</span>  <span class="co"># Multiple plots made easy</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://future.futureverse.org" class="external-link">future</a></span><span class="op">)</span>  <span class="co"># Parallel processing back-end</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/DavisVaughan/furrr" class="external-link">furrr</a></span><span class="op">)</span>  <span class="co"># Parallel processing front-end with future_ functions</span></span>
+<span><span class="fu"><a href="https://future.futureverse.org/reference/plan.html" class="external-link">plan</a></span><span class="op">(</span><span class="va">multisession</span>, workers <span class="op">=</span> <span class="fu"><a href="https://parallelly.futureverse.org/reference/availableCores.html" class="external-link">availableCores</a></span><span class="op">(</span>logical <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span>  <span class="co"># Utilize multiple cores on time consuming tasks.</span></span></code></pre></div>
+<p>You know already how to pre process and convert to document term
+matrix:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dtm</span> <span class="op">&lt;-</span> <span class="va">aspol</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/preprocess_corpus.html">preprocess_corpus</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/corpus_to_dtm.html">corpus_to_dtm</a></span><span class="op">(</span><span class="va">kunta</span>, <span class="va">LEMMA</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="../reference/preprocess_corpus.html">preprocess_corpus</a></span><span class="op">(</span><span class="va">kunta</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/count.html" class="external-link">count</a></span><span class="op">(</span><span class="va">kunta</span>, <span class="va">LEMMA</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/tidytext/man/document_term_casters.html" class="external-link">cast_dfm</a></span><span class="op">(</span><span class="va">kunta</span>, <span class="va">LEMMA</span>, <span class="va">n</span><span class="op">)</span>  <span class="co"># n is default name from dplyr::count()</span></span>
 <span><span class="va">dtm</span></span>
-<span><span class="co">#&gt; Document-feature matrix of: 68 documents, 3,061 features (76.78% sparse) and 0 docvars.</span></span>
+<span><span class="co">#&gt; Document-feature matrix of: 68 documents, 3,038 features (76.63% sparse) and 0 docvars.</span></span>
 <span><span class="co">#&gt;              features</span></span>
-<span><span class="co">#&gt; docs          A#talo III Vapaa#aika aiheuttaa aika aika#väli ajatella ala alhainen alku alku#peräinen alku#puoli antaa arava#laina arava#rajoitus arvioida asettaa asia asiakas asian#mukainen</span></span>
-<span><span class="co">#&gt;   Enontekiö        3   1          1         3    7         1        1   1        1    1             1          1     3           1              1        1       2    3       3              1</span></span>
-<span><span class="co">#&gt;   Espoo            0   0          0         1   18         3        0   3        4    1             1          0     2           0              0        9      10    3       1              0</span></span>
-<span><span class="co">#&gt;   Eura             0   0          0         1    5         0        0   0        1    0             0          0     1           0              0        3       1    1       6              0</span></span>
-<span><span class="co">#&gt;   Hartola          0   0          1         2    5         0        0   1        0    0             0          0     0           0              0        3       0    0       0              0</span></span>
-<span><span class="co">#&gt;   Hattula          0   0          0         0    6         0        0   0        0    1             0          0     1           0              0        0       1    1       0              0</span></span>
-<span><span class="co">#&gt;   Helsinki         0   0          0         3   46         4        0   5        5   12             0          1     7           0              0       26      13    8       6              1</span></span>
-<span><span class="co">#&gt;   Huittinen        2   0          0         0   13         1        5   2        2    0             0          0     3           0              0        4       3   13       4              0</span></span>
-<span><span class="co">#&gt;   Hyvinkää         0   0          0         0    1         0        0   0        0    0             0          0     0           0              0        1       0    0       0              0</span></span>
-<span><span class="co">#&gt;   Hämeenlinna      0   0          3         3    1         0        0   2        0    1             0          0     3           0              0        2       0   29       3              0</span></span>
-<span><span class="co">#&gt;   Iitti            0   0          0         0    0         0        0   0        0    1             0          0     5           0              0        0       1    0       0              0</span></span>
-<span><span class="co">#&gt;   Imatra           0   0          0         0    2         0        0   1        0    0             0          0     0           0              0        2       0    1       0              0</span></span>
-<span><span class="co">#&gt;   Inkoo            0   0          0         1   11         1        0   0        1    2             0          0     4           0              0        0       5    2       0              0</span></span>
-<span><span class="co">#&gt;   Joensuu          0   0          0         1   33         2        1   0        4    4             1          0     2           0              1        9      13    5       4              0</span></span>
-<span><span class="co">#&gt;   Juva             0   0          0         2   13         5        0   1        2    3             0          0     2           1              0        1       2    2       3              0</span></span>
-<span><span class="co">#&gt;   Järvenpää        0   0          0         0    2         0        0   0        0    0             0          0     1           0              0        0       3    2       0              0</span></span>
-<span><span class="co">#&gt;   Kaarina          0   0          1         2   15         6        0   0        0    1             0          0     4           0              0        4       4    3       0              0</span></span>
-<span><span class="co">#&gt;   Kalajoki         0   0          0         0    1         0        0   0        0    0             0          0     0           0              0        2       0    0       0              0</span></span>
-<span><span class="co">#&gt;   Kauniainen       0   0          0         2   14         0        1   0        0    1             0          1     4           0              0       12       6    1       3              0</span></span>
-<span><span class="co">#&gt;   Kemiönsaari      0   0          3         3   12         1        1   1        1    3             2          0    14           0              0        3       3    1       2              0</span></span>
-<span><span class="co">#&gt;   Kerava           0   0          0         2    0         0        0   0        0    0             0          0     3           0              0        2       5    0       0              0</span></span>
-<span><span class="co">#&gt; [ reached max_ndoc ... 48 more documents, reached max_nfeat ... 3,041 more features ]</span></span></code></pre></div>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://quanteda.io/reference/topfeatures.html" class="external-link">topfeatures</a></span><span class="op">(</span><span class="va">dtm</span>, n <span class="op">=</span> <span class="fl">20</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://tibble.tidyverse.org/reference/as_tibble.html" class="external-link">as_tibble</a></span><span class="op">(</span>rownames <span class="op">=</span> <span class="st">"term"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">value</span>, y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/reorder.factor.html" class="external-link">reorder</a></span><span class="op">(</span><span class="va">term</span>, <span class="va">value</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_bar.html" class="external-link">geom_col</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>subtitle <span class="op">=</span> <span class="st">"20 most common terms"</span>, x <span class="op">=</span> <span class="st">"Count"</span>, y <span class="op">=</span> <span class="st">"Term"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="3-Topic-modeling_files/figure-html/unnamed-chunk-4-1.png" width="700"></p>
+<span><span class="co">#&gt; docs          A#talo Vapaa#aika aiheuttaa aika aika#väli ajatella alhainen alku alku#peräinen alku#puoli alue antaa arava#laina arava#rajoitus arvioida asettaa asia asiakas asian#mukainen asua</span></span>
+<span><span class="co">#&gt;   Enontekiö        3          1         3    7         1        1        1    1             1          1   17     3           1              1        1       2    3       3              1    5</span></span>
+<span><span class="co">#&gt;   Espoo            0          0         1   18         3        0        4    1             1          0  108     2           0              0        9      10    3       1              0   11</span></span>
+<span><span class="co">#&gt;   Eura             0          0         1    5         0        0        1    0             0          0   10     1           0              0        3       1    1       6              0    7</span></span>
+<span><span class="co">#&gt;   Hartola          0          1         2    5         0        0        0    0             0          0    4     0           0              0        3       0    0       0              0    6</span></span>
+<span><span class="co">#&gt;   Hattula          0          0         0    6         0        0        0    1             0          0   17     1           0              0        0       1    1       0              0    3</span></span>
+<span><span class="co">#&gt;   Helsinki         0          0         3   46         4        0        5   12             0          1  139     7           0              0       26      13    8       6              1   57</span></span>
+<span><span class="co">#&gt;   Huittinen        2          0         0   13         1        5        2    0             0          0   16     3           0              0        4       3   13       4              0    8</span></span>
+<span><span class="co">#&gt;   Hyvinkää         0          0         0    1         0        0        0    0             0          0    0     0           0              0        1       0    0       0              0    9</span></span>
+<span><span class="co">#&gt;   Hämeenlinna      0          3         3    1         0        0        0    1             0          0   18     3           0              0        2       0   29       3              0   10</span></span>
+<span><span class="co">#&gt;   Iitti            0          0         0    0         0        0        0    1             0          0   18     5           0              0        0       1    0       0              0    0</span></span>
+<span><span class="co">#&gt;   Imatra           0          0         0    2         0        0        0    0             0          0    6     0           0              0        2       0    1       0              0   11</span></span>
+<span><span class="co">#&gt;   Inkoo            0          0         1   11         1        0        1    2             0          0   26     4           0              0        0       5    2       0              0    3</span></span>
+<span><span class="co">#&gt;   Joensuu          0          0         1   33         2        1        4    4             1          0  129     2           0              1        9      13    5       4              0   25</span></span>
+<span><span class="co">#&gt;   Juva             0          0         2   13         5        0        2    3             0          0   19     2           1              0        1       2    2       3              0   10</span></span>
+<span><span class="co">#&gt;   Järvenpää        0          0         0    2         0        0        0    0             0          0    7     1           0              0        0       3    2       0              0   11</span></span>
+<span><span class="co">#&gt;   Kaarina          0          1         2   15         6        0        0    1             0          0   55     4           0              0        4       4    3       0              0    8</span></span>
+<span><span class="co">#&gt;   Kalajoki         0          0         0    1         0        0        0    0             0          0    5     0           0              0        2       0    0       0              0    0</span></span>
+<span><span class="co">#&gt;   Kauniainen       0          0         2   14         0        1        0    1             0          1  104     4           0              0       12       6    1       3              0   17</span></span>
+<span><span class="co">#&gt;   Kemiönsaari      0          3         3   12         1        1        1    3             2          0  136    14           0              0        3       3    1       2              0    8</span></span>
+<span><span class="co">#&gt;   Kerava           0          0         2    0         0        0        0    0             0          0   13     3           0              0        2       5    0       0              0    0</span></span>
+<span><span class="co">#&gt; [ reached max_ndoc ... 48 more documents, reached max_nfeat ... 3,018 more features ]</span></span></code></pre></div>
+<p>Let’s get straight to business. Unsupervised classification with
+LDA:</p>
 <p>LDA needs one parameter <code>k</code>. Finding optimal values by
 evaluating coherence score.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">k_values</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">70</span>, by <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/system.time.html" class="external-link">system.time</a></span><span class="op">(</span></span>
-<span>  <span class="va">model_coherence</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/foreach/man/foreach.html" class="external-link">foreach</a></span><span class="op">(</span>k <span class="op">=</span> <span class="va">k_values</span>, .combine <span class="op">=</span> <span class="st">'rbind'</span>, .inorder <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op"><a href="https://doFuture.futureverse.org/reference/grapes-dofuture-grapes.html" class="external-link">%dofuture%</a></span> <span class="op">{</span></span>
-<span>    <span class="va">lda</span> <span class="op">&lt;-</span> <span class="fu">topicmodels</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/topicmodels/man/lda.html" class="external-link">LDA</a></span><span class="op">(</span><span class="fu">quanteda</span><span class="fu">::</span><span class="fu"><a href="https://quanteda.io/reference/convert.html" class="external-link">convert</a></span><span class="op">(</span><span class="va">dtm</span>, to <span class="op">=</span> <span class="st">"tm"</span><span class="op">)</span>, k <span class="op">=</span> <span class="va">k</span>, control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>seed <span class="op">=</span> <span class="fl">1234</span><span class="op">)</span><span class="op">)</span></span>
-<span>    <span class="va">mean_coherence</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="fu">topicdoc</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/topicdoc/man/topic_coherence.html" class="external-link">topic_coherence</a></span><span class="op">(</span><span class="va">lda</span>, <span class="va">dtm</span><span class="op">)</span><span class="op">)</span></span>
-<span>    <span class="fu"><a href="https://tibble.tidyverse.org/reference/deprecated.html" class="external-link">data_frame</a></span><span class="op">(</span>k <span class="op">=</span> <span class="va">k</span>, mean_coherence <span class="op">=</span> <span class="va">mean_coherence</span><span class="op">)</span></span>
-<span>  <span class="op">}</span></span>
-<span><span class="op">)</span>  <span class="co"># Around 30 min.</span></span>
+<blockquote>
+<p>Note! Following will take some time even with multiple cores. For me
+it took around half an hour on laptop with 14 cores. Adjust number of K
+values accordingly. Here we test the whole scale for number of topics
+ranging from two to number of documents.</p>
+</blockquote>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">ptm</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/proc.time.html" class="external-link">proc.time</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">lda_models</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span>K <span class="op">=</span> <span class="fl">2</span><span class="op">:</span><span class="fl">68</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
+<span>    <span class="co"># LDA models</span></span>
+<span>    topic_model <span class="op">=</span> <span class="fu"><a href="https://furrr.futureverse.org/reference/future_map.html" class="external-link">future_map</a></span><span class="op">(</span>  </span>
+<span>      <span class="co"># K, ~LDA(convert(dtm, to = "tm"), k = ., control = list(seed = 1234)),  # Seed in parallel processing (problem?)</span></span>
+<span>      <span class="va">K</span>, <span class="op">~</span><span class="fu"><a href="https://rdrr.io/pkg/topicmodels/man/lda.html" class="external-link">LDA</a></span><span class="op">(</span><span class="fu"><a href="https://quanteda.io/reference/convert.html" class="external-link">convert</a></span><span class="op">(</span><span class="va">dtm</span>, to <span class="op">=</span> <span class="st">"tm"</span><span class="op">)</span>, k <span class="op">=</span> <span class="va">.</span><span class="op">)</span>,  <span class="co"># LDA expects dtm in tm format (or does it?)</span></span>
+<span>      .options <span class="op">=</span> <span class="fu"><a href="https://furrr.futureverse.org/reference/furrr_options.html" class="external-link">furrr_options</a></span><span class="op">(</span>seed <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span>    <span class="op">)</span>,</span>
+<span>    <span class="co"># Model coherence</span></span>
+<span>    mean_coherence <span class="op">=</span> <span class="fu"><a href="https://furrr.futureverse.org/reference/future_map.html" class="external-link">future_map_dbl</a></span><span class="op">(</span></span>
+<span>      <span class="va">topic_model</span>, \<span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/topicdoc/man/topic_coherence.html" class="external-link">topic_coherence</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">dtm</span><span class="op">)</span><span class="op">)</span></span>
+<span>    <span class="op">)</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/proc.time.html" class="external-link">proc.time</a></span><span class="op">(</span><span class="op">)</span> <span class="op">-</span> <span class="va">ptm</span></span>
 <span><span class="co">#&gt;     user   system  elapsed </span></span>
-<span><span class="co">#&gt;   70.737    1.968 2210.170</span></span></code></pre></div>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># save(model_coherence, file = "./extdata/model_coherence.rda")  # Does not work!!??</span></span>
-<span><span class="co"># usethis::use_data(model_coherence)</span></span></code></pre></div>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">p</span> <span class="op">&lt;-</span> <span class="va">model_coherence</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">k</span>, y <span class="op">=</span> <span class="va">mean_coherence</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span><span class="co">#&gt;   69.508    1.828 2322.602</span></span>
+<span><span class="va">lda_models</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 67 × 3</span></span></span>
+<span><span class="co">#&gt;        K topic_model mean_coherence</span></span>
+<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>               <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span>     2 <span style="color: #949494;">&lt;LDA_VEM&gt;</span>            -<span style="color: #BB0000;">5.27</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span>     3 <span style="color: #949494;">&lt;LDA_VEM&gt;</span>            -<span style="color: #BB0000;">7.25</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span>     4 <span style="color: #949494;">&lt;LDA_VEM&gt;</span>            -<span style="color: #BB0000;">9.89</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span>     5 <span style="color: #949494;">&lt;LDA_VEM&gt;</span>            -<span style="color: #BB0000;">8.97</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span>     6 <span style="color: #949494;">&lt;LDA_VEM&gt;</span>            -<span style="color: #BB0000;">8.63</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span>     7 <span style="color: #949494;">&lt;LDA_VEM&gt;</span>           -<span style="color: #BB0000;">10.9</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span>     8 <span style="color: #949494;">&lt;LDA_VEM&gt;</span>           -<span style="color: #BB0000;">10.2</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span>     9 <span style="color: #949494;">&lt;LDA_VEM&gt;</span>           -<span style="color: #BB0000;">10.8</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span>    10 <span style="color: #949494;">&lt;LDA_VEM&gt;</span>           -<span style="color: #BB0000;">12.3</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span>    11 <span style="color: #949494;">&lt;LDA_VEM&gt;</span>           -<span style="color: #BB0000;">11.0</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 57 more rows</span></span></span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">p</span> <span class="op">&lt;-</span> <span class="va">lda_models</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">K</span>, y <span class="op">=</span> <span class="va">mean_coherence</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>subtitle <span class="op">=</span> <span class="st">"LDA model coherence with different topic numbers"</span>, </span>
 <span>       x <span class="op">=</span> <span class="st">"k (number of topics)"</span>, y <span class="op">=</span> <span class="st">"Mean coherence"</span><span class="op">)</span></span>
 <span><span class="va">p</span></span></code></pre></div>
-<p><img src="3-Topic-modeling_files/figure-html/unnamed-chunk-7-1.png" width="700"></p>
+<p><img src="3-Topic-modeling_files/figure-html/unnamed-chunk-5-1.png" width="700"></p>
 <p>Visually selecting potentially best k values</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">optimal_k</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">15</span>, <span class="fl">18</span>, <span class="fl">21</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># optimal_k &lt;- c(5, 9, 11, 15, 20)</span></span>
+<span><span class="va">optimal_k</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">6</span>, <span class="fl">10</span>, <span class="fl">16</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">p</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_vline</a></span><span class="op">(</span>xintercept <span class="op">=</span> <span class="va">optimal_k</span>, linetype<span class="op">=</span><span class="st">'dashed'</span>, color<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'red'</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">optimal_k</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">{</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_text.html" class="external-link">geom_text</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x<span class="op">=</span><span class="va">x</span><span class="op">+</span><span class="fl">1</span>, label<span class="op">=</span><span class="va">x</span>, y<span class="op">=</span><span class="op">-</span><span class="fl">5</span><span class="op">)</span>, colour<span class="op">=</span><span class="st">"red"</span>, angle<span class="op">=</span><span class="fl">90</span><span class="op">)</span><span class="op">}</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>subtitle <span class="op">=</span> <span class="st">"Optimal k values"</span>,</span>
 <span>       x <span class="op">=</span> <span class="st">"k (number of topics)"</span>, y <span class="op">=</span> <span class="st">"Mean coherence"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning in geom_text(aes(x = x + 1, label = x, y = -5), colour = "red", : All aesthetics have length 1, but the data has 69 rows.</span></span>
+<span><span class="co">#&gt; Warning in geom_text(aes(x = x + 1, label = x, y = -5), colour = "red", : All aesthetics have length 1, but the data has 67 rows.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Did you mean to use `annotate()`?</span></span>
-<span><span class="co">#&gt; All aesthetics have length 1, but the data has 69 rows.</span></span>
+<span><span class="co">#&gt; All aesthetics have length 1, but the data has 67 rows.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Did you mean to use `annotate()`?</span></span>
-<span><span class="co">#&gt; All aesthetics have length 1, but the data has 69 rows.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Did you mean to use `annotate()`?</span></span>
-<span><span class="co">#&gt; All aesthetics have length 1, but the data has 69 rows.</span></span>
+<span><span class="co">#&gt; All aesthetics have length 1, but the data has 67 rows.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Did you mean to use `annotate()`?</span></span></code></pre></div>
-<p><img src="3-Topic-modeling_files/figure-html/unnamed-chunk-9-1.png" width="700"></p>
-<p>Highest coherence values: 5, 15, 18, 21</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">lda_models</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/foreach/man/foreach.html" class="external-link">foreach</a></span><span class="op">(</span>k <span class="op">=</span> <span class="va">optimal_k</span><span class="op">)</span> <span class="op"><a href="https://doFuture.futureverse.org/reference/grapes-dofuture-grapes.html" class="external-link">%dofuture%</a></span> <span class="op">{</span></span>
-<span>  <span class="fu">topicmodels</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/topicmodels/man/lda.html" class="external-link">LDA</a></span><span class="op">(</span><span class="fu">quanteda</span><span class="fu">::</span><span class="fu"><a href="https://quanteda.io/reference/convert.html" class="external-link">convert</a></span><span class="op">(</span><span class="va">dtm</span>, to <span class="op">=</span> <span class="st">"tm"</span><span class="op">)</span>, k <span class="op">=</span> <span class="va">k</span>, control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>seed <span class="op">=</span> <span class="fl">1234</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="op">}</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">lda_models</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"k_"</span>, <span class="va">optimal_k</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">beta_matrix</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind_rows.html" class="external-link">bind_rows</a></span><span class="op">(</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">lda_models</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="fu">tidytext</span><span class="fu">::</span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x</span>, matrix <span class="op">=</span> <span class="st">"beta"</span><span class="op">)</span></span>
-<span>  <span class="op">}</span><span class="op">)</span>, </span>
-<span>  .id <span class="op">=</span> <span class="st">"model"</span><span class="op">)</span></span>
-<span><span class="va">beta_matrix</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 180,599 × 4</span></span></span>
-<span><span class="co">#&gt;    model topic term           beta</span></span>
-<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> k_5       1 A#talo     1.08<span style="color: #949494;">e</span><span style="color: #BB0000;">-11</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> k_5       2 A#talo     1.47<span style="color: #949494;">e</span><span style="color: #BB0000;">-19</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> k_5       3 A#talo     3.55<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> k_5       4 A#talo     1.51<span style="color: #949494;">e</span><span style="color: #BB0000;">-14</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> k_5       5 A#talo     2.72<span style="color: #949494;">e</span><span style="color: #BB0000;">-10</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> k_5       1 III        6.04<span style="color: #949494;">e</span><span style="color: #BB0000;">-95</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> k_5       2 III        1.54<span style="color: #949494;">e</span><span style="color: #BB0000;">-95</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> k_5       3 III        3.94<span style="color: #949494;">e</span><span style="color: #BB0000;">- 5</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> k_5       4 III        1.27<span style="color: #949494;">e</span><span style="color: #BB0000;">-82</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> k_5       5 III        1.14<span style="color: #949494;">e</span><span style="color: #BB0000;">-93</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">11</span> k_5       1 Vapaa#aika 1.05<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">12</span> k_5       2 Vapaa#aika 6.92<span style="color: #949494;">e</span><span style="color: #BB0000;">-16</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">13</span> k_5       3 Vapaa#aika 4.73<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">14</span> k_5       4 Vapaa#aika 1.42<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">15</span> k_5       5 Vapaa#aika 7.14<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">16</span> k_5       1 aiheuttaa  1.05<span style="color: #949494;">e</span><span style="color: #BB0000;">- 3</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">17</span> k_5       2 aiheuttaa  4.92<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">18</span> k_5       3 aiheuttaa  1.12<span style="color: #949494;">e</span><span style="color: #BB0000;">- 3</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">19</span> k_5       4 aiheuttaa  1.89<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">20</span> k_5       5 aiheuttaa  1.70<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">21</span> k_5       1 aika       4.62<span style="color: #949494;">e</span><span style="color: #BB0000;">- 3</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">22</span> k_5       2 aika       5.27<span style="color: #949494;">e</span><span style="color: #BB0000;">- 3</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">23</span> k_5       3 aika       3.66<span style="color: #949494;">e</span><span style="color: #BB0000;">- 3</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">24</span> k_5       4 aika       4.55<span style="color: #949494;">e</span><span style="color: #BB0000;">- 3</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">25</span> k_5       5 aika       8.22<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 180,574 more rows</span></span></span></code></pre></div>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">topic_congruence</span> <span class="op">&lt;-</span> <span class="va">beta_matrix</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://tidyr.tidyverse.org/reference/pivot_wider.html" class="external-link">pivot_wider</a></span><span class="op">(</span>values_from <span class="op">=</span> <span class="va">beta</span>, names_from <span class="op">=</span> <span class="va">topic</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/rename.html" class="external-link">rename_with</a></span><span class="op">(</span><span class="op">~</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"Topic_"</span>, <span class="va">.</span><span class="op">)</span>, <span class="fu"><a href="https://tidyselect.r-lib.org/reference/where.html" class="external-link">where</a></span><span class="op">(</span><span class="va">is.numeric</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="op">-</span><span class="va">term</span><span class="op">)</span></span>
-<span><span class="va">topic_congruence</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 12,244 × 22</span></span></span>
-<span><span class="co">#&gt;    model  Topic_1  Topic_2   Topic_3  Topic_4  Topic_5 Topic_6 Topic_7 Topic_8</span></span>
-<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> k_5   1.08<span style="color: #949494;">e</span><span style="color: #BB0000;">-11</span> 1.47<span style="color: #949494;">e</span><span style="color: #BB0000;">-19</span> 0.000<span style="text-decoration: underline;">355</span>  1.51<span style="color: #949494;">e</span><span style="color: #BB0000;">-14</span> 2.72<span style="color: #949494;">e</span><span style="color: #BB0000;">-10</span>      <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> k_5   6.04<span style="color: #949494;">e</span><span style="color: #BB0000;">-95</span> 1.54<span style="color: #949494;">e</span><span style="color: #BB0000;">-95</span> 0.000<span style="text-decoration: underline;">039</span>4 1.27<span style="color: #949494;">e</span><span style="color: #BB0000;">-82</span> 1.14<span style="color: #949494;">e</span><span style="color: #BB0000;">-93</span>      <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> k_5   1.05<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span> 6.92<span style="color: #949494;">e</span><span style="color: #BB0000;">-16</span> 0.000<span style="text-decoration: underline;">473</span>  1.42<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span> 7.14<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span>      <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> k_5   1.05<span style="color: #949494;">e</span><span style="color: #BB0000;">- 3</span> 4.92<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span> 0.001<span style="text-decoration: underline;">12</span>   1.89<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span> 1.70<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span>      <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> k_5   4.62<span style="color: #949494;">e</span><span style="color: #BB0000;">- 3</span> 5.27<span style="color: #949494;">e</span><span style="color: #BB0000;">- 3</span> 0.003<span style="text-decoration: underline;">66</span>   4.55<span style="color: #949494;">e</span><span style="color: #BB0000;">- 3</span> 8.22<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span>      <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> k_5   8.04<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span> 5.01<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span> 0.000<span style="text-decoration: underline;">366</span>  4.75<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span> 7.02<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span>      <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> k_5   1.04<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span> 1.86<span style="color: #949494;">e</span><span style="color: #BB0000;">- 5</span> 0.000<span style="text-decoration: underline;">138</span>  7.25<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span> 1.04<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span>      <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> k_5   2.54<span style="color: #949494;">e</span><span style="color: #BB0000;">- 5</span> 2.88<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span> 0.000<span style="text-decoration: underline;">501</span>  5.84<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span> 1.37<span style="color: #949494;">e</span><span style="color: #BB0000;">- 8</span>      <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> k_5   3.42<span style="color: #949494;">e</span><span style="color: #BB0000;">- 5</span> 5.25<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span> 0.000<span style="text-decoration: underline;">952</span>  4.34<span style="color: #949494;">e</span><span style="color: #BB0000;">- 5</span> 3.26<span style="color: #949494;">e</span><span style="color: #BB0000;">- 5</span>      <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> k_5   8.09<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span> 8.03<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span> 0.000<span style="text-decoration: underline;">667</span>  1.09<span style="color: #949494;">e</span><span style="color: #BB0000;">- 3</span> 1.96<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span>      <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 12,234 more rows</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 13 more variables: Topic_9 &lt;dbl&gt;, Topic_10 &lt;dbl&gt;, Topic_11 &lt;dbl&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   Topic_12 &lt;dbl&gt;, Topic_13 &lt;dbl&gt;, Topic_14 &lt;dbl&gt;, Topic_15 &lt;dbl&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   Topic_16 &lt;dbl&gt;, Topic_17 &lt;dbl&gt;, Topic_18 &lt;dbl&gt;, Topic_19 &lt;dbl&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   Topic_20 &lt;dbl&gt;, Topic_21 &lt;dbl&gt;</span></span></span></code></pre></div>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">k_5_k_15</span> <span class="op">&lt;-</span>  <span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">topic_congruence</span><span class="op">[</span><span class="va">topic_congruence</span><span class="op">$</span><span class="va">model</span><span class="op">==</span><span class="st">"k_5"</span>, <span class="fl">2</span><span class="op">:</span><span class="fl">6</span><span class="op">]</span>, <span class="va">topic_congruence</span><span class="op">[</span><span class="va">topic_congruence</span><span class="op">$</span><span class="va">model</span><span class="op">==</span><span class="st">"k_15"</span>, <span class="fl">2</span><span class="op">:</span><span class="fl">16</span><span class="op">]</span><span class="op">)</span></span>
-<span><span class="va">k_5_k_18</span> <span class="op">&lt;-</span>  <span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">topic_congruence</span><span class="op">[</span><span class="va">topic_congruence</span><span class="op">$</span><span class="va">model</span><span class="op">==</span><span class="st">"k_5"</span>, <span class="fl">2</span><span class="op">:</span><span class="fl">6</span><span class="op">]</span>, <span class="va">topic_congruence</span><span class="op">[</span><span class="va">topic_congruence</span><span class="op">$</span><span class="va">model</span><span class="op">==</span><span class="st">"k_18"</span>, <span class="fl">2</span><span class="op">:</span><span class="fl">19</span><span class="op">]</span><span class="op">)</span></span>
-<span><span class="va">k_5_k_21</span> <span class="op">&lt;-</span>  <span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">topic_congruence</span><span class="op">[</span><span class="va">topic_congruence</span><span class="op">$</span><span class="va">model</span><span class="op">==</span><span class="st">"k_5"</span>, <span class="fl">2</span><span class="op">:</span><span class="fl">6</span><span class="op">]</span>, <span class="va">topic_congruence</span><span class="op">[</span><span class="va">topic_congruence</span><span class="op">$</span><span class="va">model</span><span class="op">==</span><span class="st">"k_21"</span>, <span class="fl">2</span><span class="op">:</span><span class="fl">22</span><span class="op">]</span><span class="op">)</span></span>
-<span><span class="va">k_15_k_18</span> <span class="op">&lt;-</span>  <span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">topic_congruence</span><span class="op">[</span><span class="va">topic_congruence</span><span class="op">$</span><span class="va">model</span><span class="op">==</span><span class="st">"k_15"</span>, <span class="fl">2</span><span class="op">:</span><span class="fl">16</span><span class="op">]</span>, <span class="va">topic_congruence</span><span class="op">[</span><span class="va">topic_congruence</span><span class="op">$</span><span class="va">model</span><span class="op">==</span><span class="st">"k_18"</span>, <span class="fl">2</span><span class="op">:</span><span class="fl">19</span><span class="op">]</span><span class="op">)</span></span>
-<span><span class="va">k_15_k_21</span> <span class="op">&lt;-</span>  <span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">topic_congruence</span><span class="op">[</span><span class="va">topic_congruence</span><span class="op">$</span><span class="va">model</span><span class="op">==</span><span class="st">"k_15"</span>, <span class="fl">2</span><span class="op">:</span><span class="fl">16</span><span class="op">]</span>, <span class="va">topic_congruence</span><span class="op">[</span><span class="va">topic_congruence</span><span class="op">$</span><span class="va">model</span><span class="op">==</span><span class="st">"k_21"</span>, <span class="fl">2</span><span class="op">:</span><span class="fl">22</span><span class="op">]</span><span class="op">)</span></span>
-<span><span class="va">k_18_k_21</span> <span class="op">&lt;-</span>  <span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">topic_congruence</span><span class="op">[</span><span class="va">topic_congruence</span><span class="op">$</span><span class="va">model</span><span class="op">==</span><span class="st">"k_18"</span>, <span class="fl">2</span><span class="op">:</span><span class="fl">19</span><span class="op">]</span>, <span class="va">topic_congruence</span><span class="op">[</span><span class="va">topic_congruence</span><span class="op">$</span><span class="va">model</span><span class="op">==</span><span class="st">"k_21"</span>, <span class="fl">2</span><span class="op">:</span><span class="fl">22</span><span class="op">]</span><span class="op">)</span></span>
-<span><span class="va">topic_correlation</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">k_5_k_15</span>, <span class="va">k_5_k_18</span>, <span class="va">k_5_k_21</span>, <span class="va">k_15_k_18</span>, <span class="va">k_15_k_21</span>, <span class="va">k_18_k_21</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">topic_correlation</span><span class="op">)</span> <span class="op">&lt;-</span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"k_5_vs_k_15"</span>, <span class="st">"k_5_vs_k_18"</span>, <span class="st">"k_5_vs_k_21"</span>, <span class="st">"k_15_vs_k_18"</span>, <span class="st">"k_15_vs_k_21"</span>, <span class="st">"k_18_vs_k_21"</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">topic_correlation</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span></span>
-<span>    <span class="fu"><a href="https://tidyr.tidyverse.org/reference/pivot_longer.html" class="external-link">pivot_longer</a></span><span class="op">(</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/as_tibble.html" class="external-link">as_tibble</a></span><span class="op">(</span><span class="va">topic_correlation</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span>, rownames <span class="op">=</span> <span class="st">"model1"</span><span class="op">)</span>, <span class="op">!</span><span class="va">model1</span>, names_to <span class="op">=</span> <span class="st">"model2"</span>, values_to <span class="op">=</span> <span class="st">"correlation"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>      <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>topic_nro1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">as.integer</a></span><span class="op">(</span><span class="fu">stringr</span><span class="fu">::</span><span class="fu"><a href="https://stringr.tidyverse.org/reference/str_extract.html" class="external-link">str_extract</a></span><span class="op">(</span><span class="va">model1</span>, <span class="st">"\\d+"</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>             topic_nro2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">as.integer</a></span><span class="op">(</span><span class="fu">stringr</span><span class="fu">::</span><span class="fu"><a href="https://stringr.tidyverse.org/reference/str_extract.html" class="external-link">str_extract</a></span><span class="op">(</span><span class="va">model2</span>, <span class="st">"\\d+"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>      <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu">forcats</span><span class="fu">::</span><span class="fu"><a href="https://forcats.tidyverse.org/reference/fct_reorder.html" class="external-link">fct_reorder</a></span><span class="op">(</span><span class="va">model1</span>, <span class="va">topic_nro1</span>, <span class="va">sum</span><span class="op">)</span>, y <span class="op">=</span> <span class="fu">forcats</span><span class="fu">::</span><span class="fu"><a href="https://forcats.tidyverse.org/reference/fct_reorder.html" class="external-link">fct_reorder</a></span><span class="op">(</span><span class="va">model2</span>, <span class="va">topic_nro2</span>, <span class="va">sum</span><span class="op">)</span>, fill <span class="op">=</span> <span class="va">correlation</span>, label <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">correlation</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>      <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_tile.html" class="external-link">geom_tile</a></span><span class="op">(</span>show.legend <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">+</span></span>
-<span>      <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_text.html" class="external-link">geom_text</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
-<span>      <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>axis.text.x <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_text</a></span><span class="op">(</span>angle <span class="op">=</span> <span class="fl">90</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>      <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>subtitle <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">topic_correlation</span><span class="op">)</span><span class="op">[</span><span class="va">i</span><span class="op">]</span><span class="op">)</span> <span class="op">+</span></span>
-<span>      <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_viridis.html" class="external-link">scale_fill_viridis_c</a></span><span class="op">(</span>option <span class="op">=</span> <span class="st">"A"</span><span class="op">)</span></span>
+<p><img src="3-Topic-modeling_files/figure-html/unnamed-chunk-7-1.png" width="700"></p>
+<blockquote>
+<p>NOTE! Coherence scores can change even for smallest adjustments to
+pre processing pipeline. Make your mind on those first and stick to
+it.</p>
+</blockquote>
+<p>Highest coherence values: 6, 10, 16</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">selected_models</span> <span class="op">&lt;-</span> <span class="va">lda_models</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">K</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">optimal_k</span><span class="op">)</span></span>
+<span><span class="va">selected_models</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 3 × 3</span></span></span>
+<span><span class="co">#&gt;       K topic_model mean_coherence</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>               <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>     6 <span style="color: #949494;">&lt;LDA_VEM&gt;</span>            -<span style="color: #BB0000;">8.63</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span>    10 <span style="color: #949494;">&lt;LDA_VEM&gt;</span>           -<span style="color: #BB0000;">12.3</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span>    16 <span style="color: #949494;">&lt;LDA_VEM&gt;</span>           -<span style="color: #BB0000;">10.7</span></span></span></code></pre></div>
+<p>Extract beta and theta matrices with probabilities for terms per
+topic and documents per topic repectively.</p>
+<blockquote>
+<p>Note! <code><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidytext::tidy()</a></code> uses term gamma-matrix while in
+the research field term theta-matrix is used to describe probability
+distribution of topics per document. Here we rename gamma as theta. Do
+not get confused if at some point you come around with gamma instead of
+theta.</p>
+</blockquote>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">selected_models</span> <span class="op">&lt;-</span> <span class="va">selected_models</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
+<span>    <span class="co"># Beta matrix</span></span>
+<span>    beta <span class="op">=</span> <span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map</a></span><span class="op">(</span></span>
+<span>      <span class="va">topic_model</span>, \<span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x</span>, matrix <span class="op">=</span> <span class="st">"beta"</span><span class="op">)</span></span>
+<span>    <span class="op">)</span>,</span>
+<span>    <span class="co"># Theta matrix (gamma)</span></span>
+<span>    theta <span class="op">=</span> <span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map</a></span><span class="op">(</span></span>
+<span>      <span class="va">topic_model</span>, \<span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">{</span></span>
+<span>        <span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x</span>, matrix <span class="op">=</span> <span class="st">"gamma"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>          <span class="fu"><a href="https://dplyr.tidyverse.org/reference/rename.html" class="external-link">rename</a></span><span class="op">(</span>theta <span class="op">=</span> <span class="va">gamma</span><span class="op">)</span></span>
+<span>      <span class="op">}</span></span>
 <span>    <span class="op">)</span></span>
-<span><span class="op">}</span></span></code></pre></div>
-<p><img src="3-Topic-modeling_files/figure-html/unnamed-chunk-14-1.png" width="700"><img src="3-Topic-modeling_files/figure-html/unnamed-chunk-14-2.png" width="700"><img src="3-Topic-modeling_files/figure-html/unnamed-chunk-14-3.png" width="700"><img src="3-Topic-modeling_files/figure-html/unnamed-chunk-14-4.png" width="700"><img src="3-Topic-modeling_files/figure-html/unnamed-chunk-14-5.png" width="700"><img src="3-Topic-modeling_files/figure-html/unnamed-chunk-14-6.png" width="700"></p>
+<span>  <span class="op">)</span></span>
+<span><span class="va">selected_models</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 3 × 5</span></span></span>
+<span><span class="co">#&gt;       K topic_model mean_coherence beta                  theta               </span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>               <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>                <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>              </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>     6 <span style="color: #949494;">&lt;LDA_VEM&gt;</span>            -<span style="color: #BB0000;">8.63</span> <span style="color: #949494;">&lt;tibble [18,228 × 3]&gt;</span> <span style="color: #949494;">&lt;tibble [408 × 3]&gt;</span>  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span>    10 <span style="color: #949494;">&lt;LDA_VEM&gt;</span>           -<span style="color: #BB0000;">12.3</span>  <span style="color: #949494;">&lt;tibble [30,380 × 3]&gt;</span> <span style="color: #949494;">&lt;tibble [680 × 3]&gt;</span>  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span>    16 <span style="color: #949494;">&lt;LDA_VEM&gt;</span>           -<span style="color: #BB0000;">10.7</span>  <span style="color: #949494;">&lt;tibble [48,608 × 3]&gt;</span> <span style="color: #949494;">&lt;tibble [1,088 × 3]&gt;</span></span></span></code></pre></div>
+<p>This is all good. Next parts look ugly but hopefully they work. We
+take a look at correlation between topics from different models to see
+if different models catch up same things.</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">topic_congruence</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="va">selected_models</span><span class="op">$</span><span class="va">K</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">topic_congruence</span><span class="op">[[</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"model-"</span>, <span class="va">i</span><span class="op">)</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">selected_models</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">K</span>, <span class="va">beta</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://tidyr.tidyverse.org/reference/unnest.html" class="external-link">unnest</a></span><span class="op">(</span><span class="va">beta</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">K</span><span class="op">==</span><span class="va">i</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://tidyr.tidyverse.org/reference/pivot_wider.html" class="external-link">pivot_wider</a></span><span class="op">(</span>values_from <span class="op">=</span> <span class="va">beta</span>, names_from <span class="op">=</span> <span class="va">topic</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="op">-</span><span class="va">term</span>, <span class="op">-</span><span class="va">K</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span><span class="va">topic_congruence</span></span>
+<span><span class="co">#&gt; $`model-6`</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 3,038 × 6</span></span></span>
+<span><span class="co">#&gt;         `1`           `2`      `3`       `4`      `5`      `6`</span></span>
+<span><span class="co">#&gt;       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> 4.24<span style="color: #949494;">e</span><span style="color: #BB0000;">- 9</span> 0.000<span style="text-decoration: underline;">000</span>003<span style="text-decoration: underline;">45</span> 4.49<span style="color: #949494;">e</span><span style="color: #BB0000;">- 6</span> 2.04<span style="color: #949494;">e</span><span style="color: #BB0000;">-110</span> 0.000<span style="text-decoration: underline;">391</span> 4.95<span style="color: #949494;">e</span><span style="color: #BB0000;">-13</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> 4.63<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span> 0.000<span style="text-decoration: underline;">191</span>      1.93<span style="color: #949494;">e</span><span style="color: #BB0000;">-11</span> 4.22<span style="color: #949494;">e</span><span style="color: #BB0000;">-  7</span> 0.000<span style="text-decoration: underline;">304</span> 6.88<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> 1.60<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span> 0.001<span style="text-decoration: underline;">06</span>       3.90<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span> 4.59<span style="color: #949494;">e</span><span style="color: #BB0000;">-  4</span> 0.001<span style="text-decoration: underline;">07</span>  2.73<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> 1.56<span style="color: #949494;">e</span><span style="color: #BB0000;">- 3</span> 0.005<span style="text-decoration: underline;">06</span>       1.47<span style="color: #949494;">e</span><span style="color: #BB0000;">- 3</span> 5.25<span style="color: #949494;">e</span><span style="color: #BB0000;">-  3</span> 0.003<span style="text-decoration: underline;">94</span>  4.20<span style="color: #949494;">e</span><span style="color: #BB0000;">- 3</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> 7.87<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span> 0.000<span style="text-decoration: underline;">681</span>      2.95<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span> 5.99<span style="color: #949494;">e</span><span style="color: #BB0000;">-  4</span> 0.000<span style="text-decoration: underline;">410</span> 6.34<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> 5.28<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span> 0.000<span style="text-decoration: underline;">103</span>      6.94<span style="color: #949494;">e</span><span style="color: #BB0000;">- 9</span> 2.57<span style="color: #949494;">e</span><span style="color: #BB0000;">-  4</span> 0.000<span style="text-decoration: underline;">133</span> 2.58<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> 4.37<span style="color: #949494;">e</span><span style="color: #BB0000;">- 5</span> 0.000<span style="text-decoration: underline;">137</span>      7.85<span style="color: #949494;">e</span><span style="color: #BB0000;">- 5</span> 2.91<span style="color: #949494;">e</span><span style="color: #BB0000;">-  4</span> 0.000<span style="text-decoration: underline;">815</span> 3.81<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> 2.83<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span> 0.001<span style="text-decoration: underline;">01</span>       1.32<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span> 1.24<span style="color: #949494;">e</span><span style="color: #BB0000;">-  3</span> 0.000<span style="text-decoration: underline;">735</span> 6.01<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> 2.55<span style="color: #949494;">e</span><span style="color: #BB0000;">-12</span> 0.000<span style="text-decoration: underline;">104</span>      2.40<span style="color: #949494;">e</span><span style="color: #BB0000;">-10</span> 7.23<span style="color: #949494;">e</span><span style="color: #BB0000;">- 17</span> 0.000<span style="text-decoration: underline;">399</span> 4.94<span style="color: #949494;">e</span><span style="color: #BB0000;">- 5</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> 2.32<span style="color: #949494;">e</span><span style="color: #BB0000;">- 9</span> 0.000<span style="text-decoration: underline;">000</span>002<span style="text-decoration: underline;">12</span> 3.81<span style="color: #949494;">e</span><span style="color: #BB0000;">- 5</span> 6.89<span style="color: #949494;">e</span><span style="color: #BB0000;">-  5</span> 0.000<span style="text-decoration: underline;">371</span> 2.31<span style="color: #949494;">e</span><span style="color: #BB0000;">- 5</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 3,028 more rows</span></span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $`model-10`</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 3,038 × 10</span></span></span>
+<span><span class="co">#&gt;          `1`      `2`      `3`      `4`      `5`      `6`      `7`       `8`</span></span>
+<span><span class="co">#&gt;        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> 9.26<span style="color: #949494;">e</span><span style="color: #BB0000;">-160</span> 6.52<span style="color: #949494;">e</span><span style="color: #BB0000;">- 8</span> 4.70<span style="color: #949494;">e</span><span style="color: #BB0000;">-12</span> 3.40<span style="color: #949494;">e</span><span style="color: #BB0000;">-23</span> 1.72<span style="color: #949494;">e</span><span style="color: #BB0000;">-39</span> 6.28<span style="color: #949494;">e</span><span style="color: #BB0000;">-10</span> 3.27<span style="color: #949494;">e</span><span style="color: #BB0000;">-14</span> 0.000<span style="text-decoration: underline;">420</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> 3.22<span style="color: #949494;">e</span><span style="color: #BB0000;">-  4</span> 1.41<span style="color: #949494;">e</span><span style="color: #BB0000;">-10</span> 1.43<span style="color: #949494;">e</span><span style="color: #BB0000;">- 8</span> 6.92<span style="color: #949494;">e</span><span style="color: #BB0000;">-20</span> 1.27<span style="color: #949494;">e</span><span style="color: #BB0000;">- 3</span> 3.16<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span> 1.45<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span> 0.000<span style="text-decoration: underline;">360</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> 2.44<span style="color: #949494;">e</span><span style="color: #BB0000;">-  4</span> 3.10<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span> 7.23<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span> 9.69<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span> 7.72<span style="color: #949494;">e</span><span style="color: #BB0000;">- 7</span> 3.33<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span> 1.06<span style="color: #949494;">e</span><span style="color: #BB0000;">- 3</span> 0.000<span style="text-decoration: underline;">856</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> 4.18<span style="color: #949494;">e</span><span style="color: #BB0000;">-  3</span> 4.05<span style="color: #949494;">e</span><span style="color: #BB0000;">- 3</span> 1.92<span style="color: #949494;">e</span><span style="color: #BB0000;">- 3</span> 4.62<span style="color: #949494;">e</span><span style="color: #BB0000;">- 3</span> 5.25<span style="color: #949494;">e</span><span style="color: #BB0000;">- 3</span> 1.47<span style="color: #949494;">e</span><span style="color: #BB0000;">- 3</span> 4.28<span style="color: #949494;">e</span><span style="color: #BB0000;">- 3</span> 0.002<span style="text-decoration: underline;">94</span>  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> 3.41<span style="color: #949494;">e</span><span style="color: #BB0000;">-  4</span> 4.20<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span> 5.53<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span> 7.71<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span> 3.64<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span> 4.26<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span> 1.28<span style="color: #949494;">e</span><span style="color: #BB0000;">- 3</span> 0.000<span style="text-decoration: underline;">785</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> 7.17<span style="color: #949494;">e</span><span style="color: #BB0000;">-  4</span> 8.94<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span> 7.22<span style="color: #949494;">e</span><span style="color: #BB0000;">- 5</span> 7.56<span style="color: #949494;">e</span><span style="color: #BB0000;">- 5</span> 2.31<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span> 2.75<span style="color: #949494;">e</span><span style="color: #BB0000;">- 5</span> 5.39<span style="color: #949494;">e</span><span style="color: #BB0000;">- 5</span> 0.000<span style="text-decoration: underline;">158</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> 6.94<span style="color: #949494;">e</span><span style="color: #BB0000;">- 23</span> 4.81<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span> 4.67<span style="color: #949494;">e</span><span style="color: #BB0000;">- 5</span> 5.55<span style="color: #949494;">e</span><span style="color: #BB0000;">- 6</span> 3.06<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span> 2.29<span style="color: #949494;">e</span><span style="color: #BB0000;">- 5</span> 7.59<span style="color: #949494;">e</span><span style="color: #BB0000;">-15</span> 0.000<span style="text-decoration: underline;">568</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> 1.74<span style="color: #949494;">e</span><span style="color: #BB0000;">-  3</span> 4.21<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span> 1.32<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span> 7.88<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span> 9.14<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span> 4.70<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span> 3.12<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span> 0.000<span style="text-decoration: underline;">547</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> 3.01<span style="color: #949494;">e</span><span style="color: #BB0000;">- 27</span> 1.05<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span> 3.70<span style="color: #949494;">e</span><span style="color: #BB0000;">-14</span> 4.40<span style="color: #949494;">e</span><span style="color: #BB0000;">- 5</span> 2.13<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span> 1.59<span style="color: #949494;">e</span><span style="color: #BB0000;">-17</span> 1.13<span style="color: #949494;">e</span><span style="color: #BB0000;">-42</span> 0.000<span style="text-decoration: underline;">319</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> 3.06<span style="color: #949494;">e</span><span style="color: #BB0000;">- 18</span> 4.33<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span> 1.17<span style="color: #949494;">e</span><span style="color: #BB0000;">- 7</span> 6.18<span style="color: #949494;">e</span><span style="color: #BB0000;">-23</span> 5.45<span style="color: #949494;">e</span><span style="color: #BB0000;">-16</span> 3.84<span style="color: #949494;">e</span><span style="color: #BB0000;">- 5</span> 7.06<span style="color: #949494;">e</span><span style="color: #BB0000;">- 5</span> 0.000<span style="text-decoration: underline;">096</span>3</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 3,028 more rows</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 2 more variables: `9` &lt;dbl&gt;, `10` &lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $`model-16`</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 3,038 × 16</span></span></span>
+<span><span class="co">#&gt;          `1`      `2`       `3`      `4`      `5`       `6`       `7`       `8`</span></span>
+<span><span class="co">#&gt;        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> 5.82<span style="color: #949494;">e</span><span style="color: #BB0000;">- 62</span> 1.33<span style="color: #949494;">e</span><span style="color: #BB0000;">-12</span> 3.84<span style="color: #949494;">e</span><span style="color: #BB0000;">- 93</span> 3.78<span style="color: #949494;">e</span><span style="color: #BB0000;">-41</span> 4.15<span style="color: #949494;">e</span><span style="color: #BB0000;">-11</span> 5.52<span style="color: #949494;">e</span><span style="color: #BB0000;">-164</span> 4.94<span style="color: #949494;">e</span><span style="color: #BB0000;">- 13</span> 7.06<span style="color: #949494;">e</span><span style="color: #BB0000;">-164</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> 1.42<span style="color: #949494;">e</span><span style="color: #BB0000;">-  4</span> 2.54<span style="color: #949494;">e</span><span style="color: #BB0000;">-24</span> 1.27<span style="color: #949494;">e</span><span style="color: #BB0000;">-140</span> 6.70<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span> 2.01<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span> 6.17<span style="color: #949494;">e</span><span style="color: #BB0000;">- 52</span> 1.63<span style="color: #949494;">e</span><span style="color: #BB0000;">-  4</span> 3.78<span style="color: #949494;">e</span><span style="color: #BB0000;">-  4</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> 1.15<span style="color: #949494;">e</span><span style="color: #BB0000;">-  3</span> 3.14<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span> 6.23<span style="color: #949494;">e</span><span style="color: #BB0000;">-  4</span> 1.75<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span> 4.41<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span> 3.40<span style="color: #949494;">e</span><span style="color: #BB0000;">-  4</span> 2.18<span style="color: #949494;">e</span><span style="color: #BB0000;">-  4</span> 1.25<span style="color: #949494;">e</span><span style="color: #BB0000;">-  3</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> 4.64<span style="color: #949494;">e</span><span style="color: #BB0000;">-  3</span> 4.62<span style="color: #949494;">e</span><span style="color: #BB0000;">- 3</span> 4.48<span style="color: #949494;">e</span><span style="color: #BB0000;">-  3</span> 1.44<span style="color: #949494;">e</span><span style="color: #BB0000;">- 3</span> 3.04<span style="color: #949494;">e</span><span style="color: #BB0000;">- 3</span> 5.27<span style="color: #949494;">e</span><span style="color: #BB0000;">-  3</span> 4.29<span style="color: #949494;">e</span><span style="color: #BB0000;">-  3</span> 3.52<span style="color: #949494;">e</span><span style="color: #BB0000;">-  4</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> 1.24<span style="color: #949494;">e</span><span style="color: #BB0000;">-  3</span> 3.72<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span> 6.77<span style="color: #949494;">e</span><span style="color: #BB0000;">-  4</span> 1.30<span style="color: #949494;">e</span><span style="color: #BB0000;">- 3</span> 6.07<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span> 4.11<span style="color: #949494;">e</span><span style="color: #BB0000;">-  4</span> 6.69<span style="color: #949494;">e</span><span style="color: #BB0000;">-  4</span> 3.12<span style="color: #949494;">e</span><span style="color: #BB0000;">-  4</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> 8.25<span style="color: #949494;">e</span><span style="color: #BB0000;">-  5</span> 2.06<span style="color: #949494;">e</span><span style="color: #BB0000;">-12</span> 1.12<span style="color: #949494;">e</span><span style="color: #BB0000;">-  4</span> 1.57<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span> 1.52<span style="color: #949494;">e</span><span style="color: #BB0000;">- 7</span> 1.38<span style="color: #949494;">e</span><span style="color: #BB0000;">- 22</span> 3.22<span style="color: #949494;">e</span><span style="color: #BB0000;">-  4</span> 1.12<span style="color: #949494;">e</span><span style="color: #BB0000;">- 36</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> 3.58<span style="color: #949494;">e</span><span style="color: #BB0000;">- 18</span> 3.77<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span> 4.36<span style="color: #949494;">e</span><span style="color: #BB0000;">-  4</span> 4.92<span style="color: #949494;">e</span><span style="color: #BB0000;">-18</span> 5.71<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span> 6.19<span style="color: #949494;">e</span><span style="color: #BB0000;">-  4</span> 3.81<span style="color: #949494;">e</span><span style="color: #BB0000;">-  4</span> 9.55<span style="color: #949494;">e</span><span style="color: #BB0000;">- 11</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> 3.89<span style="color: #949494;">e</span><span style="color: #BB0000;">-  4</span> 3.09<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span> 6.55<span style="color: #949494;">e</span><span style="color: #BB0000;">-  4</span> 4.38<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span> 7.67<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span> 1.19<span style="color: #949494;">e</span><span style="color: #BB0000;">-  3</span> 6.44<span style="color: #949494;">e</span><span style="color: #BB0000;">-  4</span> 3.50<span style="color: #949494;">e</span><span style="color: #BB0000;">-  4</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> 1.56<span style="color: #949494;">e</span><span style="color: #BB0000;">-188</span> 1.55<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span> 1.09<span style="color: #949494;">e</span><span style="color: #BB0000;">-  4</span> 5.22<span style="color: #949494;">e</span><span style="color: #BB0000;">-64</span> 9.16<span style="color: #949494;">e</span><span style="color: #BB0000;">- 5</span> 1.58<span style="color: #949494;">e</span><span style="color: #BB0000;">-164</span> 8.17<span style="color: #949494;">e</span><span style="color: #BB0000;">-  5</span> 6.88<span style="color: #949494;">e</span><span style="color: #BB0000;">- 93</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> 3.10<span style="color: #949494;">e</span><span style="color: #BB0000;">- 24</span> 1.37<span style="color: #949494;">e</span><span style="color: #BB0000;">-34</span> 2.52<span style="color: #949494;">e</span><span style="color: #BB0000;">-188</span> 1.74<span style="color: #949494;">e</span><span style="color: #BB0000;">- 8</span> 5.49<span style="color: #949494;">e</span><span style="color: #BB0000;">- 4</span> 1.83<span style="color: #949494;">e</span><span style="color: #BB0000;">-  4</span> 8.68<span style="color: #949494;">e</span><span style="color: #BB0000;">-130</span> 2.06<span style="color: #949494;">e</span><span style="color: #BB0000;">-164</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 3,028 more rows</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 8 more variables: `9` &lt;dbl&gt;, `10` &lt;dbl&gt;, `11` &lt;dbl&gt;, `12` &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   `13` &lt;dbl&gt;, `14` &lt;dbl&gt;, `15` &lt;dbl&gt;, `16` &lt;dbl&gt;</span></span></span></code></pre></div>
+<p>Compare all possible pairs of models:</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># combn(selected_models$K, 2)</span></span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">topic_congruence2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="kw">for</span> <span class="op">(</span><span class="va">idx_col</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/combn.html" class="external-link">combn</a></span><span class="op">(</span><span class="va">selected_models</span><span class="op">$</span><span class="va">K</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">idx</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/combn.html" class="external-link">combn</a></span><span class="op">(</span><span class="va">selected_models</span><span class="op">$</span><span class="va">K</span>, <span class="fl">2</span><span class="op">)</span><span class="op">[</span>, <span class="va">idx_col</span><span class="op">]</span></span>
+<span>  <span class="va">correlation</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">topic_congruence</span><span class="op">[[</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"model-"</span>, <span class="va">idx</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span><span class="op">]</span><span class="op">]</span>, <span class="va">topic_congruence</span><span class="op">[[</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"model-"</span>, <span class="va">idx</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
+<span>  <span class="va">topic_congruence2</span><span class="op">[[</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"model-"</span>, <span class="va">idx</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, <span class="st">"-"</span>, <span class="va">idx</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">correlation</span> <span class="op">|&gt;</span> </span>
+<span>    <span class="fu"><a href="https://tibble.tidyverse.org/reference/as_tibble.html" class="external-link">as_tibble</a></span><span class="op">(</span>rownames <span class="op">=</span> <span class="st">"topic1"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="https://tidyr.tidyverse.org/reference/pivot_longer.html" class="external-link">pivot_longer</a></span><span class="op">(</span><span class="op">!</span><span class="va">topic1</span>, names_to <span class="op">=</span> <span class="st">"topic2"</span>, values_to <span class="op">=</span> <span class="st">"r"</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span><span class="va">topic_congruence2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind_rows.html" class="external-link">bind_rows</a></span><span class="op">(</span><span class="va">topic_congruence2</span>, .id <span class="op">=</span> <span class="st">"model-K"</span><span class="op">)</span></span>
+<span><span class="va">topic_congruence2</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 316 × 4</span></span></span>
+<span><span class="co">#&gt;    `model-K`  topic1 topic2     r</span></span>
+<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> model-6-10 1      1      0.347</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> model-6-10 1      2      0.677</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> model-6-10 1      3      0.766</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> model-6-10 1      4      0.338</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> model-6-10 1      5      0.589</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> model-6-10 1      6      0.590</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> model-6-10 1      7      0.500</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> model-6-10 1      8      0.702</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> model-6-10 1      9      0.528</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> model-6-10 1      10     0.464</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 306 more rows</span></span></span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">topic_congruence2</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>`model-K`<span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">`model-K`</span><span class="op">)</span>,</span>
+<span>         topic1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">as.integer</a></span><span class="op">(</span><span class="va">topic1</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>         topic2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">as.integer</a></span><span class="op">(</span><span class="va">topic2</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>         r <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">r</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">topic1</span>, y <span class="op">=</span> <span class="va">topic2</span>, fill <span class="op">=</span> <span class="va">r</span>, label <span class="op">=</span> <span class="va">r</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_tile.html" class="external-link">geom_tile</a></span><span class="op">(</span>show.legend <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_text.html" class="external-link">geom_text</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>axis.text.x <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_text</a></span><span class="op">(</span>angle <span class="op">=</span> <span class="fl">90</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Topic congruence between different models"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_viridis.html" class="external-link">scale_fill_viridis_c</a></span><span class="op">(</span>option <span class="op">=</span> <span class="st">"A"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">`model-K`</span>, scales <span class="op">=</span> <span class="st">"free"</span>, ncol <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
+<p><img src="3-Topic-modeling_files/figure-html/unnamed-chunk-13-1.png" width="1344"></p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">selected_models</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">K</span>, <span class="va">theta</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://tidyr.tidyverse.org/reference/unnest.html" class="external-link">unnest</a></span><span class="op">(</span><span class="va">theta</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>topic <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">as.integer</a></span><span class="op">(</span><span class="va">topic</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarise</a></span><span class="op">(</span>mean_theta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">theta</span><span class="op">)</span>,</span>
+<span>            total_theta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">theta</span><span class="op">)</span>, .by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">K</span>, <span class="va">topic</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_bar.html" class="external-link">geom_col</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">topic</span>, y <span class="op">=</span> <span class="va">total_theta</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Topic prevalence"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">K</span>, scales <span class="op">=</span> <span class="st">"free"</span>, ncol <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
+<p><img src="3-Topic-modeling_files/figure-html/unnamed-chunk-14-1.png" width="1344"></p>
+<p>Theta value is probability of document belonging to or comprising of
+certain topics. Histogram over topic probabilities shows how common it
+is for specific topic to comprise the whole document (height of a column
+at theta 1.0).</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">theta_matrix</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind_rows.html" class="external-link">bind_rows</a></span><span class="op">(</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">lda_models</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="fu">tidytext</span><span class="fu">::</span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">x</span>, matrix <span class="op">=</span> <span class="st">"gamma"</span><span class="op">)</span></span>
-<span>  <span class="op">}</span><span class="op">)</span>,</span>
-<span>  .id <span class="op">=</span> <span class="st">"model"</span><span class="op">)</span></span>
-<span><span class="va">theta_matrix</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 4,012 × 4</span></span></span>
-<span><span class="co">#&gt;    model document    topic     gamma</span></span>
-<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> k_5   Enontekiö       1 0.000<span style="text-decoration: underline;">090</span>3</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> k_5   Espoo           1 0.608    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> k_5   Eura            1 0.000<span style="text-decoration: underline;">087</span>2</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> k_5   Hartola         1 0.000<span style="text-decoration: underline;">107</span> </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> k_5   Hattula         1 0.216    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> k_5   Helsinki        1 0.000<span style="text-decoration: underline;">012</span>9</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> k_5   Huittinen       1 0.026<span style="text-decoration: underline;">0</span>   </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> k_5   Hyvinkää        1 0.050<span style="text-decoration: underline;">0</span>   </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> k_5   Hämeenlinna     1 0.000<span style="text-decoration: underline;">045</span>6</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> k_5   Iitti           1 0.600    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">11</span> k_5   Imatra          1 0.000<span style="text-decoration: underline;">253</span> </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">12</span> k_5   Inkoo           1 0.696    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">13</span> k_5   Joensuu         1 0.070<span style="text-decoration: underline;">6</span>   </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">14</span> k_5   Juva            1 0.000<span style="text-decoration: underline;">062</span>7</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">15</span> k_5   Järvenpää       1 0.000<span style="text-decoration: underline;">116</span> </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">16</span> k_5   Kaarina         1 0.922    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">17</span> k_5   Kalajoki        1 0.000<span style="text-decoration: underline;">710</span> </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">18</span> k_5   Kauniainen      1 0.295    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">19</span> k_5   Kemiönsaari     1 0.900    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">20</span> k_5   Kerava          1 1.00     </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">21</span> k_5   Kokkola         1 0.443    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">22</span> k_5   Kontiolahti     1 0.855    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">23</span> k_5   Kouvola         1 0.000<span style="text-decoration: underline;">032</span>9</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">24</span> k_5   Kuopio          1 0.000<span style="text-decoration: underline;">017</span>2</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">25</span> k_5   Kuusamo         1 0.000<span style="text-decoration: underline;">025</span>2</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 3,987 more rows</span></span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">selected_models</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">K</span>, <span class="va">theta</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://tidyr.tidyverse.org/reference/unnest.html" class="external-link">unnest</a></span><span class="op">(</span><span class="va">theta</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">theta</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_histogram.html" class="external-link">geom_histogram</a></span><span class="op">(</span>binwidth <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Topic histograms"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>axis.text.x <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_text</a></span><span class="op">(</span>angle <span class="op">=</span> <span class="fl">90</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="va">K</span><span class="op">~</span><span class="va">topic</span>, scales <span class="op">=</span> <span class="st">"free_y"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="3-Topic-modeling_files/figure-html/unnamed-chunk-15-1.png" width="1344"></p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">topic_prevalence</span> <span class="op">&lt;-</span>  <span class="va">theta_matrix</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarise</a></span><span class="op">(</span>mean_gamma <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">gamma</span><span class="op">)</span>, median_gamma <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/median.html" class="external-link">median</a></span><span class="op">(</span><span class="va">gamma</span><span class="op">)</span>, .by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">model</span>, <span class="va">topic</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>gamma <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">mean_gamma</span>, <span class="fl">2</span><span class="op">)</span>, <span class="st">" ("</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">median_gamma</span>, <span class="fl">2</span><span class="op">)</span>, <span class="st">")"</span><span class="op">)</span><span class="op">)</span> <span class="co">#|&gt;</span></span>
-<span>  <span class="co"># select(model, topic, gamma) |&gt;</span></span>
-<span>  <span class="co"># tidyr::pivot_wider(names_from =  model, values_from = gamma, values_fill = "")</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/kableExtra/man/kbl.html" class="external-link">kbl</a></span><span class="op">(</span><span class="va">topic_prevalence</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/pkg/kableExtra/man/kable_styling.html" class="external-link">kable_styling</a></span><span class="op">(</span>fixed_thead <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></span></code></pre></div>
-<table class="table table" style="margin-left: auto; margin-right: auto;">
-<thead><tr>
-<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
-model
-</th>
-<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
-topic
-</th>
-<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
-mean_gamma
-</th>
-<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
-median_gamma
-</th>
-<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
-gamma
-</th>
-</tr></thead>
-<tbody>
-<tr>
-<td style="text-align:left;">
-k_5
-</td>
-<td style="text-align:right;">
-1
-</td>
-<td style="text-align:right;">
-0.2040112
-</td>
-<td style="text-align:right;">
-0.0509957
-</td>
-<td style="text-align:left;">
-0.2 (0.05)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-k_5
-</td>
-<td style="text-align:right;">
-2
-</td>
-<td style="text-align:right;">
-0.1712772
-</td>
-<td style="text-align:right;">
-0.0375971
-</td>
-<td style="text-align:left;">
-0.17 (0.04)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-k_5
-</td>
-<td style="text-align:right;">
-3
-</td>
-<td style="text-align:right;">
-0.2643524
-</td>
-<td style="text-align:right;">
-0.0701628
-</td>
-<td style="text-align:left;">
-0.26 (0.07)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-k_5
-</td>
-<td style="text-align:right;">
-4
-</td>
-<td style="text-align:right;">
-0.1519996
-</td>
-<td style="text-align:right;">
-0.0172003
-</td>
-<td style="text-align:left;">
-0.15 (0.02)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-k_5
-</td>
-<td style="text-align:right;">
-5
-</td>
-<td style="text-align:right;">
-0.2083597
-</td>
-<td style="text-align:right;">
-0.0936812
-</td>
-<td style="text-align:left;">
-0.21 (0.09)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-k_15
-</td>
-<td style="text-align:right;">
-1
-</td>
-<td style="text-align:right;">
-0.0869579
-</td>
-<td style="text-align:right;">
-0.0000205
-</td>
-<td style="text-align:left;">
-0.09 (0)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-k_15
-</td>
-<td style="text-align:right;">
-2
-</td>
-<td style="text-align:right;">
-0.0577807
-</td>
-<td style="text-align:right;">
-0.0000156
-</td>
-<td style="text-align:left;">
-0.06 (0)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-k_15
-</td>
-<td style="text-align:right;">
-3
-</td>
-<td style="text-align:right;">
-0.1599603
-</td>
-<td style="text-align:right;">
-0.0000178
-</td>
-<td style="text-align:left;">
-0.16 (0)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-k_15
-</td>
-<td style="text-align:right;">
-4
-</td>
-<td style="text-align:right;">
-0.0241606
-</td>
-<td style="text-align:right;">
-0.0000141
-</td>
-<td style="text-align:left;">
-0.02 (0)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-k_15
-</td>
-<td style="text-align:right;">
-5
-</td>
-<td style="text-align:right;">
-0.0510817
-</td>
-<td style="text-align:right;">
-0.0000213
-</td>
-<td style="text-align:left;">
-0.05 (0)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-k_15
-</td>
-<td style="text-align:right;">
-6
-</td>
-<td style="text-align:right;">
-0.0839495
-</td>
-<td style="text-align:right;">
-0.0000166
-</td>
-<td style="text-align:left;">
-0.08 (0)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-k_15
-</td>
-<td style="text-align:right;">
-7
-</td>
-<td style="text-align:right;">
-0.0268009
-</td>
-<td style="text-align:right;">
-0.0000151
-</td>
-<td style="text-align:left;">
-0.03 (0)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-k_15
-</td>
-<td style="text-align:right;">
-8
-</td>
-<td style="text-align:right;">
-0.0722847
-</td>
-<td style="text-align:right;">
-0.0000189
-</td>
-<td style="text-align:left;">
-0.07 (0)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-k_15
-</td>
-<td style="text-align:right;">
-9
-</td>
-<td style="text-align:right;">
-0.0377999
-</td>
-<td style="text-align:right;">
-0.0000189
-</td>
-<td style="text-align:left;">
-0.04 (0)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-k_15
-</td>
-<td style="text-align:right;">
-10
-</td>
-<td style="text-align:right;">
-0.0588271
-</td>
-<td style="text-align:right;">
-0.0000171
-</td>
-<td style="text-align:left;">
-0.06 (0)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-k_15
-</td>
-<td style="text-align:right;">
-11
-</td>
-<td style="text-align:right;">
-0.0490096
-</td>
-<td style="text-align:right;">
-0.0000141
-</td>
-<td style="text-align:left;">
-0.05 (0)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-k_15
-</td>
-<td style="text-align:right;">
-12
-</td>
-<td style="text-align:right;">
-0.0812845
-</td>
-<td style="text-align:right;">
-0.0000198
-</td>
-<td style="text-align:left;">
-0.08 (0)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-k_15
-</td>
-<td style="text-align:right;">
-13
-</td>
-<td style="text-align:right;">
-0.0591097
-</td>
-<td style="text-align:right;">
-0.0000156
-</td>
-<td style="text-align:left;">
-0.06 (0)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-k_15
-</td>
-<td style="text-align:right;">
-14
-</td>
-<td style="text-align:right;">
-0.0497231
-</td>
-<td style="text-align:right;">
-0.0000189
-</td>
-<td style="text-align:left;">
-0.05 (0)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-k_15
-</td>
-<td style="text-align:right;">
-15
-</td>
-<td style="text-align:right;">
-0.1012697
-</td>
-<td style="text-align:right;">
-0.0000198
-</td>
-<td style="text-align:left;">
-0.1 (0)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-k_18
-</td>
-<td style="text-align:right;">
-1
-</td>
-<td style="text-align:right;">
-0.0706851
-</td>
-<td style="text-align:right;">
-0.0000137
-</td>
-<td style="text-align:left;">
-0.07 (0)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-k_18
-</td>
-<td style="text-align:right;">
-2
-</td>
-<td style="text-align:right;">
-0.0404770
-</td>
-<td style="text-align:right;">
-0.0000097
-</td>
-<td style="text-align:left;">
-0.04 (0)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-k_18
-</td>
-<td style="text-align:right;">
-3
-</td>
-<td style="text-align:right;">
-0.1646664
-</td>
-<td style="text-align:right;">
-0.0000114
-</td>
-<td style="text-align:left;">
-0.16 (0)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-k_18
-</td>
-<td style="text-align:right;">
-4
-</td>
-<td style="text-align:right;">
-0.0526944
-</td>
-<td style="text-align:right;">
-0.0000102
-</td>
-<td style="text-align:left;">
-0.05 (0)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-k_18
-</td>
-<td style="text-align:right;">
-5
-</td>
-<td style="text-align:right;">
-0.0621897
-</td>
-<td style="text-align:right;">
-0.0000131
-</td>
-<td style="text-align:left;">
-0.06 (0)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-k_18
-</td>
-<td style="text-align:right;">
-6
-</td>
-<td style="text-align:right;">
-0.0714012
-</td>
-<td style="text-align:right;">
-0.0000120
-</td>
-<td style="text-align:left;">
-0.07 (0)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-k_18
-</td>
-<td style="text-align:right;">
-7
-</td>
-<td style="text-align:right;">
-0.0200055
-</td>
-<td style="text-align:right;">
-0.0000109
-</td>
-<td style="text-align:left;">
-0.02 (0)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-k_18
-</td>
-<td style="text-align:right;">
-8
-</td>
-<td style="text-align:right;">
-0.0678781
-</td>
-<td style="text-align:right;">
-0.0000131
-</td>
-<td style="text-align:left;">
-0.07 (0)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-k_18
-</td>
-<td style="text-align:right;">
-9
-</td>
-<td style="text-align:right;">
-0.0279317
-</td>
-<td style="text-align:right;">
-0.0000097
-</td>
-<td style="text-align:left;">
-0.03 (0)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-k_18
-</td>
-<td style="text-align:right;">
-10
-</td>
-<td style="text-align:right;">
-0.0516557
-</td>
-<td style="text-align:right;">
-0.0000102
-</td>
-<td style="text-align:left;">
-0.05 (0)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-k_18
-</td>
-<td style="text-align:right;">
-11
-</td>
-<td style="text-align:right;">
-0.0461636
-</td>
-<td style="text-align:right;">
-0.0000102
-</td>
-<td style="text-align:left;">
-0.05 (0)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-k_18
-</td>
-<td style="text-align:right;">
-12
-</td>
-<td style="text-align:right;">
-0.0622999
-</td>
-<td style="text-align:right;">
-0.0000114
-</td>
-<td style="text-align:left;">
-0.06 (0)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-k_18
-</td>
-<td style="text-align:right;">
-13
-</td>
-<td style="text-align:right;">
-0.0500309
-</td>
-<td style="text-align:right;">
-0.0000109
-</td>
-<td style="text-align:left;">
-0.05 (0)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-k_18
-</td>
-<td style="text-align:right;">
-14
-</td>
-<td style="text-align:right;">
-0.0473369
-</td>
-<td style="text-align:right;">
-0.0000095
-</td>
-<td style="text-align:left;">
-0.05 (0)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-k_18
-</td>
-<td style="text-align:right;">
-15
-</td>
-<td style="text-align:right;">
-0.0713406
-</td>
-<td style="text-align:right;">
-0.0000143
-</td>
-<td style="text-align:left;">
-0.07 (0)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-k_18
-</td>
-<td style="text-align:right;">
-16
-</td>
-<td style="text-align:right;">
-0.0359412
-</td>
-<td style="text-align:right;">
-0.0000102
-</td>
-<td style="text-align:left;">
-0.04 (0)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-k_18
-</td>
-<td style="text-align:right;">
-17
-</td>
-<td style="text-align:right;">
-0.0380103
-</td>
-<td style="text-align:right;">
-0.0000122
-</td>
-<td style="text-align:left;">
-0.04 (0)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-k_18
-</td>
-<td style="text-align:right;">
-18
-</td>
-<td style="text-align:right;">
-0.0192919
-</td>
-<td style="text-align:right;">
-0.0000095
-</td>
-<td style="text-align:left;">
-0.02 (0)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-k_21
-</td>
-<td style="text-align:right;">
-1
-</td>
-<td style="text-align:right;">
-0.0498077
-</td>
-<td style="text-align:right;">
-0.0000098
-</td>
-<td style="text-align:left;">
-0.05 (0)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-k_21
-</td>
-<td style="text-align:right;">
-2
-</td>
-<td style="text-align:right;">
-0.0919051
-</td>
-<td style="text-align:right;">
-0.0000098
-</td>
-<td style="text-align:left;">
-0.09 (0)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-k_21
-</td>
-<td style="text-align:right;">
-3
-</td>
-<td style="text-align:right;">
-0.1132447
-</td>
-<td style="text-align:right;">
-0.0000088
-</td>
-<td style="text-align:left;">
-0.11 (0)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-k_21
-</td>
-<td style="text-align:right;">
-4
-</td>
-<td style="text-align:right;">
-0.0522647
-</td>
-<td style="text-align:right;">
-0.0000088
-</td>
-<td style="text-align:left;">
-0.05 (0)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-k_21
-</td>
-<td style="text-align:right;">
-5
-</td>
-<td style="text-align:right;">
-0.0528812
-</td>
-<td style="text-align:right;">
-0.0000127
-</td>
-<td style="text-align:left;">
-0.05 (0)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-k_21
-</td>
-<td style="text-align:right;">
-6
-</td>
-<td style="text-align:right;">
-0.0834722
-</td>
-<td style="text-align:right;">
-0.0000088
-</td>
-<td style="text-align:left;">
-0.08 (0)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-k_21
-</td>
-<td style="text-align:right;">
-7
-</td>
-<td style="text-align:right;">
-0.0237384
-</td>
-<td style="text-align:right;">
-0.0000083
-</td>
-<td style="text-align:left;">
-0.02 (0)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-k_21
-</td>
-<td style="text-align:right;">
-8
-</td>
-<td style="text-align:right;">
-0.0555408
-</td>
-<td style="text-align:right;">
-0.0000088
-</td>
-<td style="text-align:left;">
-0.06 (0)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-k_21
-</td>
-<td style="text-align:right;">
-9
-</td>
-<td style="text-align:right;">
-0.0274000
-</td>
-<td style="text-align:right;">
-0.0000083
-</td>
-<td style="text-align:left;">
-0.03 (0)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-k_21
-</td>
-<td style="text-align:right;">
-10
-</td>
-<td style="text-align:right;">
-0.0443224
-</td>
-<td style="text-align:right;">
-0.0000088
-</td>
-<td style="text-align:left;">
-0.04 (0)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-k_21
-</td>
-<td style="text-align:right;">
-11
-</td>
-<td style="text-align:right;">
-0.0368682
-</td>
-<td style="text-align:right;">
-0.0000088
-</td>
-<td style="text-align:left;">
-0.04 (0)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-k_21
-</td>
-<td style="text-align:right;">
-12
-</td>
-<td style="text-align:right;">
-0.0438361
-</td>
-<td style="text-align:right;">
-0.0000106
-</td>
-<td style="text-align:left;">
-0.04 (0)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-k_21
-</td>
-<td style="text-align:right;">
-13
-</td>
-<td style="text-align:right;">
-0.0470741
-</td>
-<td style="text-align:right;">
-0.0000088
-</td>
-<td style="text-align:left;">
-0.05 (0)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-k_21
-</td>
-<td style="text-align:right;">
-14
-</td>
-<td style="text-align:right;">
-0.0243022
-</td>
-<td style="text-align:right;">
-0.0000079
-</td>
-<td style="text-align:left;">
-0.02 (0)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-k_21
-</td>
-<td style="text-align:right;">
-15
-</td>
-<td style="text-align:right;">
-0.0318477
-</td>
-<td style="text-align:right;">
-0.0000083
-</td>
-<td style="text-align:left;">
-0.03 (0)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-k_21
-</td>
-<td style="text-align:right;">
-16
-</td>
-<td style="text-align:right;">
-0.0328844
-</td>
-<td style="text-align:right;">
-0.0000088
-</td>
-<td style="text-align:left;">
-0.03 (0)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-k_21
-</td>
-<td style="text-align:right;">
-17
-</td>
-<td style="text-align:right;">
-0.0372277
-</td>
-<td style="text-align:right;">
-0.0000088
-</td>
-<td style="text-align:left;">
-0.04 (0)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-k_21
-</td>
-<td style="text-align:right;">
-18
-</td>
-<td style="text-align:right;">
-0.0168735
-</td>
-<td style="text-align:right;">
-0.0000083
-</td>
-<td style="text-align:left;">
-0.02 (0)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-k_21
-</td>
-<td style="text-align:right;">
-19
-</td>
-<td style="text-align:right;">
-0.0482870
-</td>
-<td style="text-align:right;">
-0.0000098
-</td>
-<td style="text-align:left;">
-0.05 (0)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-k_21
-</td>
-<td style="text-align:right;">
-20
-</td>
-<td style="text-align:right;">
-0.0167647
-</td>
-<td style="text-align:right;">
-0.0000081
-</td>
-<td style="text-align:left;">
-0.02 (0)
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-k_21
-</td>
-<td style="text-align:right;">
-21
-</td>
-<td style="text-align:right;">
-0.0694572
-</td>
-<td style="text-align:right;">
-0.0000094
-</td>
-<td style="text-align:left;">
-0.07 (0)
-</td>
-</tr>
-</tbody>
-</table>
+<code class="sourceCode R"><span><span class="va">selected_models</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">K</span>, <span class="va">theta</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://tidyr.tidyverse.org/reference/unnest.html" class="external-link">unnest</a></span><span class="op">(</span><span class="va">theta</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>topic <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">as.integer</a></span><span class="op">(</span><span class="va">topic</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">topic</span>, y <span class="op">=</span> <span class="va">theta</span>, group <span class="op">=</span> <span class="va">topic</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_boxplot.html" class="external-link">geom_boxplot</a></span><span class="op">(</span>show.legend <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Topic distributions per document"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">K</span>, scales <span class="op">=</span> <span class="st">"free"</span>, ncol <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
+<p><img src="3-Topic-modeling_files/figure-html/unnamed-chunk-16-1.png" width="1344"></p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">topic_prevalence</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">topic</span><span class="op">)</span>, y <span class="op">=</span> <span class="va">mean_gamma</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_bar.html" class="external-link">geom_col</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">model</span>, levels <span class="op">=</span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"k_5"</span>, <span class="st">"k_15"</span>, <span class="st">"k_18"</span>, <span class="st">"k_21"</span><span class="op">)</span><span class="op">)</span>, scales <span class="op">=</span> <span class="st">"free_x"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>subtitle <span class="op">=</span> <span class="st">"Topic prevalence"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="3-Topic-modeling_files/figure-html/unnamed-chunk-17-1.png" width="700"></p>
+<code class="sourceCode R"><span><span class="va">selected_models</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">K</span>, <span class="va">beta</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://tidyr.tidyverse.org/reference/unnest.html" class="external-link">unnest</a></span><span class="op">(</span><span class="va">beta</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/slice.html" class="external-link">slice_max</a></span><span class="op">(</span><span class="va">beta</span>, n <span class="op">=</span> <span class="fl">25</span>, by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">K</span>, <span class="va">topic</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">K</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/count.html" class="external-link">add_count</a></span><span class="op">(</span><span class="va">term</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">ungroup</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>is_unique <span class="op">=</span> <span class="va">n</span> <span class="op">==</span> <span class="fl">1</span>,</span>
+<span>         K <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">K</span><span class="op">)</span>,</span>
+<span>         topic <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">topic</span><span class="op">)</span>,</span>
+<span>         term <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/tidytext/man/reorder_within.html" class="external-link">reorder_within</a></span><span class="op">(</span><span class="va">term</span>, <span class="va">beta</span>, <span class="va">topic</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">beta</span>, y <span class="op">=</span> <span class="va">term</span>, fill <span class="op">=</span> <span class="va">K</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_bar.html" class="external-link">geom_col</a></span><span class="op">(</span>show.legend <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"25 terms with highest probability per topic"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/tidytext/man/reorder_within.html" class="external-link">scale_y_reordered</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="va">K</span> <span class="op">~</span> <span class="va">topic</span>, scales <span class="op">=</span> <span class="st">"free"</span>, ncol <span class="op">=</span> <span class="fl">7</span><span class="op">)</span></span></code></pre></div>
+<p><img src="3-Topic-modeling_files/figure-html/unnamed-chunk-17-1.png" width="1344"></p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">beta_matrix</span><span class="op">$</span><span class="va">model</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span></span>
-<span>    <span class="va">beta_matrix</span> <span class="op">|&gt;</span></span>
-<span>      <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">model</span> <span class="op">==</span> <span class="va">i</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>      <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">topic</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>      <span class="fu"><a href="https://dplyr.tidyverse.org/reference/slice.html" class="external-link">slice_max</a></span><span class="op">(</span><span class="va">beta</span>, n <span class="op">=</span> <span class="fl">25</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>      <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>topic <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">as.factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"Topic_"</span>, <span class="va">topic</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>      <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">beta</span>, y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/reorder.factor.html" class="external-link">reorder</a></span><span class="op">(</span><span class="va">term</span>, <span class="va">beta</span><span class="op">)</span>, fill <span class="op">=</span> <span class="va">topic</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>      <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_bar.html" class="external-link">geom_col</a></span><span class="op">(</span>show.legend <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">+</span></span>
-<span>      <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_viridis.html" class="external-link">scale_fill_viridis_d</a></span><span class="op">(</span>option <span class="op">=</span> <span class="st">"A"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>      <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">topic</span>, scales <span class="op">=</span> <span class="st">"free"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>      <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Top 25 terms by topic"</span>, subtitle <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"Model_"</span>, <span class="va">i</span><span class="op">)</span>, x <span class="op">=</span> <span class="st">"Probability"</span>, y <span class="op">=</span> <span class="st">"Term"</span><span class="op">)</span></span>
-<span>  <span class="op">)</span></span>
-<span><span class="op">}</span></span></code></pre></div>
-<p><img src="3-Topic-modeling_files/figure-html/unnamed-chunk-18-1.png" width="1344"><img src="3-Topic-modeling_files/figure-html/unnamed-chunk-18-2.png" width="1344"><img src="3-Topic-modeling_files/figure-html/unnamed-chunk-18-3.png" width="1344"><img src="3-Topic-modeling_files/figure-html/unnamed-chunk-18-4.png" width="1344"></p>
+<code class="sourceCode R"><span><span class="co"># for (i in unique(beta_matrix$model)) {</span></span>
+<span><span class="co">#   print(</span></span>
+<span><span class="co">#     beta_matrix |&gt;</span></span>
+<span><span class="co">#       filter(model == i) |&gt;</span></span>
+<span><span class="co">#       group_by(topic) |&gt;</span></span>
+<span><span class="co">#       slice_max(beta, n = 25) |&gt;</span></span>
+<span><span class="co">#       mutate(topic = as.factor(paste0("Topic_", topic))) |&gt;</span></span>
+<span><span class="co">#       ggplot(aes(x = beta, y = reorder(term, beta), fill = topic)) +</span></span>
+<span><span class="co">#       geom_col(show.legend = FALSE) +</span></span>
+<span><span class="co">#       scale_fill_viridis_d(option = "A") +</span></span>
+<span><span class="co">#       facet_wrap(~topic, scales = "free") +</span></span>
+<span><span class="co">#       labs(title = "Top 25 terms by topic", subtitle = paste0("Model_", i), x = "Probability", y = "Term")</span></span>
+<span><span class="co">#   )</span></span>
+<span><span class="co"># }</span></span></code></pre></div>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">beta_matrix</span><span class="op">$</span><span class="va">model</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span></span>
-<span>    <span class="va">beta_matrix</span> <span class="op">|&gt;</span></span>
-<span>      <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">model</span> <span class="op">==</span> <span class="va">i</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>      <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">topic</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>      <span class="fu"><a href="https://dplyr.tidyverse.org/reference/slice.html" class="external-link">slice_max</a></span><span class="op">(</span><span class="va">beta</span>, n <span class="op">=</span> <span class="fl">25</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>      <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>topic <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">as.factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"Topic_"</span>, <span class="va">topic</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>      <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">ungroup</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>      <span class="fu"><a href="https://dplyr.tidyverse.org/reference/count.html" class="external-link">add_count</a></span><span class="op">(</span><span class="va">term</span>, name <span class="op">=</span> <span class="st">"in_topics"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>      <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">in_topics</span> <span class="op">==</span> <span class="fl">1</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>      <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">beta</span>, y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/reorder.factor.html" class="external-link">reorder</a></span><span class="op">(</span><span class="va">term</span>, <span class="va">beta</span><span class="op">)</span>, fill <span class="op">=</span> <span class="va">topic</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>      <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_bar.html" class="external-link">geom_col</a></span><span class="op">(</span>show.legend <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">+</span></span>
-<span>      <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_viridis.html" class="external-link">scale_fill_viridis_d</a></span><span class="op">(</span>option <span class="op">=</span> <span class="st">"A"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>      <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">topic</span>, scales <span class="op">=</span> <span class="st">"free"</span>, ncol <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op">+</span></span>
-<span>      <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Unique terms out of top 25 terms by topic"</span>, subtitle <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"Model_"</span>, <span class="va">i</span><span class="op">)</span>, x <span class="op">=</span> <span class="st">"Probability"</span>, y <span class="op">=</span> <span class="st">"Term"</span><span class="op">)</span></span>
-<span>  <span class="op">)</span></span>
-<span><span class="op">}</span></span></code></pre></div>
-<p><img src="3-Topic-modeling_files/figure-html/unnamed-chunk-19-1.png" width="1344"><img src="3-Topic-modeling_files/figure-html/unnamed-chunk-19-2.png" width="1344"><img src="3-Topic-modeling_files/figure-html/unnamed-chunk-19-3.png" width="1344"><img src="3-Topic-modeling_files/figure-html/unnamed-chunk-19-4.png" width="1344"></p>
+<code class="sourceCode R"><span><span class="co"># for (i in unique(beta_matrix$model)) {</span></span>
+<span><span class="co">#   print(</span></span>
+<span><span class="co">#     beta_matrix |&gt;</span></span>
+<span><span class="co">#       filter(model == i) |&gt;</span></span>
+<span><span class="co">#       group_by(topic) |&gt;</span></span>
+<span><span class="co">#       slice_max(beta, n = 25) |&gt;</span></span>
+<span><span class="co">#       mutate(topic = as.factor(paste0("Topic_", topic))) |&gt;</span></span>
+<span><span class="co">#       ungroup() |&gt;</span></span>
+<span><span class="co">#       add_count(term, name = "in_topics") |&gt;</span></span>
+<span><span class="co">#       filter(in_topics == 1) |&gt;</span></span>
+<span><span class="co">#       ggplot(aes(x = beta, y = reorder(term, beta), fill = topic)) +</span></span>
+<span><span class="co">#       geom_col(show.legend = FALSE) +</span></span>
+<span><span class="co">#       scale_fill_viridis_d(option = "A") +</span></span>
+<span><span class="co">#       facet_wrap(~topic, scales = "free", ncol = 2) +</span></span>
+<span><span class="co">#       labs(title = "Unique terms out of top 25 terms by topic", subtitle = paste0("Model_", i), x = "Probability", y = "Term")</span></span>
+<span><span class="co">#   )</span></span>
+<span><span class="co"># }</span></span></code></pre></div>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># doc_topics &lt;- lapply(lda_models, function(x) {</span></span>
 <span><span class="co">#   x |&gt;</span></span>

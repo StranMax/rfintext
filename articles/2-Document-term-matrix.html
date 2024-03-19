@@ -86,65 +86,82 @@
 <p>Analysis expects input data to be in numerical form.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/StranMax/rfintext" class="external-link">rfintext</a></span><span class="op">)</span></span>
-<span><span class="co"># devtools::install_github("StranMax/rfinstats")</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/StranMax/rfinstats" class="external-link">rfinstats</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/juliasilge/tidytext" class="external-link">tidytext</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://quanteda.io" class="external-link">quanteda</a></span><span class="op">)</span></span></code></pre></div>
+<p>Pre processing aspol corpus and calculating document term count
+(dtc)</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">aspol</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/preprocess_corpus.html">preprocess_corpus</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/count.html" class="external-link">count</a></span><span class="op">(</span><span class="va">kunta</span>, <span class="va">LEMMA</span>, name <span class="op">=</span> <span class="st">"tc"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 48,335 × 3</span></span></span>
-<span><span class="co">#&gt;    kunta     LEMMA             tc</span></span>
+<span>  <span class="fu"><a href="../reference/preprocess_corpus.html">preprocess_corpus</a></span><span class="op">(</span><span class="va">kunta</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/count.html" class="external-link">count</a></span><span class="op">(</span><span class="va">kunta</span>, <span class="va">LEMMA</span>, name <span class="op">=</span> <span class="st">"dtc"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 48,269 × 3</span></span></span>
+<span><span class="co">#&gt;    kunta     LEMMA            dtc</span></span>
 <span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> Enontekiö A#talo             3</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> Enontekiö III                1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> Enontekiö Vapaa#aika         1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> Enontekiö aiheuttaa          3</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> Enontekiö aika               7</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> Enontekiö aika#väli          1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> Enontekiö ajatella           1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> Enontekiö ala                1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> Enontekiö alhainen           1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> Enontekiö alku               1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">11</span> Enontekiö alku#peräinen      1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">12</span> Enontekiö alku#puoli         1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">13</span> Enontekiö antaa              3</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">14</span> Enontekiö arava#laina        1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">15</span> Enontekiö arava#rajoitus     1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">16</span> Enontekiö arvioida           1</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">17</span> Enontekiö asettaa            2</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">18</span> Enontekiö asia               3</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">19</span> Enontekiö asiakas            3</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">20</span> Enontekiö asian#mukainen     1</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 48,315 more rows</span></span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> Enontekiö Vapaa#aika         1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> Enontekiö aiheuttaa          3</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> Enontekiö aika               7</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> Enontekiö aika#väli          1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> Enontekiö ajatella           1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> Enontekiö alhainen           1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> Enontekiö alku               1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> Enontekiö alku#peräinen      1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> Enontekiö alku#puoli         1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">11</span> Enontekiö alue              17</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">12</span> Enontekiö antaa              3</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">13</span> Enontekiö arava#laina        1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">14</span> Enontekiö arava#rajoitus     1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">15</span> Enontekiö arvioida           1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">16</span> Enontekiö asettaa            2</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">17</span> Enontekiö asia               3</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">18</span> Enontekiö asiakas            3</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">19</span> Enontekiö asian#mukainen     1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">20</span> Enontekiö asua               5</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 48,249 more rows</span></span></span></code></pre></div>
+<p>Converting original corpus to document term matrix.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">aspol</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/preprocess_corpus.html">preprocess_corpus</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/corpus_to_dtm.html">corpus_to_dtm</a></span><span class="op">(</span><span class="va">kunta</span>, <span class="va">LEMMA</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Document-feature matrix of: 68 documents, 3,061 features (76.78% sparse) and 0 docvars.</span></span>
+<code class="sourceCode R"><span><span class="va">dtm</span> <span class="op">&lt;-</span> <span class="va">aspol</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/preprocess_corpus.html">preprocess_corpus</a></span><span class="op">(</span><span class="va">kunta</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/count.html" class="external-link">count</a></span><span class="op">(</span><span class="va">kunta</span>, <span class="va">LEMMA</span>, name <span class="op">=</span> <span class="st">"dtc"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/tidytext/man/document_term_casters.html" class="external-link">cast_dfm</a></span><span class="op">(</span>document <span class="op">=</span> <span class="va">kunta</span>, term <span class="op">=</span> <span class="va">LEMMA</span>, value <span class="op">=</span> <span class="va">dtc</span><span class="op">)</span>  <span class="co"># quanteda format</span></span>
+<span>  <span class="co"># cast_dtm(document = kunta, term = LEMMA, value = dtc)  # tm format</span></span>
+<span><span class="va">dtm</span></span>
+<span><span class="co">#&gt; Document-feature matrix of: 68 documents, 3,038 features (76.63% sparse) and 0 docvars.</span></span>
 <span><span class="co">#&gt;              features</span></span>
-<span><span class="co">#&gt; docs          A#talo III Vapaa#aika aiheuttaa aika aika#väli ajatella ala alhainen alku alku#peräinen alku#puoli antaa arava#laina arava#rajoitus arvioida asettaa asia asiakas asian#mukainen</span></span>
-<span><span class="co">#&gt;   Enontekiö        3   1          1         3    7         1        1   1        1    1             1          1     3           1              1        1       2    3       3              1</span></span>
-<span><span class="co">#&gt;   Espoo            0   0          0         1   18         3        0   3        4    1             1          0     2           0              0        9      10    3       1              0</span></span>
-<span><span class="co">#&gt;   Eura             0   0          0         1    5         0        0   0        1    0             0          0     1           0              0        3       1    1       6              0</span></span>
-<span><span class="co">#&gt;   Hartola          0   0          1         2    5         0        0   1        0    0             0          0     0           0              0        3       0    0       0              0</span></span>
-<span><span class="co">#&gt;   Hattula          0   0          0         0    6         0        0   0        0    1             0          0     1           0              0        0       1    1       0              0</span></span>
-<span><span class="co">#&gt;   Helsinki         0   0          0         3   46         4        0   5        5   12             0          1     7           0              0       26      13    8       6              1</span></span>
-<span><span class="co">#&gt;   Huittinen        2   0          0         0   13         1        5   2        2    0             0          0     3           0              0        4       3   13       4              0</span></span>
-<span><span class="co">#&gt;   Hyvinkää         0   0          0         0    1         0        0   0        0    0             0          0     0           0              0        1       0    0       0              0</span></span>
-<span><span class="co">#&gt;   Hämeenlinna      0   0          3         3    1         0        0   2        0    1             0          0     3           0              0        2       0   29       3              0</span></span>
-<span><span class="co">#&gt;   Iitti            0   0          0         0    0         0        0   0        0    1             0          0     5           0              0        0       1    0       0              0</span></span>
-<span><span class="co">#&gt;   Imatra           0   0          0         0    2         0        0   1        0    0             0          0     0           0              0        2       0    1       0              0</span></span>
-<span><span class="co">#&gt;   Inkoo            0   0          0         1   11         1        0   0        1    2             0          0     4           0              0        0       5    2       0              0</span></span>
-<span><span class="co">#&gt;   Joensuu          0   0          0         1   33         2        1   0        4    4             1          0     2           0              1        9      13    5       4              0</span></span>
-<span><span class="co">#&gt;   Juva             0   0          0         2   13         5        0   1        2    3             0          0     2           1              0        1       2    2       3              0</span></span>
-<span><span class="co">#&gt;   Järvenpää        0   0          0         0    2         0        0   0        0    0             0          0     1           0              0        0       3    2       0              0</span></span>
-<span><span class="co">#&gt;   Kaarina          0   0          1         2   15         6        0   0        0    1             0          0     4           0              0        4       4    3       0              0</span></span>
-<span><span class="co">#&gt;   Kalajoki         0   0          0         0    1         0        0   0        0    0             0          0     0           0              0        2       0    0       0              0</span></span>
-<span><span class="co">#&gt;   Kauniainen       0   0          0         2   14         0        1   0        0    1             0          1     4           0              0       12       6    1       3              0</span></span>
-<span><span class="co">#&gt;   Kemiönsaari      0   0          3         3   12         1        1   1        1    3             2          0    14           0              0        3       3    1       2              0</span></span>
-<span><span class="co">#&gt;   Kerava           0   0          0         2    0         0        0   0        0    0             0          0     3           0              0        2       5    0       0              0</span></span>
-<span><span class="co">#&gt; [ reached max_ndoc ... 48 more documents, reached max_nfeat ... 3,041 more features ]</span></span></code></pre></div>
+<span><span class="co">#&gt; docs          A#talo Vapaa#aika aiheuttaa aika aika#väli ajatella alhainen alku alku#peräinen alku#puoli alue antaa arava#laina arava#rajoitus arvioida asettaa asia asiakas asian#mukainen asua</span></span>
+<span><span class="co">#&gt;   Enontekiö        3          1         3    7         1        1        1    1             1          1   17     3           1              1        1       2    3       3              1    5</span></span>
+<span><span class="co">#&gt;   Espoo            0          0         1   18         3        0        4    1             1          0  108     2           0              0        9      10    3       1              0   11</span></span>
+<span><span class="co">#&gt;   Eura             0          0         1    5         0        0        1    0             0          0   10     1           0              0        3       1    1       6              0    7</span></span>
+<span><span class="co">#&gt;   Hartola          0          1         2    5         0        0        0    0             0          0    4     0           0              0        3       0    0       0              0    6</span></span>
+<span><span class="co">#&gt;   Hattula          0          0         0    6         0        0        0    1             0          0   17     1           0              0        0       1    1       0              0    3</span></span>
+<span><span class="co">#&gt;   Helsinki         0          0         3   46         4        0        5   12             0          1  139     7           0              0       26      13    8       6              1   57</span></span>
+<span><span class="co">#&gt;   Huittinen        2          0         0   13         1        5        2    0             0          0   16     3           0              0        4       3   13       4              0    8</span></span>
+<span><span class="co">#&gt;   Hyvinkää         0          0         0    1         0        0        0    0             0          0    0     0           0              0        1       0    0       0              0    9</span></span>
+<span><span class="co">#&gt;   Hämeenlinna      0          3         3    1         0        0        0    1             0          0   18     3           0              0        2       0   29       3              0   10</span></span>
+<span><span class="co">#&gt;   Iitti            0          0         0    0         0        0        0    1             0          0   18     5           0              0        0       1    0       0              0    0</span></span>
+<span><span class="co">#&gt;   Imatra           0          0         0    2         0        0        0    0             0          0    6     0           0              0        2       0    1       0              0   11</span></span>
+<span><span class="co">#&gt;   Inkoo            0          0         1   11         1        0        1    2             0          0   26     4           0              0        0       5    2       0              0    3</span></span>
+<span><span class="co">#&gt;   Joensuu          0          0         1   33         2        1        4    4             1          0  129     2           0              1        9      13    5       4              0   25</span></span>
+<span><span class="co">#&gt;   Juva             0          0         2   13         5        0        2    3             0          0   19     2           1              0        1       2    2       3              0   10</span></span>
+<span><span class="co">#&gt;   Järvenpää        0          0         0    2         0        0        0    0             0          0    7     1           0              0        0       3    2       0              0   11</span></span>
+<span><span class="co">#&gt;   Kaarina          0          1         2   15         6        0        0    1             0          0   55     4           0              0        4       4    3       0              0    8</span></span>
+<span><span class="co">#&gt;   Kalajoki         0          0         0    1         0        0        0    0             0          0    5     0           0              0        2       0    0       0              0    0</span></span>
+<span><span class="co">#&gt;   Kauniainen       0          0         2   14         0        1        0    1             0          1  104     4           0              0       12       6    1       3              0   17</span></span>
+<span><span class="co">#&gt;   Kemiönsaari      0          3         3   12         1        1        1    3             2          0  136    14           0              0        3       3    1       2              0    8</span></span>
+<span><span class="co">#&gt;   Kerava           0          0         2    0         0        0        0    0             0          0   13     3           0              0        2       5    0       0              0    0</span></span>
+<span><span class="co">#&gt; [ reached max_ndoc ... 48 more documents, reached max_nfeat ... 3,018 more features ]</span></span></code></pre></div>
+<p>It is possible to convert from one format to another with
+<code><a href="https://quanteda.io/reference/convert.html" class="external-link">quanteda::convert()</a></code> function. For example some functions
+require data to be in <code>tm</code> format.</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">dtm</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">quanteda</span><span class="fu">::</span><span class="fu"><a href="https://quanteda.io/reference/convert.html" class="external-link">convert</a></span><span class="op">(</span>to <span class="op">=</span> <span class="st">"tm"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; &lt;&lt;DocumentTermMatrix (documents: 68, terms: 3038)&gt;&gt;</span></span>
+<span><span class="co">#&gt; Non-/sparse entries: 48269/158315</span></span>
+<span><span class="co">#&gt; Sparsity           : 77%</span></span>
+<span><span class="co">#&gt; Maximal term length: 27</span></span>
+<span><span class="co">#&gt; Weighting          : term frequency (tf)</span></span></code></pre></div>
   </main>
 </div>
 
