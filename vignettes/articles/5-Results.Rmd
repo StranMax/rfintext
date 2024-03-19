@@ -30,7 +30,7 @@ plan(multisession, workers = availableCores(logical = FALSE) - 1)
 
 ```{r}
 dtm <- aspol |>
-  preprocess_corpus(kunta, LEMMA) |>
+  preprocess_corpus(kunta) |>
   corpus_to_dtm(kunta, LEMMA)
 ```
 
