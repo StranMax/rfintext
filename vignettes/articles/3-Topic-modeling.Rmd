@@ -13,7 +13,6 @@ Topic modeling with latent Dirichlet allocation (LDA).
 
 ```{r setup, message=FALSE, warning=FALSE}
 library(rfintext)
-# library(rfinstats)
 library(quanteda)
 library(tidytext)
 library(topicmodels)  # LDA
@@ -25,7 +24,6 @@ library(purrr)  # Tidyverse friends
 library(tidyr)  # Tidyverse friends
 library(ggplot2)  # Tidyverse friends
 library(cowplot)  # Multiple plots made easy
-library(kableExtra)  # Pretty tables
 library(future)  # Parallel processing back-end
 library(furrr)  # Parallel processing front-end with future_ functions
 plan(multisession, workers = availableCores(logical = FALSE) - 1)  # Utilize multiple cores on time consuming tasks.
@@ -39,8 +37,9 @@ You know already how to pre process and convert to document term matrix:
 
 ```{r, message=FALSE, R.options = list(width = 10000)}
 dtm <- aspol |>
-  preprocess_corpus(kunta, LEMMA) |>
-  corpus_to_dtm(kunta, LEMMA)
+  preprocess_corpus(kunta) |>
+  count(kunta, LEMMA) |>
+  cast_dfm(kunta, LEMMA, n)  # n is default name from dplyr::count()
 dtm
 ```
 
@@ -60,8 +59,8 @@ lda_models <- tibble(K = 2:68) |>
   mutate(
     # LDA models
     topic_model = future_map(  
-      # K, ~LDA(convert(dtm, to = "tm"), k = ., control = list(seed = 1234)),
-      K, ~LDA(convert(dtm, to = "tm"), k = .),
+      # K, ~LDA(convert(dtm, to = "tm"), k = ., control = list(seed = 1234)),  # Seed in parallel processing (problem?)
+      K, ~LDA(convert(dtm, to = "tm"), k = .),  # LDA expects dtm in tm format (or does it?)
       .options = furrr_options(seed = TRUE)
     ),
     # Model coherence
@@ -86,7 +85,8 @@ p
 Visually selecting potentially best k values
 
 ```{r}
-optimal_k <- c(5, 8, 11, 14, 19)
+# optimal_k <- c(5, 9, 11, 15, 20)
+optimal_k <- c(6, 10, 16)
 ```
 
 
@@ -97,6 +97,9 @@ p +
   labs(subtitle = "Optimal k values",
        x = "k (number of topics)", y = "Mean coherence")
 ```
+
+> NOTE! Coherence scores can change even for smallest adjustments to pre processing 
+pipeline. Make your mind on those first and stick to it.
 
 Highest coherence values: `r optimal_k`
 
@@ -169,7 +172,7 @@ topic_congruence2 <- bind_rows(topic_congruence2, .id = "model-K")
 topic_congruence2
 ```
 
-```{r, fig.width=14, fig.height=21}
+```{r, fig.width=14, fig.height=7}
 topic_congruence2 |>
   mutate(`model-K`= factor(`model-K`),
          topic1 = factor(as.integer(topic1)),
@@ -181,7 +184,7 @@ topic_congruence2 |>
   theme(axis.text.x = element_text(angle = 90)) +
   labs(title = "Topic congruence between different models") +
   scale_fill_viridis_c(option = "A") +
-  facet_wrap(~`model-K`, scales = "free", ncol = 2)
+  facet_wrap(~`model-K`, scales = "free", ncol = 3)
 ```
 
 ```{r, fig.width=14, fig.height=7}
@@ -193,6 +196,7 @@ selected_models |>
             total_theta = sum(theta), .by = c(K, topic)) |>
   ggplot() +
   geom_col(aes(x = topic, y = total_theta)) +
+  labs(title = "Topic prevalence") +
   facet_wrap(~K, scales = "free", ncol = 3)
 ```
 
@@ -206,6 +210,7 @@ selected_models |>
   unnest(theta) |>
   ggplot(aes(x = theta)) +
   geom_histogram(binwidth = 0.1) +
+  labs(title = "Topic histograms") +
   theme(axis.text.x = element_text(angle = 90)) +
   facet_wrap(K~topic, scales = "free_y")
 ```
@@ -213,17 +218,18 @@ selected_models |>
 
 
 
-```{r, fig.height=14, fig.width=21}
+```{r, fig.height=7, fig.width=14}
 selected_models |>
   select(K, theta) |>
   unnest(theta) |>
   mutate(topic = factor(as.integer(topic))) |>
   ggplot(aes(x = topic, y = theta, group = topic)) +
   geom_boxplot(show.legend = FALSE) +
-  facet_wrap(~K, scales = "free", ncol = 2)
+  labs(title = "Topic distributions per document") +
+  facet_wrap(~K, scales = "free", ncol = 3)
 ```
 
-```{r, fig.width=14, fig.height=42}
+```{r, fig.width=14, fig.height=21}
 selected_models |>
   select(K, beta) |>
   unnest(beta) |>
@@ -237,6 +243,7 @@ selected_models |>
          term = reorder_within(term, beta, topic)) |>
   ggplot(aes(x = beta, y = term, fill = K)) +
   geom_col(show.legend = FALSE) +
+  labs(title = "25 terms with highest probability per topic") +
   scale_y_reordered() +
   facet_wrap(K ~ topic, scales = "free", ncol = 7)
 ```

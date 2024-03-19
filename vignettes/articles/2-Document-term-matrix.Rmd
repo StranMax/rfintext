@@ -13,7 +13,8 @@ Analysis expects input data to be in numerical form.
 
 ```{r setup, message=FALSE, warning=FALSE}
 library(rfintext)
-library(rfinstats)
+library(tidytext)
+library(dplyr)
 library(quanteda)
 ```
 
@@ -25,25 +26,26 @@ Pre processing aspol corpus and calculating document term count (dtc)
 
 ```{r, message=FALSE, R.options = list(width = 10000, pillar.print_max = 20, pillar.print_min = 20)}
 aspol |>
-  preprocess_corpus(kunta, LEMMA) |>
-  dplyr::count(kunta, LEMMA, name = "dtc")
+  preprocess_corpus(kunta) |>
+  count(kunta, LEMMA, name = "dtc")
 ```
 
-Converting original corpus to document term matrix with couple of helper functions: 
+Converting original corpus to document term matrix.
 
 ```{r, message=FALSE, R.options = list(width = 10000)}
-aspol |>
-  preprocess_corpus(kunta, LEMMA) |>
-  corpus_to_dtm(kunta, LEMMA)
+dtm <- aspol |>
+  preprocess_corpus(kunta) |>
+  count(kunta, LEMMA, name = "dtc") |>
+  cast_dfm(document = kunta, term = LEMMA, value = dtc)  # quanteda format
+  # cast_dtm(document = kunta, term = LEMMA, value = dtc)  # tm format
+dtm
 ```
 
 It is possible to convert from one format to another with `quanteda::convert()` 
 function. For example some functions require data to be in `tm` format.
 
 ```{r}
-aspol |>
-  preprocess_corpus(kunta, LEMMA) |>
-  corpus_to_dtm(kunta, LEMMA) |>
+dtm |>
   quanteda::convert(to = "tm")
 ```
 

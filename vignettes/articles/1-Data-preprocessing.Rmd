@@ -9,14 +9,14 @@ knitr::opts_chunk$set(
 )
 ```
 
-Aim is to filter out uninteresting, and potentially false terms.
+Aim is to filter out uninteresting, and potentially false terms. 
 Background for pre processing text data:  
 * Ristilä A. & K. Elo (2023). Observing political and societal changes in Finnish 
 parliamentary speech data, 1980–2010, with topic modelling. 
 *Parliaments, Estates and Representation*, 43:2, 149–176.  
 * Matthew J. D. & A. Spirling (2018). Text Preprocessing For Unsupervised Learning:
 Why It Matters, When It Misleads, And What To Do About It. *Political Analysis*
-vol. 26:168–189.
+vol. 26:168–189. 
 
 ```{r setup, message=FALSE, warning=FALSE}
 library(rfintext)
@@ -25,13 +25,13 @@ library(dplyr)
 ```
 
 **Common preprocessing steps include:**  
-1. Select only nouns verbs and adjectives  
+1. Select only nouns verbs and adjectives   
 2. Remove words which contain numbers  
 3. Filter out foreign terms  
 4. Drop terms which appear in less than 0.5% of documents (at least 5 docs here) 
 5. Drop terms which appear in more than 99% of documents (at most 65 docs here)  
-6. Additionally we drop very short terms (under 4 character in original FORM and 
-under 5 characters in base LEMMA)  
+6. Additionally we drop very short terms (under 2 character in original FORM and 
+under 3 characters in base LEMMA)  
 
 Original terms total `r nrow(aspol)`
 
@@ -40,88 +40,96 @@ aspol |> count(LEMMA, sort = TRUE)
 ```
 
 Let's take a closer look what we are throwing away while carrying out our pre 
-processing pipeline:
+processing pipeline.
 
-Terms which are not nouns, verbs or adjectives:
+Filtering nouns, verbs and adjectives drop following terms:
 
 ```{r}
-aspol |> filter(!UPOSTAG %in% c("NOUN", "VERB", "ADJ")) |> 
+aspol |> filter(!UPOSTAG %in% c("NOUN", "VERB", "ADJ")) |>  # Note negation operator `!` here
   count(LEMMA, sort = TRUE)
 ```
 
-Nouns, verbs or adjectives which contain numbers (in their original FORM at least)
-
-```{r}
-aspol |>
-  filter_upostag(c("NOUN", "VERB", "ADJ")) |>
-  filter(str_detect(FORM, "[0-9]+")) |>
-  count(LEMMA, sort = TRUE)
-```
-
-Nouns, verbs or adjectives with no numbers, but marked as a foreign term:
+Now we filter nouns, verbs and adjectives.Which of those words contain numbers 
+(in their original FORM at least).
 
 ```{r}
 aspol |>
-  filter_upostag(c("NOUN", "VERB", "ADJ")) |>
-  remove_numbers(LEMMA) |>
-  filter(UPOSTAG == "X" |  stringr::str_detect(FEATS, "Foreign=Yes")) |>
+  filter(UPOSTAG %in% c("NOUN", "VERB", "ADJ")) |>
+  filter(str_detect(FORM, "[0-9]+")) |>  # remove_numbers() function is the same but with negation `!`
   count(LEMMA, sort = TRUE)
 ```
 
-Nouns, verbs or adjectives with numbers removed, foreign (or nonsense) removed, 
-but very short terms:
+Nouns, verbs or adjectives with no numbers, but marked as a foreign term. 
+These are mostly nonsense here. We have already gotten rid of real foreign terms 
+by filtering nouns, verbs and adjectives, since foreign terms have UPOSTAG == "X".
 
 ```{r}
 aspol |>
-  filter_upostag(c("NOUN", "VERB", "ADJ")) |>
-  remove_numbers(LEMMA) |>
-  remove_foreign() |>
-  filter(nchar(FORM) < 2, nchar(LEMMA) < 3) |>
+  filter(UPOSTAG %in% c("NOUN", "VERB", "ADJ")) |>
+  filter(!str_detect(FORM, "[0-9]+")) |>  # Note negation operator `!`
+  filter(str_detect(FEATS, "Foreign=Yes")) |>  
   count(LEMMA, sort = TRUE)
 ```
+
 
 Very common terms in terms of document frequency:
 
 ```{r}
 aspol |>
-  filter_upostag(c("NOUN", "VERB", "ADJ")) |>
-  remove_numbers(FORM) |>
-  remove_foreign() |>
-  remove_short_term(len = 4) |>
-  calculate_doc_freq(kunta, LEMMA) |>
+  filter(UPOSTAG %in% c("NOUN", "VERB", "ADJ")) |>
+  filter(!str_detect(FORM, "[0-9]+")) |>
+  filter(!str_detect(FEATS, "Foreign=Yes")) |>
+  calculate_doc_freq(kunta, LEMMA) |>  # Adds columns df (doc freq) and df_ratio (same but relative) for easy filtering
   filter(df > 65) |>
   count(LEMMA, sort = TRUE)
 ```
+
 
 Very uncommon terms in terms of document frequency: 
 
 ```{r}
 aspol |>
-  filter_upostag(c("NOUN", "VERB", "ADJ")) |>
-  remove_numbers(FORM) |>
-  remove_foreign() |>
-  remove_short_term() |>
+  filter(UPOSTAG %in% c("NOUN", "VERB", "ADJ")) |>
+  filter(!str_detect(FORM, "[0-9]+")) |>
+  filter(!str_detect(FEATS, "Foreign=Yes")) |>
   calculate_doc_freq(kunta, LEMMA) |>
-  filter(df <= 5) |>
+  filter(df < 5) |>
   count(LEMMA, sort = TRUE)
 ```
 
-Complete preprocessing pipeline: 
+
+Nouns, verbs or adjectives with numbers removed, foreign (or nonsense) removed, 
+but very short terms still present:
+
+```{r}
+aspol |>
+  filter(UPOSTAG %in% c("NOUN", "VERB", "ADJ")) |>
+  filter(!str_detect(FORM, "[0-9]+")) |>
+  filter(!str_detect(FEATS, "Foreign=Yes")) |>
+  calculate_doc_freq(kunta, LEMMA) |>
+  filter(df >= 5, df <= 65) |>
+  filter(nchar(FORM) < 3, nchar(LEMMA) < 4) |>
+  count(LEMMA, sort = TRUE)
+```
+
+
+Complete pre processing pipeline:  
 
 ```{r, R.options = list(width = 10000, pillar.print_max = 20, pillar.print_min = 20)}
 aspol |>
-  filter_upostag(c("NOUN", "VERB", "ADJ")) |>
-  remove_numbers() |>
-  remove_foreign() |>
-  remove_short_term() |>
+  filter(UPOSTAG %in% c("NOUN", "VERB", "ADJ")) |>
+  filter(!str_detect(FORM, "[0-9]+")) |>
+  filter(!str_detect(FEATS, "Foreign=Yes")) |>
   calculate_doc_freq(kunta, LEMMA) |>
-  filter(df > 5, df < 65)
+  filter(df >= 5, df <= 65) |>
+  filter(nchar(FORM) >= 3, nchar(LEMMA) >= 4)
 ```
 
-Complete preprocessing pipeline as a single function: 
+Complete preprocessing pipeline as a single function. This is exactly the same 
+as above but easier to type. 
 
 ```{r, R.options = list(width = 10000, pillar.print_max = 20, pillar.print_min = 20)}
-aspol |> preprocess_corpus(doc = kunta, term = LEMMA)
+aspol |> preprocess_corpus(doc = kunta)
 ```
 
 > NOTE! Results depend on pre processing steps, details and even order they have 

@@ -1,6 +1,6 @@
 Package: rfintext
 Type: Package
-Title: Text mining of finnish housing policy documents
+Title: Text mining projects of finnish documents
 Version: 0.1.0
 Author: Max Strandén
 Maintainer: Max Strandén <max.stranden@gmail.com>
@@ -20,7 +20,6 @@ Suggests:
     combinat,
     cowplot,
     devtools,
-    doFuture,
     forcats,
     furrr,
     future,

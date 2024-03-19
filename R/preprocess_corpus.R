@@ -100,12 +100,15 @@ filter_upostag <- function(df, upostag) {
 #' @examples
 #' preprocess_corpus(aspol, kunta, LEMMA)
 #'
-preprocess_corpus <- function(df, doc, term) {
+preprocess_corpus <- function(df, doc) {
   df |>
-    filter_upostag(c("NOUN", "VERB", "ADJ")) |>
-    remove_numbers(term = .data$FORM) |>
-    remove_foreign() |>
-    remove_short_term() |>
-    calculate_doc_freq({{doc}}, {{term}}) |>
-    dplyr::filter(df >= 5, df <= 65)
+    dplyr::filter(UPOSTAG %in% c("NOUN", "VERB", "ADJ")) |>
+    # remove_numbers(term = .data$FORM) |>
+    dplyr::filter(!stringr::str_detect(.data$FORM, "[0-9]")) |>
+    # remove_foreign() |>
+    dplyr::filter(!stringr::str_detect(.data$FEATS, "Foreign=Yes")) |>
+    calculate_doc_freq({{doc}}, .data$LEMMA) |>
+    dplyr::filter(df >= 5, df <= 65) |>
+    # remove_short_term()
+    dplyr::filter(nchar(.data$FORM) >= 3, nchar(.data$LEMMA) >= 4)
 }

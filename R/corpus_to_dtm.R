@@ -19,6 +19,8 @@ dtc_to_dtm <- function(df, doc, term) {
 #' @examples
 corpus_to_dtm <- function(df, doc, term) {
   df |>
-    calculate_term_per_doc({{doc}}, {{term}}) |>
-    dtc_to_dtm({{doc}}, {{term}})
+    dplyr::count({{doc}}, {{term}}, name = "dtc") |>
+    tidytext::cast_dfm(document = {{doc}}, term = {{term}}, value = .data$dtc)
+    # calculate_term_per_doc({{doc}}, {{term}}) |>
+    # dtc_to_dtm({{doc}}, {{term}})
 }
