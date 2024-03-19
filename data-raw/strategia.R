@@ -14,7 +14,7 @@ lapply(pkgs, library, character.only =TRUE)
 # Path to somewhere on local machine with all the lemmatized files
 
 pdf_dir <- "C:/Users/maxs/Documents/data/kuntastrategiat_kopio"
-txt_file <-"C:/Users/maxs/Documents/data/kuntastrategiat_kopio/kuntastrategiat.conllu"
+txt_file <-"C:/Users/maxs/Documents/data/kuntastrategiat_kopio/kuntastrategiat2.conllu"
 
 strategia <- CoNLLUTextDocument(txt_file) |>
   content() |>

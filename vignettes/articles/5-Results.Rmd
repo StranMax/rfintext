@@ -17,13 +17,13 @@ library(tidymodels)
 library(topicmodels)
 library(tidyverse)
 library(cowplot)
-# library(dplyr)
+library(dplyr)
 library(tidytext)
-# library(ggplot2)
+library(ggplot2)
 library(quanteda)
 # library(doFuture)
-# library(forcats)
-# library(purrr)
+library(forcats)
+library(purrr)
 library(future)  # Parallel processing back-end
 library(furrr)  # Parallel processing front-end with future_ functions
 plan(multisession, workers = availableCores(logical = FALSE) - 1)
@@ -39,6 +39,7 @@ dtm <- aspol |>
 y <- rfinstats::taantuvat |>
   filter(kunta %in% unique(aspol$kunta)) |>
   mutate(luokka = if_else(suht_muutos_2010_2022 > 0, "kasvava", "taantuva"))
+y
 ```
 
 
