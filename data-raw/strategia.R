@@ -10,32 +10,29 @@ uninst <- pkgs[!pkgs %in% installed.packages()]
 if (length(uninst) > 0) {install.packages(uninst)}
 lapply(pkgs, library, character.only =TRUE)
 
-
 # Path to somewhere on local machine with all the lemmatized files
+txt_dir <- "C:/Users/maxs/Documents/data/kuntastrategiat_kopio"
 
-pdf_dir <- "C:/Users/maxs/Documents/data/kuntastrategiat_kopio"
-txt_file <-"C:/Users/maxs/Documents/data/kuntastrategiat_kopio/kuntastrategiat2.conllu"
+txt_files <- list.files(txt_dir, pattern = "\\.conllu$", full.names = TRUE)
 
-strategia <- CoNLLUTextDocument(txt_file) |>
-  content() |>
-  as_tibble()
+doc_list <- lapply(txt_files, NLP::CoNLLUTextDocument)
 
-kunnat <- list.files(pdf_dir, pattern = ".pdf$", full.names = FALSE)
+names(doc_list) <- basename(txt_files)  # List names make up the row names
 
-# Beginning of every doc coded by text "Tästä alkaa dokumentti file_name.pdf."
-# Looks ugly as hell but for now on it will suffice
-strategia$kunta[strategia$FORM=="Tästä" & strategia$ID==1] <- kunnat
+data_list <- lapply(doc_list, NLP::content)
 
-strategia <- strategia |> fill(kunta)
+strategia <- do.call("rbind", data_list)
 
-strategia <- strategia |> select(kunta, everything()) |> filter(!is.na(kunta))
+# Row names have incremental number added to them
+strategia <- cbind(doc = gsub("\\.\\d+$", "", rownames(strategia)), strategia)
 
-# Removing document boundary coding
-to_drop <- strategia |> filter(
-  (ID==1 & FORM == "Tästä") | (ID==2 & FORM=="alkaa") |
-    (ID==3 & FORM=="dokumentti") | (ID==4 & FORM==paste0(kunta, "."))
-  )
+# Column is prettier than row name
+rownames(strategia) <- NULL
 
-strategia <- strategia |> anti_join(to_drop)
+strategia <- strategia |>
+  tidyr::as_tibble() |>
+  mutate(kunta = str_trim(str_to_title(str_replace_all(str_extract(doc, "[A-Äa-ö_-]+"), "_", " ")))) |>
+  select(kunta, sent:MISC, doc)  # kunta first, doc last
+
 
 usethis::use_data(strategia, overwrite = TRUE)
