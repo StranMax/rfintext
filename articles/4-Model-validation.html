@@ -153,7 +153,7 @@
 <span>  <span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/proc.time.html" class="external-link">proc.time</a></span><span class="op">(</span><span class="op">)</span> <span class="op">-</span> <span class="va">ptm</span></span>
 <span><span class="co">#&gt;    user  system elapsed </span></span>
-<span><span class="co">#&gt;   1.473   0.040  47.043</span></span>
+<span><span class="co">#&gt;   1.378   0.026  44.686</span></span>
 <span><span class="va">lda_models</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 3 × 3</span></span></span>
 <span><span class="co">#&gt;       K topic_model theta     </span></span>
@@ -265,7 +265,7 @@
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>model <span class="op">=</span> <span class="fu"><a href="https://purrr.tidyverse.org/reference/pmap.html" class="external-link">pmap</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">xgb_models</span>, <span class="op">-</span><span class="va">K</span>, <span class="op">-</span><span class="va">test_data</span><span class="op">)</span>, <span class="va">xgb.train</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/proc.time.html" class="external-link">proc.time</a></span><span class="op">(</span><span class="op">)</span> <span class="op">-</span> <span class="va">ptm</span></span>
 <span><span class="co">#&gt;    user  system elapsed </span></span>
-<span><span class="co">#&gt;  26.052   1.312   8.779</span></span>
+<span><span class="co">#&gt;  26.236   1.296   8.814</span></span>
 <span><span class="va">xgb_models</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1,215 × 12</span></span></span>
 <span><span class="co">#&gt;        K booster   eta max_depth gamma subsample colsample_bylevel nrounds</span></span>
@@ -315,16 +315,16 @@
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1,215 × 13</span></span></span>
 <span><span class="co">#&gt;        K booster   eta max_depth gamma subsample colsample_bylevel nrounds</span></span>
 <span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span>     6 gbtree   0.01         3     2      0.5               0.75       5</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span>     6 gbtree   0.01         3     0      0.5               0.5       30</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span>     6 gbtree   0.01         3     0      0.5               0.5       55</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span>     6 gbtree   0.01         3     0      0.5               0.75       5</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span>     6 gbtree   0.01         3     0      0.5               0.75      30</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span>     6 gbtree   0.01         3     0      0.5               0.75      55</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span>     6 gbtree   0.01         3     0      0.75              0.5       30</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span>     6 gbtree   0.01         3     0      0.75              0.5       55</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span>     6 gbtree   0.01         3     0      0.75              0.75      30</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span>     6 gbtree   0.01         3     0      0.75              0.75      55</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span>     6 gbtree   0.01         3     0      0.75              0.75       5</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span>     6 gbtree   0.01         4     0      0.75              0.5        5</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span>     6 gbtree   0.01         6     2      0.5               0.75       5</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span>     6 gbtree   0.01         7     2      0.5               0.5        5</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span>     6 gbtree   0.01         7     4      0.75              0.5        5</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span>    10 gbtree   0.01         3     0      0.5               0.5       30</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span>    10 gbtree   0.01         3     2      0.5               0.5        5</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span>    10 gbtree   0.01         3     2      0.5               0.5       30</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span>    10 gbtree   0.01         3     2      0.5               0.5       55</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span>    10 gbtree   0.01         3     4      0.5               0.75      55</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 1,205 more rows</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 5 more variables: objective &lt;chr&gt;, data &lt;list&gt;, test_data &lt;list&gt;,</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#   model &lt;list&gt;, error &lt;dbl&gt;</span></span></span></code></pre></div>
