@@ -11,6 +11,7 @@ knitr::opts_chunk$set(
 
 ```{r setup, message=FALSE, warning=FALSE}
 library(rfintext)
+# devtools::install_github("StranMax/rfinstats")
 library(rfinstats)
 library(dplyr)
 library(tidyr)
@@ -44,14 +45,14 @@ dtm <- aspol |>
 ```
 
 ```{r}
-optimal_k <- c(6, 10, 16)  # Visually selected based on mean topic coherence (see article 3)
+optimal_k <- c(5, 7, 10, 15, 21)  # Visually selected based on mean topic coherence (see article 3)
 ptm <- proc.time()
 lda_models <- tibble(K = optimal_k) |>
   mutate(
     # LDA models
     topic_model = future_map(  
-      K, ~LDA(convert(dtm, to = "tm"), k = .),  # LDA does not support quanteda dfm-format
-      .options = furrr_options(seed = TRUE)
+      K, ~LDA(convert(dtm, to = "tm"), k = ., control = list(seed = 1234)),  # LDA does not support quanteda dfm-format
+      .options = furrr_options(seed = NULL)
     ),
     # Theta matrix (gamma)
     theta = map(
@@ -67,9 +68,10 @@ proc.time() - ptm
 lda_models
 ```
 
+Divide data set to training and test parts:
 
 ```{r}
-trainidx <- createDataPartition(y$suht_muutos_2010_2022, p = .7, 
+trainidx <- createDataPartition(y$suht_muutos_2010_2022, p = .7,
                                 list = FALSE, 
                                 times = 1)
 ```
@@ -92,39 +94,42 @@ lda_models
 lda_models <- lda_models |>
   mutate(
     xgb_train = map(train, \(train) {
-      xgb.DMatrix(data = train, label = as.integer(y$luokka[trainidx]) - 1)
+      xgb.DMatrix(data = train, label = as.integer(y$luokka[trainidx]) - 1)  # Class levels to integers (starting from 0)
     }),
     xgb_test = map(test, \(test) {
-      xgb.DMatrix(data = test, label = as.integer(y$luokka[-trainidx]) - 1)
+      xgb.DMatrix(data = test, label = as.integer(y$luokka[-trainidx]) - 1)  # Class levels to integers (starting from 0)
     })
   )
 lda_models
 ```
 
+Define set of parameters for hyper parameter tuning:
 
 ```{r, R.options=list(width=10000, pillar.print_max = 20, pillar.print_min = 20)}
 gs <- tidyr::expand_grid(
   booster = "gbtree",
   eta = seq(0.01, 0.1, by = 0.2),
-  max_depth = seq(3, 7, by = 1),
+  max_depth = seq(2, 7, by = 1),
   gamma = seq(0, 4, by = 2),
   subsample = seq(0.5, 1, by = 0.25),
   colsample_bylevel = seq(0.5, 1, by = 0.25),
   nrounds = seq(5, 55, by = 25),
   # objective = "reg:squarederror",
-  objective = "binary:logistic"#,
-  # num_parallel_tree = 2,
-  # device = "cuda"
+  objective = "binary:logistic",
+  num_parallel_tree = 2,
 )
 gs
 ```
 
+Add combination of lda-models to hyper parameter set:
 
 ```{r}
 xgb_models <- expand_grid(select(lda_models, K), gs) |> 
   left_join(select(lda_models, K, data = xgb_train, test_data = xgb_test))
 xgb_models 
 ```
+
+Now we are ready to train models:
 
 ```{r}
 ptm <- proc.time()
@@ -133,6 +138,8 @@ xgb_models <- xgb_models |>
 proc.time() - ptm
 xgb_models
 ```
+
+Calculate errors for all models:
 
 ```{r}
 xgb_models <- xgb_models |>
@@ -147,8 +154,19 @@ xgb_models <- xgb_models |>
 xgb_models
 ```
 
+Smallest errors appear to be `r min(xgb_models$error)`
+
 ```{r}
 xgb_models |> arrange(error)
+```
+
+
+```{r, fig.width=14, fig.height=4}
+xgb_models |>
+  ggplot(aes(x = error)) +
+  geom_boxplot() +
+  coord_flip() +
+  facet_wrap(~K, ncol = 5)
 ```
 
 
@@ -157,8 +175,11 @@ xgb_models |>
   ggplot(aes(x = error)) +
   geom_boxplot() +
   coord_flip() +
-  facet_wrap(~K)
+  facet_wrap(~max_depth, ncol = 6)
 ```
+
+Feature importance:  
+
 ```{r}
 xgb_models <- xgb_models |>
   mutate(
@@ -178,7 +199,7 @@ xgb_models |>
   ggplot(aes(x = Feature, y = Gain)) +
   geom_boxplot() +
   labs(title = "Feature importance", x = "Feature (topic)") +
-  facet_wrap(~K)
+  facet_wrap(~K, scales = "free_x")
 ```
 
 

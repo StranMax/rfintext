@@ -59,9 +59,8 @@ lda_models <- tibble(K = 2:68) |>
   mutate(
     # LDA models
     topic_model = future_map(  
-      # K, ~LDA(convert(dtm, to = "tm"), k = ., control = list(seed = 1234)),  # Seed in parallel processing (problem?)
-      K, ~LDA(convert(dtm, to = "tm"), k = .),  # LDA expects dtm in tm format (or does it?)
-      .options = furrr_options(seed = TRUE)
+      K, ~LDA(convert(dtm, to = "tm"), k = ., control = list(seed = 1234)),  # Seed in parallel processing (problem?)
+      .options = furrr_options(seed = NULL)
     ),
     # Model coherence
     mean_coherence = future_map_dbl(
@@ -71,7 +70,6 @@ lda_models <- tibble(K = 2:68) |>
 proc.time() - ptm
 lda_models
 ```
-
 
 ```{r}
 p <- lda_models |>
@@ -86,7 +84,7 @@ Visually selecting potentially best k values
 
 ```{r}
 # optimal_k <- c(5, 9, 11, 15, 20)
-optimal_k <- c(6, 10, 16)
+optimal_k <- c(5, 7, 10, 15, 21)
 ```
 
 
@@ -172,7 +170,7 @@ topic_congruence2 <- bind_rows(topic_congruence2, .id = "model-K")
 topic_congruence2
 ```
 
-```{r, fig.width=14, fig.height=7}
+```{r, fig.width=14, fig.height=21}
 topic_congruence2 |>
   mutate(`model-K`= factor(`model-K`),
          topic1 = factor(as.integer(topic1)),
@@ -184,7 +182,7 @@ topic_congruence2 |>
   theme(axis.text.x = element_text(angle = 90)) +
   labs(title = "Topic congruence between different models") +
   scale_fill_viridis_c(option = "A") +
-  facet_wrap(~`model-K`, scales = "free", ncol = 3)
+  facet_wrap(~`model-K`, scales = "free", ncol = 2)
 ```
 
 ```{r, fig.width=14, fig.height=7}
@@ -229,7 +227,7 @@ selected_models |>
   facet_wrap(~K, scales = "free", ncol = 3)
 ```
 
-```{r, fig.width=14, fig.height=21}
+```{r, fig.width=14, fig.height=42}
 selected_models |>
   select(K, beta) |>
   unnest(beta) |>
@@ -245,7 +243,7 @@ selected_models |>
   geom_col(show.legend = FALSE) +
   labs(title = "25 terms with highest probability per topic") +
   scale_y_reordered() +
-  facet_wrap(K ~ topic, scales = "free", ncol = 7)
+  facet_wrap(K ~ topic, scales = "free", ncol = 5)
 ```
 
 

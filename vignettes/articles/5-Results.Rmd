@@ -20,7 +20,6 @@ library(dplyr)
 library(tidytext)
 library(ggplot2)
 library(quanteda)
-# library(doFuture)
 library(forcats)
 library(purrr)
 library(future)  # Parallel processing back-end
@@ -45,15 +44,14 @@ y
 ```{r, warning=FALSE}
 # optimal_k <- c(5, 15, 18, 21)
 # optimal_k <- c(5, 8, 11, 14, 19)
-optimal_k <- c(6, 10, 16)  # Visually selected based on mean topic coherence (see article 3)
+optimal_k <- c(5, 7, 10, 15, 21)  # Visually selected based on mean topic coherence (see article 3)
 ptm <- proc.time()
 lda_models <- tibble(K = optimal_k) |>
   mutate(
     # LDA model
     topic_model = future_map(  
-      # K, ~LDA(convert(dtm, to = "tm"), k = ., control = list(seed = 1234)),
-      K, ~LDA(convert(dtm, to = "tm"), k = .),
-      .options = furrr_options(seed = TRUE)
+      K, ~LDA(convert(dtm, to = "tm"), k = ., control = list(seed = 1234)),
+      .options = furrr_options(seed = NULL)
     ),
     # Beta matrix
     beta = map(
@@ -72,22 +70,6 @@ proc.time() - ptm
 lda_models
 ```
 
-```{r, R.options=list(width=10000, pillar.print_max = 20, pillar.print_min = 20)}
-# y <- rfinstats::taantuvat |>
-#   filter(kunta %in% unique(aspol$kunta))
-# y
-```
-
-```{r}
-# theta_matrix <- bind_rows(
-#   lapply(lda_models, function(x) {
-#     tidytext::tidy(x, matrix = "gamma") |>
-#       filter(document %in% y$kunta)
-#   }),
-#   .id = "model")
-# theta_matrix
-```
-
 ```{r}
 lda_models <- lda_models |>
   mutate(theta = map(theta, \(df) {
@@ -96,10 +78,13 @@ lda_models <- lda_models |>
       select(aihe = topic, theta, luokka) |>
       mutate(luokka = factor(luokka))
   }))
+lda_models
 ```
 
+We calculate null distribution of t-values and observed t-value:  
 
 ```{r}
+ptm <- proc.time()
 t_distributions <- lda_models |>
   select(K, theta) |>
   unnest(theta) |>
@@ -110,7 +95,7 @@ t_distributions <- lda_models |>
       df |>
         specify(theta ~ luokka) |>
         hypothesize(null = "independence") |>
-        generate(reps = 10000, type = "permute") |>
+        generate(reps = 100000, type = "permute") |>
         calculate("diff in means", order = c("kasvava", "taantuva"))
     }, .options = furrr_options(seed = TRUE)),
     # t-value for estimation
@@ -119,15 +104,13 @@ t_distributions <- lda_models |>
         specify(theta ~ luokka) |>
         calculate("diff in means", order = c("kasvava", "taantuva")) |>
         pull(stat)
-    })#,
-    # p-value for t-estimation under null hypotheses
-    # p_value = pmap_dbl(null_dist, t_val, \(null_dist, t_val) {
-    #   null_dist |>
-    #     get_p_value(obs_stat = t_val, direction = "two-sided")
-    # })
+    })
   )
+proc.time() - ptm
 t_distributions
 ```
+
+Next we calculate p-values:  
 
 ```{r}
 t_distributions <- t_distributions |>
