@@ -83,18 +83,26 @@
 
     
     
-<p>Analysis expects input data to be in numerical form.</p>
+<p>Analysis expects input data to be in numerical form. Here we provide
+two examples of how to convert text data from tabular form to matrix
+format: one using simple bag-of-words approach and two ways using
+ngrams, namely bigram and trigram.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/StranMax/rfintext" class="external-link">rfintext</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/juliasilge/tidytext" class="external-link">tidytext</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://quanteda.io" class="external-link">quanteda</a></span><span class="op">)</span></span></code></pre></div>
-<p>Pre processing aspol corpus and calculating document term count
-(dtc)</p>
+<div class="section level2">
+<h2 id="bag-of-words-representation">Bag-of-Words representation<a class="anchor" aria-label="anchor" href="#bag-of-words-representation"></a>
+</h2>
+<p>Pre processing <code>aspol</code> corpus and calculating document
+term count (<em>dtc</em>) using bag-of-words representation. Single term
+per document per row.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">aspol</span> <span class="op">|&gt;</span></span>
+<code class="sourceCode R"><span><span class="va">bow</span> <span class="op">&lt;-</span> <span class="va">aspol</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/preprocess_corpus.html">preprocess_corpus</a></span><span class="op">(</span><span class="va">kunta</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/count.html" class="external-link">count</a></span><span class="op">(</span><span class="va">kunta</span>, <span class="va">LEMMA</span>, name <span class="op">=</span> <span class="st">"dtc"</span><span class="op">)</span></span>
+<span><span class="va">bow</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 48,269 × 3</span></span></span>
 <span><span class="co">#&gt;    kunta     LEMMA            dtc</span></span>
 <span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span></span>
@@ -121,9 +129,7 @@
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 48,249 more rows</span></span></span></code></pre></div>
 <p>Converting original corpus to document term matrix.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">dtm</span> <span class="op">&lt;-</span> <span class="va">aspol</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/preprocess_corpus.html">preprocess_corpus</a></span><span class="op">(</span><span class="va">kunta</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/count.html" class="external-link">count</a></span><span class="op">(</span><span class="va">kunta</span>, <span class="va">LEMMA</span>, name <span class="op">=</span> <span class="st">"dtc"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<code class="sourceCode R"><span><span class="va">dtm</span> <span class="op">&lt;-</span> <span class="va">bow</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/tidytext/man/document_term_casters.html" class="external-link">cast_dfm</a></span><span class="op">(</span>document <span class="op">=</span> <span class="va">kunta</span>, term <span class="op">=</span> <span class="va">LEMMA</span>, value <span class="op">=</span> <span class="va">dtc</span><span class="op">)</span>  <span class="co"># quanteda format</span></span>
 <span>  <span class="co"># cast_dtm(document = kunta, term = LEMMA, value = dtc)  # tm format</span></span>
 <span><span class="va">dtm</span></span>
@@ -162,7 +168,503 @@ require data to be in <code>tm</code> format.</p>
 <span><span class="co">#&gt; Sparsity           : 77%</span></span>
 <span><span class="co">#&gt; Maximal term length: 27</span></span>
 <span><span class="co">#&gt; Weighting          : term frequency (tf)</span></span></code></pre></div>
-  </main>
+</div>
+<div class="section level2">
+<h2 id="ngrams">Ngrams<a class="anchor" aria-label="anchor" href="#ngrams"></a>
+</h2>
+<p>Bigram and trigram</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">ngram</span> <span class="op">&lt;-</span> <span class="va">aspol</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu"><a href="../reference/preprocess_corpus.html">preprocess_corpus</a></span><span class="op">(</span><span class="va">kunta</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>LEMMA2 <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/lead-lag.html" class="external-link">lead</a></span><span class="op">(</span><span class="va">LEMMA</span>, default <span class="op">=</span> <span class="st">""</span>, n <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>, </span>
+<span>         LEMMA3 <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/lead-lag.html" class="external-link">lead</a></span><span class="op">(</span><span class="va">LEMMA</span>, default <span class="op">=</span> <span class="st">""</span>, n <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>, </span>
+<span>         bigram <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">LEMMA</span>, <span class="st">" "</span>,  <span class="va">LEMMA2</span><span class="op">)</span>,</span>
+<span>         trigram <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">LEMMA</span>, <span class="st">" "</span>, <span class="va">LEMMA2</span>, <span class="st">" "</span>, <span class="va">LEMMA3</span><span class="op">)</span>,</span>
+<span>         .by <span class="op">=</span> <span class="va">kunta</span><span class="op">)</span>  <span class="co"># c(kunta, sent) limits the words to same sentence</span></span>
+<span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/count.html" class="external-link">count</a></span><span class="op">(</span><span class="va">ngram</span>, <span class="va">bigram</span>, sort <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 105,111 × 2</span></span></span>
+<span><span class="co">#&gt;    bigram                          n</span></span>
+<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                       <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> asunto#poliittinen ohjelma    573</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> huone huone                   290</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> kaupunki omistaa              193</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> maa#poliittinen ohjelma       166</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> henkilö henkilö               161</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> kaupunki asunto#poliittinen   161</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> ottaa huomio                  151</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> erityis#ryhmä asuminen        143</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> kaupunki kaupunki             129</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> tehostaa palvelu#asuminen     127</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">11</span> kunta omistaa                 123</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">12</span> määrä kasvaa                  116</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">13</span> valtio tukea                  112</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">14</span> asuminen liittyä              109</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">15</span> alue alue                     107</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">16</span> keskusta alue                  83</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">17</span> asunto#kunta määrä             81</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">18</span> tukea asuminen                 80</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">19</span> luoda edellytys                79</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">20</span> kestävä kehitys                78</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 105,091 more rows</span></span></span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/count.html" class="external-link">count</a></span><span class="op">(</span><span class="va">ngram</span>, <span class="va">trigram</span>, sort <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 160,720 × 2</span></span></span>
+<span><span class="co">#&gt;    trigram                                    n</span></span>
+<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                                  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> huone huone huone                        237</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> kaupunki asunto#poliittinen ohjelma      134</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> henkilö henkilö henkilö                  100</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> kaupunki kaupunki asunto#ohjelma          64</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> asuminen rahoitus kehittämis#keskus       47</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> Rivi ketju#talo asuin#kerros#talo         44</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> erillinen pien#talo Rivi                  44</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> pien#talo Rivi ketju#talo                 44</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> asunto#poliittinen ohjelma luonnos        42</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> asunto#poliittinen ohjelma päivä          40</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">11</span> huone huone tuntematon                    40</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">12</span> ohjelma päivä hyvä                        40</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">13</span> kaupunki#seutu maa#poliittinen ohjelma    39</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">14</span> maan#käyttö asuminen liikenne             39</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">15</span> huone tuntematon huone                    34</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">16</span> kunta asunto#poliittinen ohjelma          34</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">17</span> tuntematon huone huone                    34</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">18</span> kiinnittää erityinen huomio               28</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">19</span> valtio tukea asunto#tuotanto              28</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">20</span> yksikkö kaupunki asunto#poliittinen       25</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 160,700 more rows</span></span></span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">ngram</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/count.html" class="external-link">count</a></span><span class="op">(</span><span class="va">kunta</span>, <span class="va">bigram</span>, name <span class="op">=</span> <span class="st">"n"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/tidytext/man/document_term_casters.html" class="external-link">cast_dfm</a></span><span class="op">(</span>document <span class="op">=</span> <span class="va">kunta</span>, term <span class="op">=</span> <span class="va">bigram</span>, value <span class="op">=</span> <span class="va">n</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Document-feature matrix of: 68 documents, 105,111 features (97.90% sparse) and 0 docvars.</span></span>
+<span><span class="co">#&gt;              features</span></span>
+<span><span class="co">#&gt; docs          A#talo kaksio A#talo kiinteistö A#talo yhteinen</span></span>
+<span><span class="co">#&gt;   Enontekiö               1                 1               1</span></span>
+<span><span class="co">#&gt;   Espoo                   0                 0               0</span></span>
+<span><span class="co">#&gt;   Eura                    0                 0               0</span></span>
+<span><span class="co">#&gt;   Hartola                 0                 0               0</span></span>
+<span><span class="co">#&gt;   Hattula                 0                 0               0</span></span>
+<span><span class="co">#&gt;   Helsinki                0                 0               0</span></span>
+<span><span class="co">#&gt;   Huittinen               0                 0               0</span></span>
+<span><span class="co">#&gt;   Hyvinkää                0                 0               0</span></span>
+<span><span class="co">#&gt;   Hämeenlinna             0                 0               0</span></span>
+<span><span class="co">#&gt;   Iitti                   0                 0               0</span></span>
+<span><span class="co">#&gt;   Imatra                  0                 0               0</span></span>
+<span><span class="co">#&gt;   Inkoo                   0                 0               0</span></span>
+<span><span class="co">#&gt;   Joensuu                 0                 0               0</span></span>
+<span><span class="co">#&gt;   Juva                    0                 0               0</span></span>
+<span><span class="co">#&gt;   Järvenpää               0                 0               0</span></span>
+<span><span class="co">#&gt;   Kaarina                 0                 0               0</span></span>
+<span><span class="co">#&gt;   Kalajoki                0                 0               0</span></span>
+<span><span class="co">#&gt;   Kauniainen              0                 0               0</span></span>
+<span><span class="co">#&gt;   Kemiönsaari             0                 0               0</span></span>
+<span><span class="co">#&gt;   Kerava                  0                 0               0</span></span>
+<span><span class="co">#&gt;              features</span></span>
+<span><span class="co">#&gt; docs          Vapaa#aika asuminen aiheuttaa asiakas aiheuttaa paine</span></span>
+<span><span class="co">#&gt;   Enontekiö                     1                 1               1</span></span>
+<span><span class="co">#&gt;   Espoo                         0                 0               0</span></span>
+<span><span class="co">#&gt;   Eura                          0                 0               0</span></span>
+<span><span class="co">#&gt;   Hartola                       0                 0               0</span></span>
+<span><span class="co">#&gt;   Hattula                       0                 0               0</span></span>
+<span><span class="co">#&gt;   Helsinki                      0                 0               0</span></span>
+<span><span class="co">#&gt;   Huittinen                     0                 0               0</span></span>
+<span><span class="co">#&gt;   Hyvinkää                      0                 0               0</span></span>
+<span><span class="co">#&gt;   Hämeenlinna                   1                 0               0</span></span>
+<span><span class="co">#&gt;   Iitti                         0                 0               0</span></span>
+<span><span class="co">#&gt;   Imatra                        0                 0               0</span></span>
+<span><span class="co">#&gt;   Inkoo                         0                 0               0</span></span>
+<span><span class="co">#&gt;   Joensuu                       0                 0               0</span></span>
+<span><span class="co">#&gt;   Juva                          0                 0               0</span></span>
+<span><span class="co">#&gt;   Järvenpää                     0                 0               0</span></span>
+<span><span class="co">#&gt;   Kaarina                       0                 0               0</span></span>
+<span><span class="co">#&gt;   Kalajoki                      0                 0               0</span></span>
+<span><span class="co">#&gt;   Kauniainen                    0                 0               0</span></span>
+<span><span class="co">#&gt;   Kemiönsaari                   2                 0               0</span></span>
+<span><span class="co">#&gt;   Kerava                        0                 0               0</span></span>
+<span><span class="co">#&gt;              features</span></span>
+<span><span class="co">#&gt; docs          aiheuttaa suora aika houkutella aika huhtikuu aika kuntalainen</span></span>
+<span><span class="co">#&gt;   Enontekiö                 1               1             1                1</span></span>
+<span><span class="co">#&gt;   Espoo                     0               0             0                0</span></span>
+<span><span class="co">#&gt;   Eura                      0               0             0                0</span></span>
+<span><span class="co">#&gt;   Hartola                   0               0             0                0</span></span>
+<span><span class="co">#&gt;   Hattula                   0               0             0                0</span></span>
+<span><span class="co">#&gt;   Helsinki                  0               0             0                0</span></span>
+<span><span class="co">#&gt;   Huittinen                 0               0             0                0</span></span>
+<span><span class="co">#&gt;   Hyvinkää                  0               0             0                0</span></span>
+<span><span class="co">#&gt;   Hämeenlinna               0               0             0                0</span></span>
+<span><span class="co">#&gt;   Iitti                     0               0             0                0</span></span>
+<span><span class="co">#&gt;   Imatra                    0               0             0                0</span></span>
+<span><span class="co">#&gt;   Inkoo                     0               0             0                0</span></span>
+<span><span class="co">#&gt;   Joensuu                   0               0             0                0</span></span>
+<span><span class="co">#&gt;   Juva                      0               0             0                0</span></span>
+<span><span class="co">#&gt;   Järvenpää                 0               0             0                0</span></span>
+<span><span class="co">#&gt;   Kaarina                   0               0             0                0</span></span>
+<span><span class="co">#&gt;   Kalajoki                  0               0             0                0</span></span>
+<span><span class="co">#&gt;   Kauniainen                0               0             0                0</span></span>
+<span><span class="co">#&gt;   Kemiönsaari               0               0             0                0</span></span>
+<span><span class="co">#&gt;   Kerava                    0               0             0                0</span></span>
+<span><span class="co">#&gt;              features</span></span>
+<span><span class="co">#&gt; docs          aika raportointi aika tontti aika valmistua aika yhtiö</span></span>
+<span><span class="co">#&gt;   Enontekiö                  1           1              1          1</span></span>
+<span><span class="co">#&gt;   Espoo                      0           0              1          0</span></span>
+<span><span class="co">#&gt;   Eura                       0           0              0          0</span></span>
+<span><span class="co">#&gt;   Hartola                    0           0              0          0</span></span>
+<span><span class="co">#&gt;   Hattula                    0           0              0          0</span></span>
+<span><span class="co">#&gt;   Helsinki                   0           0              2          0</span></span>
+<span><span class="co">#&gt;   Huittinen                  0           0              0          0</span></span>
+<span><span class="co">#&gt;   Hyvinkää                   0           0              0          0</span></span>
+<span><span class="co">#&gt;   Hämeenlinna                0           0              0          0</span></span>
+<span><span class="co">#&gt;   Iitti                      0           0              0          0</span></span>
+<span><span class="co">#&gt;   Imatra                     0           0              0          0</span></span>
+<span><span class="co">#&gt;   Inkoo                      0           0              0          0</span></span>
+<span><span class="co">#&gt;   Joensuu                    0           0              0          0</span></span>
+<span><span class="co">#&gt;   Juva                       0           0              0          2</span></span>
+<span><span class="co">#&gt;   Järvenpää                  0           0              0          0</span></span>
+<span><span class="co">#&gt;   Kaarina                    0           1              1          0</span></span>
+<span><span class="co">#&gt;   Kalajoki                   0           0              0          0</span></span>
+<span><span class="co">#&gt;   Kauniainen                 0           0              0          0</span></span>
+<span><span class="co">#&gt;   Kemiönsaari                0           1              0          0</span></span>
+<span><span class="co">#&gt;   Kerava                     0           0              0          0</span></span>
+<span><span class="co">#&gt;              features</span></span>
+<span><span class="co">#&gt; docs          aika#väli suunnittelu ajatella kokonais#taloudellinen</span></span>
+<span><span class="co">#&gt;   Enontekiö                       1                               1</span></span>
+<span><span class="co">#&gt;   Espoo                           1                               0</span></span>
+<span><span class="co">#&gt;   Eura                            0                               0</span></span>
+<span><span class="co">#&gt;   Hartola                         0                               0</span></span>
+<span><span class="co">#&gt;   Hattula                         0                               0</span></span>
+<span><span class="co">#&gt;   Helsinki                        0                               0</span></span>
+<span><span class="co">#&gt;   Huittinen                       0                               0</span></span>
+<span><span class="co">#&gt;   Hyvinkää                        0                               0</span></span>
+<span><span class="co">#&gt;   Hämeenlinna                     0                               0</span></span>
+<span><span class="co">#&gt;   Iitti                           0                               0</span></span>
+<span><span class="co">#&gt;   Imatra                          0                               0</span></span>
+<span><span class="co">#&gt;   Inkoo                           0                               0</span></span>
+<span><span class="co">#&gt;   Joensuu                         0                               0</span></span>
+<span><span class="co">#&gt;   Juva                            0                               0</span></span>
+<span><span class="co">#&gt;   Järvenpää                       0                               0</span></span>
+<span><span class="co">#&gt;   Kaarina                         0                               0</span></span>
+<span><span class="co">#&gt;   Kalajoki                        0                               0</span></span>
+<span><span class="co">#&gt;   Kauniainen                      0                               0</span></span>
+<span><span class="co">#&gt;   Kemiönsaari                     0                               0</span></span>
+<span><span class="co">#&gt;   Kerava                          0                               0</span></span>
+<span><span class="co">#&gt;              features</span></span>
+<span><span class="co">#&gt; docs          alhainen kiinteistö alku tuoda alku#peräinen kunto</span></span>
+<span><span class="co">#&gt;   Enontekiö                     1          1                   1</span></span>
+<span><span class="co">#&gt;   Espoo                         0          0                   0</span></span>
+<span><span class="co">#&gt;   Eura                          0          0                   0</span></span>
+<span><span class="co">#&gt;   Hartola                       0          0                   0</span></span>
+<span><span class="co">#&gt;   Hattula                       0          0                   0</span></span>
+<span><span class="co">#&gt;   Helsinki                      0          0                   0</span></span>
+<span><span class="co">#&gt;   Huittinen                     0          0                   0</span></span>
+<span><span class="co">#&gt;   Hyvinkää                      0          0                   0</span></span>
+<span><span class="co">#&gt;   Hämeenlinna                   0          0                   0</span></span>
+<span><span class="co">#&gt;   Iitti                         0          0                   0</span></span>
+<span><span class="co">#&gt;   Imatra                        0          0                   0</span></span>
+<span><span class="co">#&gt;   Inkoo                         0          0                   0</span></span>
+<span><span class="co">#&gt;   Joensuu                       0          0                   0</span></span>
+<span><span class="co">#&gt;   Juva                          0          0                   0</span></span>
+<span><span class="co">#&gt;   Järvenpää                     0          0                   0</span></span>
+<span><span class="co">#&gt;   Kaarina                       0          0                   0</span></span>
+<span><span class="co">#&gt;   Kalajoki                      0          0                   0</span></span>
+<span><span class="co">#&gt;   Kauniainen                    0          0                   0</span></span>
+<span><span class="co">#&gt;   Kemiönsaari                   0          0                   1</span></span>
+<span><span class="co">#&gt;   Kerava                        0          0                   0</span></span>
+<span><span class="co">#&gt;              features</span></span>
+<span><span class="co">#&gt; docs          alku#puoli vuokra#asunto</span></span>
+<span><span class="co">#&gt;   Enontekiö                          1</span></span>
+<span><span class="co">#&gt;   Espoo                              0</span></span>
+<span><span class="co">#&gt;   Eura                               0</span></span>
+<span><span class="co">#&gt;   Hartola                            0</span></span>
+<span><span class="co">#&gt;   Hattula                            0</span></span>
+<span><span class="co">#&gt;   Helsinki                           0</span></span>
+<span><span class="co">#&gt;   Huittinen                          0</span></span>
+<span><span class="co">#&gt;   Hyvinkää                           0</span></span>
+<span><span class="co">#&gt;   Hämeenlinna                        0</span></span>
+<span><span class="co">#&gt;   Iitti                              0</span></span>
+<span><span class="co">#&gt;   Imatra                             0</span></span>
+<span><span class="co">#&gt;   Inkoo                              0</span></span>
+<span><span class="co">#&gt;   Joensuu                            0</span></span>
+<span><span class="co">#&gt;   Juva                               0</span></span>
+<span><span class="co">#&gt;   Järvenpää                          0</span></span>
+<span><span class="co">#&gt;   Kaarina                            0</span></span>
+<span><span class="co">#&gt;   Kalajoki                           0</span></span>
+<span><span class="co">#&gt;   Kauniainen                         0</span></span>
+<span><span class="co">#&gt;   Kemiönsaari                        0</span></span>
+<span><span class="co">#&gt;   Kerava                             0</span></span>
+<span><span class="co">#&gt; [ reached max_ndoc ... 48 more documents, reached max_nfeat ... 105,091 more features ]</span></span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">ngram</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/count.html" class="external-link">count</a></span><span class="op">(</span><span class="va">kunta</span>, <span class="va">trigram</span>, name <span class="op">=</span> <span class="st">"n"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/tidytext/man/document_term_casters.html" class="external-link">cast_dfm</a></span><span class="op">(</span>document <span class="op">=</span> <span class="va">kunta</span>, term <span class="op">=</span> <span class="va">trigram</span>, value <span class="op">=</span> <span class="va">n</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Document-feature matrix of: 68 documents, 160,720 features (98.45% sparse) and 0 docvars.</span></span>
+<span><span class="co">#&gt;              features</span></span>
+<span><span class="co">#&gt; docs          A#talo kaksio kaksio A#talo kiinteistö perus#korjata</span></span>
+<span><span class="co">#&gt;   Enontekiö                      1                               1</span></span>
+<span><span class="co">#&gt;   Espoo                          0                               0</span></span>
+<span><span class="co">#&gt;   Eura                           0                               0</span></span>
+<span><span class="co">#&gt;   Hartola                        0                               0</span></span>
+<span><span class="co">#&gt;   Hattula                        0                               0</span></span>
+<span><span class="co">#&gt;   Helsinki                       0                               0</span></span>
+<span><span class="co">#&gt;   Huittinen                      0                               0</span></span>
+<span><span class="co">#&gt;   Hyvinkää                       0                               0</span></span>
+<span><span class="co">#&gt;   Hämeenlinna                    0                               0</span></span>
+<span><span class="co">#&gt;   Iitti                          0                               0</span></span>
+<span><span class="co">#&gt;   Imatra                         0                               0</span></span>
+<span><span class="co">#&gt;   Inkoo                          0                               0</span></span>
+<span><span class="co">#&gt;   Joensuu                        0                               0</span></span>
+<span><span class="co">#&gt;   Juva                           0                               0</span></span>
+<span><span class="co">#&gt;   Järvenpää                      0                               0</span></span>
+<span><span class="co">#&gt;   Kaarina                        0                               0</span></span>
+<span><span class="co">#&gt;   Kalajoki                       0                               0</span></span>
+<span><span class="co">#&gt;   Kauniainen                     0                               0</span></span>
+<span><span class="co">#&gt;   Kemiönsaari                    0                               0</span></span>
+<span><span class="co">#&gt;   Kerava                         0                               0</span></span>
+<span><span class="co">#&gt;              features</span></span>
+<span><span class="co">#&gt; docs          A#talo yhteinen sauna Vapaa#aika asuminen lisääntyä</span></span>
+<span><span class="co">#&gt;   Enontekiö                       1                             1</span></span>
+<span><span class="co">#&gt;   Espoo                           0                             0</span></span>
+<span><span class="co">#&gt;   Eura                            0                             0</span></span>
+<span><span class="co">#&gt;   Hartola                         0                             0</span></span>
+<span><span class="co">#&gt;   Hattula                         0                             0</span></span>
+<span><span class="co">#&gt;   Helsinki                        0                             0</span></span>
+<span><span class="co">#&gt;   Huittinen                       0                             0</span></span>
+<span><span class="co">#&gt;   Hyvinkää                        0                             0</span></span>
+<span><span class="co">#&gt;   Hämeenlinna                     0                             0</span></span>
+<span><span class="co">#&gt;   Iitti                           0                             0</span></span>
+<span><span class="co">#&gt;   Imatra                          0                             0</span></span>
+<span><span class="co">#&gt;   Inkoo                           0                             0</span></span>
+<span><span class="co">#&gt;   Joensuu                         0                             0</span></span>
+<span><span class="co">#&gt;   Juva                            0                             0</span></span>
+<span><span class="co">#&gt;   Järvenpää                       0                             0</span></span>
+<span><span class="co">#&gt;   Kaarina                         0                             0</span></span>
+<span><span class="co">#&gt;   Kalajoki                        0                             0</span></span>
+<span><span class="co">#&gt;   Kauniainen                      0                             0</span></span>
+<span><span class="co">#&gt;   Kemiönsaari                     0                             0</span></span>
+<span><span class="co">#&gt;   Kerava                          0                             0</span></span>
+<span><span class="co">#&gt;              features</span></span>
+<span><span class="co">#&gt; docs          aiheuttaa asiakas tulla aiheuttaa paine vuokra#asuminen</span></span>
+<span><span class="co">#&gt;   Enontekiö                         1                               1</span></span>
+<span><span class="co">#&gt;   Espoo                             0                               0</span></span>
+<span><span class="co">#&gt;   Eura                              0                               0</span></span>
+<span><span class="co">#&gt;   Hartola                           0                               0</span></span>
+<span><span class="co">#&gt;   Hattula                           0                               0</span></span>
+<span><span class="co">#&gt;   Helsinki                          0                               0</span></span>
+<span><span class="co">#&gt;   Huittinen                         0                               0</span></span>
+<span><span class="co">#&gt;   Hyvinkää                          0                               0</span></span>
+<span><span class="co">#&gt;   Hämeenlinna                       0                               0</span></span>
+<span><span class="co">#&gt;   Iitti                             0                               0</span></span>
+<span><span class="co">#&gt;   Imatra                            0                               0</span></span>
+<span><span class="co">#&gt;   Inkoo                             0                               0</span></span>
+<span><span class="co">#&gt;   Joensuu                           0                               0</span></span>
+<span><span class="co">#&gt;   Juva                              0                               0</span></span>
+<span><span class="co">#&gt;   Järvenpää                         0                               0</span></span>
+<span><span class="co">#&gt;   Kaarina                           0                               0</span></span>
+<span><span class="co">#&gt;   Kalajoki                          0                               0</span></span>
+<span><span class="co">#&gt;   Kauniainen                        0                               0</span></span>
+<span><span class="co">#&gt;   Kemiönsaari                       0                               0</span></span>
+<span><span class="co">#&gt;   Kerava                            0                               0</span></span>
+<span><span class="co">#&gt;              features</span></span>
+<span><span class="co">#&gt; docs          aiheuttaa suora sähkö#lämmitys aika houkutella paikallinen</span></span>
+<span><span class="co">#&gt;   Enontekiö                                1                           1</span></span>
+<span><span class="co">#&gt;   Espoo                                    0                           0</span></span>
+<span><span class="co">#&gt;   Eura                                     0                           0</span></span>
+<span><span class="co">#&gt;   Hartola                                  0                           0</span></span>
+<span><span class="co">#&gt;   Hattula                                  0                           0</span></span>
+<span><span class="co">#&gt;   Helsinki                                 0                           0</span></span>
+<span><span class="co">#&gt;   Huittinen                                0                           0</span></span>
+<span><span class="co">#&gt;   Hyvinkää                                 0                           0</span></span>
+<span><span class="co">#&gt;   Hämeenlinna                              0                           0</span></span>
+<span><span class="co">#&gt;   Iitti                                    0                           0</span></span>
+<span><span class="co">#&gt;   Imatra                                   0                           0</span></span>
+<span><span class="co">#&gt;   Inkoo                                    0                           0</span></span>
+<span><span class="co">#&gt;   Joensuu                                  0                           0</span></span>
+<span><span class="co">#&gt;   Juva                                     0                           0</span></span>
+<span><span class="co">#&gt;   Järvenpää                                0                           0</span></span>
+<span><span class="co">#&gt;   Kaarina                                  0                           0</span></span>
+<span><span class="co">#&gt;   Kalajoki                                 0                           0</span></span>
+<span><span class="co">#&gt;   Kauniainen                               0                           0</span></span>
+<span><span class="co">#&gt;   Kemiönsaari                              0                           0</span></span>
+<span><span class="co">#&gt;   Kerava                                   0                           0</span></span>
+<span><span class="co">#&gt;              features</span></span>
+<span><span class="co">#&gt; docs          aika huhtikuu alku aika kuntalainen matkailija</span></span>
+<span><span class="co">#&gt;   Enontekiö                    1                           1</span></span>
+<span><span class="co">#&gt;   Espoo                        0                           0</span></span>
+<span><span class="co">#&gt;   Eura                         0                           0</span></span>
+<span><span class="co">#&gt;   Hartola                      0                           0</span></span>
+<span><span class="co">#&gt;   Hattula                      0                           0</span></span>
+<span><span class="co">#&gt;   Helsinki                     0                           0</span></span>
+<span><span class="co">#&gt;   Huittinen                    0                           0</span></span>
+<span><span class="co">#&gt;   Hyvinkää                     0                           0</span></span>
+<span><span class="co">#&gt;   Hämeenlinna                  0                           0</span></span>
+<span><span class="co">#&gt;   Iitti                        0                           0</span></span>
+<span><span class="co">#&gt;   Imatra                       0                           0</span></span>
+<span><span class="co">#&gt;   Inkoo                        0                           0</span></span>
+<span><span class="co">#&gt;   Joensuu                      0                           0</span></span>
+<span><span class="co">#&gt;   Juva                         0                           0</span></span>
+<span><span class="co">#&gt;   Järvenpää                    0                           0</span></span>
+<span><span class="co">#&gt;   Kaarina                      0                           0</span></span>
+<span><span class="co">#&gt;   Kalajoki                     0                           0</span></span>
+<span><span class="co">#&gt;   Kauniainen                   0                           0</span></span>
+<span><span class="co">#&gt;   Kemiönsaari                  0                           0</span></span>
+<span><span class="co">#&gt;   Kerava                       0                           0</span></span>
+<span><span class="co">#&gt;              features</span></span>
+<span><span class="co">#&gt; docs          aika raportointi konserni#johto aika tontti pari#talo</span></span>
+<span><span class="co">#&gt;   Enontekiö                                 1                     1</span></span>
+<span><span class="co">#&gt;   Espoo                                     0                     0</span></span>
+<span><span class="co">#&gt;   Eura                                      0                     0</span></span>
+<span><span class="co">#&gt;   Hartola                                   0                     0</span></span>
+<span><span class="co">#&gt;   Hattula                                   0                     0</span></span>
+<span><span class="co">#&gt;   Helsinki                                  0                     0</span></span>
+<span><span class="co">#&gt;   Huittinen                                 0                     0</span></span>
+<span><span class="co">#&gt;   Hyvinkää                                  0                     0</span></span>
+<span><span class="co">#&gt;   Hämeenlinna                               0                     0</span></span>
+<span><span class="co">#&gt;   Iitti                                     0                     0</span></span>
+<span><span class="co">#&gt;   Imatra                                    0                     0</span></span>
+<span><span class="co">#&gt;   Inkoo                                     0                     0</span></span>
+<span><span class="co">#&gt;   Joensuu                                   0                     0</span></span>
+<span><span class="co">#&gt;   Juva                                      0                     0</span></span>
+<span><span class="co">#&gt;   Järvenpää                                 0                     0</span></span>
+<span><span class="co">#&gt;   Kaarina                                   0                     0</span></span>
+<span><span class="co">#&gt;   Kalajoki                                  0                     0</span></span>
+<span><span class="co">#&gt;   Kauniainen                                0                     0</span></span>
+<span><span class="co">#&gt;   Kemiönsaari                               0                     0</span></span>
+<span><span class="co">#&gt;   Kerava                                    0                     0</span></span>
+<span><span class="co">#&gt;              features</span></span>
+<span><span class="co">#&gt; docs          aika valmistua pien#talo aika yhtiö tulla</span></span>
+<span><span class="co">#&gt;   Enontekiö                          1                1</span></span>
+<span><span class="co">#&gt;   Espoo                              0                0</span></span>
+<span><span class="co">#&gt;   Eura                               0                0</span></span>
+<span><span class="co">#&gt;   Hartola                            0                0</span></span>
+<span><span class="co">#&gt;   Hattula                            0                0</span></span>
+<span><span class="co">#&gt;   Helsinki                           0                0</span></span>
+<span><span class="co">#&gt;   Huittinen                          0                0</span></span>
+<span><span class="co">#&gt;   Hyvinkää                           0                0</span></span>
+<span><span class="co">#&gt;   Hämeenlinna                        0                0</span></span>
+<span><span class="co">#&gt;   Iitti                              0                0</span></span>
+<span><span class="co">#&gt;   Imatra                             0                0</span></span>
+<span><span class="co">#&gt;   Inkoo                              0                0</span></span>
+<span><span class="co">#&gt;   Joensuu                            0                0</span></span>
+<span><span class="co">#&gt;   Juva                               0                0</span></span>
+<span><span class="co">#&gt;   Järvenpää                          0                0</span></span>
+<span><span class="co">#&gt;   Kaarina                            0                0</span></span>
+<span><span class="co">#&gt;   Kalajoki                           0                0</span></span>
+<span><span class="co">#&gt;   Kauniainen                         0                0</span></span>
+<span><span class="co">#&gt;   Kemiönsaari                        0                0</span></span>
+<span><span class="co">#&gt;   Kerava                             0                0</span></span>
+<span><span class="co">#&gt;              features</span></span>
+<span><span class="co">#&gt; docs          aika#väli suunnittelu tuottavuus</span></span>
+<span><span class="co">#&gt;   Enontekiö                                  1</span></span>
+<span><span class="co">#&gt;   Espoo                                      0</span></span>
+<span><span class="co">#&gt;   Eura                                       0</span></span>
+<span><span class="co">#&gt;   Hartola                                    0</span></span>
+<span><span class="co">#&gt;   Hattula                                    0</span></span>
+<span><span class="co">#&gt;   Helsinki                                   0</span></span>
+<span><span class="co">#&gt;   Huittinen                                  0</span></span>
+<span><span class="co">#&gt;   Hyvinkää                                   0</span></span>
+<span><span class="co">#&gt;   Hämeenlinna                                0</span></span>
+<span><span class="co">#&gt;   Iitti                                      0</span></span>
+<span><span class="co">#&gt;   Imatra                                     0</span></span>
+<span><span class="co">#&gt;   Inkoo                                      0</span></span>
+<span><span class="co">#&gt;   Joensuu                                    0</span></span>
+<span><span class="co">#&gt;   Juva                                       0</span></span>
+<span><span class="co">#&gt;   Järvenpää                                  0</span></span>
+<span><span class="co">#&gt;   Kaarina                                    0</span></span>
+<span><span class="co">#&gt;   Kalajoki                                   0</span></span>
+<span><span class="co">#&gt;   Kauniainen                                 0</span></span>
+<span><span class="co">#&gt;   Kemiönsaari                                0</span></span>
+<span><span class="co">#&gt;   Kerava                                     0</span></span>
+<span><span class="co">#&gt;              features</span></span>
+<span><span class="co">#&gt; docs          ajatella kokonais#taloudellinen vaihto#ehto</span></span>
+<span><span class="co">#&gt;   Enontekiö                                             1</span></span>
+<span><span class="co">#&gt;   Espoo                                                 0</span></span>
+<span><span class="co">#&gt;   Eura                                                  0</span></span>
+<span><span class="co">#&gt;   Hartola                                               0</span></span>
+<span><span class="co">#&gt;   Hattula                                               0</span></span>
+<span><span class="co">#&gt;   Helsinki                                              0</span></span>
+<span><span class="co">#&gt;   Huittinen                                             0</span></span>
+<span><span class="co">#&gt;   Hyvinkää                                              0</span></span>
+<span><span class="co">#&gt;   Hämeenlinna                                           0</span></span>
+<span><span class="co">#&gt;   Iitti                                                 0</span></span>
+<span><span class="co">#&gt;   Imatra                                                0</span></span>
+<span><span class="co">#&gt;   Inkoo                                                 0</span></span>
+<span><span class="co">#&gt;   Joensuu                                               0</span></span>
+<span><span class="co">#&gt;   Juva                                                  0</span></span>
+<span><span class="co">#&gt;   Järvenpää                                             0</span></span>
+<span><span class="co">#&gt;   Kaarina                                               0</span></span>
+<span><span class="co">#&gt;   Kalajoki                                              0</span></span>
+<span><span class="co">#&gt;   Kauniainen                                            0</span></span>
+<span><span class="co">#&gt;   Kemiönsaari                                           0</span></span>
+<span><span class="co">#&gt;   Kerava                                                0</span></span>
+<span><span class="co">#&gt;              features</span></span>
+<span><span class="co">#&gt; docs          alhainen kiinteistö huono#kuntoinen alku tuoda paikka#kunta</span></span>
+<span><span class="co">#&gt;   Enontekiö                                     1                       1</span></span>
+<span><span class="co">#&gt;   Espoo                                         0                       0</span></span>
+<span><span class="co">#&gt;   Eura                                          0                       0</span></span>
+<span><span class="co">#&gt;   Hartola                                       0                       0</span></span>
+<span><span class="co">#&gt;   Hattula                                       0                       0</span></span>
+<span><span class="co">#&gt;   Helsinki                                      0                       0</span></span>
+<span><span class="co">#&gt;   Huittinen                                     0                       0</span></span>
+<span><span class="co">#&gt;   Hyvinkää                                      0                       0</span></span>
+<span><span class="co">#&gt;   Hämeenlinna                                   0                       0</span></span>
+<span><span class="co">#&gt;   Iitti                                         0                       0</span></span>
+<span><span class="co">#&gt;   Imatra                                        0                       0</span></span>
+<span><span class="co">#&gt;   Inkoo                                         0                       0</span></span>
+<span><span class="co">#&gt;   Joensuu                                       0                       0</span></span>
+<span><span class="co">#&gt;   Juva                                          0                       0</span></span>
+<span><span class="co">#&gt;   Järvenpää                                     0                       0</span></span>
+<span><span class="co">#&gt;   Kaarina                                       0                       0</span></span>
+<span><span class="co">#&gt;   Kalajoki                                      0                       0</span></span>
+<span><span class="co">#&gt;   Kauniainen                                    0                       0</span></span>
+<span><span class="co">#&gt;   Kemiönsaari                                   0                       0</span></span>
+<span><span class="co">#&gt;   Kerava                                        0                       0</span></span>
+<span><span class="co">#&gt;              features</span></span>
+<span><span class="co">#&gt; docs          alku#peräinen kunto perus#korjata</span></span>
+<span><span class="co">#&gt;   Enontekiö                                   1</span></span>
+<span><span class="co">#&gt;   Espoo                                       0</span></span>
+<span><span class="co">#&gt;   Eura                                        0</span></span>
+<span><span class="co">#&gt;   Hartola                                     0</span></span>
+<span><span class="co">#&gt;   Hattula                                     0</span></span>
+<span><span class="co">#&gt;   Helsinki                                    0</span></span>
+<span><span class="co">#&gt;   Huittinen                                   0</span></span>
+<span><span class="co">#&gt;   Hyvinkää                                    0</span></span>
+<span><span class="co">#&gt;   Hämeenlinna                                 0</span></span>
+<span><span class="co">#&gt;   Iitti                                       0</span></span>
+<span><span class="co">#&gt;   Imatra                                      0</span></span>
+<span><span class="co">#&gt;   Inkoo                                       0</span></span>
+<span><span class="co">#&gt;   Joensuu                                     0</span></span>
+<span><span class="co">#&gt;   Juva                                        0</span></span>
+<span><span class="co">#&gt;   Järvenpää                                   0</span></span>
+<span><span class="co">#&gt;   Kaarina                                     0</span></span>
+<span><span class="co">#&gt;   Kalajoki                                    0</span></span>
+<span><span class="co">#&gt;   Kauniainen                                  0</span></span>
+<span><span class="co">#&gt;   Kemiönsaari                                 0</span></span>
+<span><span class="co">#&gt;   Kerava                                      0</span></span>
+<span><span class="co">#&gt;              features</span></span>
+<span><span class="co">#&gt; docs          alku#puoli vuokra#asunto kysyntä</span></span>
+<span><span class="co">#&gt;   Enontekiö                                  1</span></span>
+<span><span class="co">#&gt;   Espoo                                      0</span></span>
+<span><span class="co">#&gt;   Eura                                       0</span></span>
+<span><span class="co">#&gt;   Hartola                                    0</span></span>
+<span><span class="co">#&gt;   Hattula                                    0</span></span>
+<span><span class="co">#&gt;   Helsinki                                   0</span></span>
+<span><span class="co">#&gt;   Huittinen                                  0</span></span>
+<span><span class="co">#&gt;   Hyvinkää                                   0</span></span>
+<span><span class="co">#&gt;   Hämeenlinna                                0</span></span>
+<span><span class="co">#&gt;   Iitti                                      0</span></span>
+<span><span class="co">#&gt;   Imatra                                     0</span></span>
+<span><span class="co">#&gt;   Inkoo                                      0</span></span>
+<span><span class="co">#&gt;   Joensuu                                    0</span></span>
+<span><span class="co">#&gt;   Juva                                       0</span></span>
+<span><span class="co">#&gt;   Järvenpää                                  0</span></span>
+<span><span class="co">#&gt;   Kaarina                                    0</span></span>
+<span><span class="co">#&gt;   Kalajoki                                   0</span></span>
+<span><span class="co">#&gt;   Kauniainen                                 0</span></span>
+<span><span class="co">#&gt;   Kemiönsaari                                0</span></span>
+<span><span class="co">#&gt;   Kerava                                     0</span></span>
+<span><span class="co">#&gt; [ reached max_ndoc ... 48 more documents, reached max_nfeat ... 160,700 more features ]</span></span></code></pre></div>
+</div>
+  </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
+    </nav></aside>
 </div>
 
 
