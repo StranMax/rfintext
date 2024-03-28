@@ -98,7 +98,7 @@ filter_upostag <- function(df, upostag) {
 #' @importFrom dplyr .data
 #'
 #' @examples
-#' preprocess_corpus(aspol, kunta, LEMMA)
+#' preprocess_corpus(aspol, kunta)
 #'
 preprocess_corpus <- function(df, doc) {
   df |>

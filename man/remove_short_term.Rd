@@ -8,8 +8,6 @@ remove_short_term(df)
 }
 \arguments{
 \item{df}{data frame}
-
-\item{len}{minimum length for terms/words to keep}
 }
 \value{
 data frame

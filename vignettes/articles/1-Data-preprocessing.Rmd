@@ -9,6 +9,11 @@ knitr::opts_chunk$set(
 )
 ```
 
+Examples of pre processing text data with `dplyr` and `stringr` in data frame. 
+Many of the pre process steps introduced here are possible to carry out after 
+conversion to document-term-matrix using `quanteda` package presented in the 
+next articles.
+
 Aim is to filter out uninteresting, and potentially false terms. 
 Background for pre processing text data:  
 * Ristilä A. & K. Elo (2023). Observing political and societal changes in Finnish 
@@ -55,9 +60,11 @@ Now we filter nouns, verbs and adjectives.Which of those words contain numbers
 ```{r}
 aspol |>
   filter(UPOSTAG %in% c("NOUN", "VERB", "ADJ")) |>
-  filter(str_detect(FORM, "[0-9]+")) |>  # remove_numbers() function is the same but with negation `!`
+  filter(str_detect(FORM, "[0-9]+")) |> 
   count(LEMMA, sort = TRUE)
 ```
+
+> Note. FORM `m2` get´s LEMMA `menrer#mammen`!?  
 
 Nouns, verbs or adjectives with no numbers, but marked as a foreign term. 
 These are mostly nonsense here. We have already gotten rid of real foreign terms 
@@ -83,7 +90,9 @@ aspol |>
   filter(UPOSTAG %in% c("NOUN", "VERB", "ADJ")) |>
   filter(!str_detect(FORM, "[0-9]+")) |>
   filter(!str_detect(FEATS, "Foreign=Yes")) |>
-  calculate_doc_freq(kunta, LEMMA) |>  # Adds columns df (doc freq) and df_ratio (same but relative) for easy filtering
+  left_join(
+    aspol |> distinct(kunta, LEMMA) |> count(LEMMA, name = "df")  # Adds document-frequency to table with dplyr functions
+  ) |>
   filter(df > 65) |>
   count(LEMMA, sort = TRUE)
 ```
@@ -96,7 +105,9 @@ aspol |>
   filter(UPOSTAG %in% c("NOUN", "VERB", "ADJ")) |>
   filter(!str_detect(FORM, "[0-9]+")) |>
   filter(!str_detect(FEATS, "Foreign=Yes")) |>
-  calculate_doc_freq(kunta, LEMMA) |>
+   left_join(
+    aspol |> distinct(kunta, LEMMA) |> count(LEMMA, name = "df")
+  ) |>
   filter(df < 5) |>
   count(LEMMA, sort = TRUE)
 ```
@@ -110,7 +121,9 @@ aspol |>
   filter(UPOSTAG %in% c("NOUN", "VERB", "ADJ")) |>
   filter(!str_detect(FORM, "[0-9]+")) |>
   filter(!str_detect(FEATS, "Foreign=Yes")) |>
-  calculate_doc_freq(kunta, LEMMA) |>
+  left_join(
+    aspol |> distinct(kunta, LEMMA) |> count(LEMMA, name = "df")
+  ) |>
   filter(df >= 5, df <= 65) |>
   filter(nchar(FORM) < 3, nchar(LEMMA) < 4) |>
   count(LEMMA, sort = TRUE)
@@ -124,7 +137,9 @@ aspol |>
   filter(UPOSTAG %in% c("NOUN", "VERB", "ADJ")) |>
   filter(!str_detect(FORM, "[0-9]+")) |>
   filter(!str_detect(FEATS, "Foreign=Yes")) |>
-  calculate_doc_freq(kunta, LEMMA) |>
+  left_join(
+    aspol |> distinct(kunta, LEMMA) |> count(LEMMA, name = "df")
+  ) |>
   filter(df >= 5, df <= 65) |>
   filter(nchar(FORM) >= 3, nchar(LEMMA) >= 4)
 ```

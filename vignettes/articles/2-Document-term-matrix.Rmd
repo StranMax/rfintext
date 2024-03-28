@@ -9,7 +9,9 @@ knitr::opts_chunk$set(
 )
 ```
 
-Analysis expects input data to be in numerical form.
+Analysis expects input data to be in numerical form. Here we provide two examples 
+of how to convert text data from tabular form to matrix format: one using simple 
+bag-of-words approach and two ways using ngrams, namely bigram and trigram.
 
 ```{r setup, message=FALSE, warning=FALSE}
 library(rfintext)
@@ -22,20 +24,22 @@ library(quanteda)
 quanteda_options(print_dfm_max_ndoc = 20, print_dfm_max_nfeat = 20)
 ```
 
-Pre processing aspol corpus and calculating document term count (dtc)
+## Bag-of-Words representation
+
+Pre processing `aspol` corpus and calculating document term count (*dtc*) using 
+bag-of-words representation. Single term per document per row.
 
 ```{r, message=FALSE, R.options = list(width = 10000, pillar.print_max = 20, pillar.print_min = 20)}
-aspol |>
+bow <- aspol |>
   preprocess_corpus(kunta) |>
   count(kunta, LEMMA, name = "dtc")
+bow
 ```
 
 Converting original corpus to document term matrix.
 
 ```{r, message=FALSE, R.options = list(width = 10000)}
-dtm <- aspol |>
-  preprocess_corpus(kunta) |>
-  count(kunta, LEMMA, name = "dtc") |>
+dtm <- bow |>
   cast_dfm(document = kunta, term = LEMMA, value = dtc)  # quanteda format
   # cast_dtm(document = kunta, term = LEMMA, value = dtc)  # tm format
 dtm
@@ -47,5 +51,36 @@ function. For example some functions require data to be in `tm` format.
 ```{r}
 dtm |>
   quanteda::convert(to = "tm")
+```
+
+## Ngrams
+
+Bigram and trigram
+
+```{r, message=FALSE, R.options = list(width = 10000, pillar.print_max = 20, pillar.print_min = 20)}
+ngram <- aspol |> 
+  preprocess_corpus(kunta) |> 
+  mutate(LEMMA2 = lead(LEMMA, default = "", n = 1), 
+         LEMMA3 = lead(LEMMA, default = "", n = 2), 
+         bigram = paste0(LEMMA, " ",  LEMMA2),
+         trigram = paste0(LEMMA, " ", LEMMA2, " ", LEMMA3),
+         .by = kunta)  # c(kunta, sent) limits the words to same sentence
+count(ngram, bigram, sort = TRUE)
+```
+
+```{r, message=FALSE, R.options = list(width = 10000, pillar.print_max = 20, pillar.print_min = 20)}
+count(ngram, trigram, sort = TRUE)
+```
+
+```{r}
+ngram |>
+  count(kunta, bigram, name = "n") |>
+  cast_dfm(document = kunta, term = bigram, value = n)
+```
+
+```{r}
+ngram |>
+  count(kunta, trigram, name = "n") |>
+  cast_dfm(document = kunta, term = trigram, value = n)
 ```
 

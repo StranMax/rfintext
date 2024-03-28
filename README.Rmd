@@ -24,7 +24,7 @@ Main purpose for this package is:
 around dplyr functionality.  
 * Document all the work done.  
 
-> NOTE! It is strongly recommended to use dplyr and functions provided by other 
+> NOTE! It is strongly recommended to use dplyr functions directly provided by other 
 packages directly since all the helper functions provided here are highly likely 
 to change many times before I decide how they should look like and function.
 
