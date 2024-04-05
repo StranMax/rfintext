@@ -19,6 +19,7 @@ library(topicmodels)  # LDA
 library(topicdoc)  # Coherence score
 library(dplyr)  # Tidyverse friends
 library(tidyr)  # Tidyverse friends
+library(tibble)
 library(forcats)  # Tidyverse friends
 library(purrr)  # Tidyverse friends
 library(tidyr)  # Tidyverse friends
@@ -47,44 +48,66 @@ Let's get straight to business. Unsupervised classification with LDA:
 
 LDA needs one parameter `k`. Finding optimal values by evaluating coherence score.
 
-> Note! Following will take some time even with multiple cores. For me it took 
-around half an hour on laptop with 14 cores. Adjust number of K values 
-accordingly. Here we test the whole scale for number of topics ranging from two 
-to number of documents.
+Here we use the pre calculated data set `lda_models` because running classification every time 
+wastes time. Data set `lda_models` includes mean semantic coherence calclulated 
+with different topic sizes and random seeds.
+
+
+```{r}
+rfintext::lda_models
+```
+
+Below is the code used to run the models.
+
+> Note! Following will take some time on normal computer. On cloud computing 
+environment with 40 core machine with 177 Gb of RAM this took only ~10min. 
+If running locally adjust number of K and S values accordingly.
 
 
 ```{r, warning=FALSE, message=FALSE}
-ptm <- proc.time()
-lda_models <- tibble(K = 2:68) |>
-  mutate(
-    # LDA models
-    topic_model = future_map(  
-      K, ~LDA(convert(dtm, to = "tm"), k = ., control = list(seed = 1234)),  # Seed in parallel processing (problem?)
-      .options = furrr_options(seed = NULL)
-    ),
-    # Model coherence
-    mean_coherence = future_map_dbl(
-      topic_model, \(x) mean(topic_coherence(x, dtm))
-    )
-  )
-proc.time() - ptm
-lda_models
+# set.seed(342024)
+# random_seeds <- sample.int(9999999, 10)  # 3476154 5039353 8550496 7292293 5500417 7137547 6622604 9458765 3952778 8167640
+#
+# ptm <- proc.time()
+# lda_models <- expand_grid(K = 3:30, S = random_seeds) |>
+#   mutate(
+#     # LDA models
+#     lda = future_map2(
+#       K, S, \(k, s)  {
+#         LDA(convert(bow, to = "tm"), k = k, control = list(seed = s))
+#       },
+#       .options = furrr_options(seed = NULL)
+#     ),
+#     # Model coherence
+#     mean_coherence = future_map_dbl(
+#       lda, \(x) {
+#         mean(topic_coherence(x, bow))
+#       }
+#     )
+#   )
+# proc.time() - ptm
+# lda_models
 ```
+
 
 ```{r}
 p <- lda_models |>
-  ggplot(aes(x = K, y = mean_coherence)) +
-  geom_line() +
+  ggplot(aes(x = K, y = mean_coherence, group = S, colour = as.factor(S), fill = as.factor(S))) +
+  geom_line(show.legend = FALSE) +
+  geom_point(show.legend = FALSE) +
+  scale_color_discrete() +
   labs(subtitle = "LDA model coherence with different topic numbers", 
        x = "k (number of topics)", y = "Mean coherence")
 p
 ```
 
-Visually selecting potentially best k values
+Visually selecting potentially best k values. With values 5 and 15 different iterations 
+are pretty close to each other.
 
 ```{r}
 # optimal_k <- c(5, 9, 11, 15, 20)
-optimal_k <- c(5, 7, 10, 15, 21)
+# optimal_k <- c(5, 7, 10, 15, 21)
+optimal_k <- c(3, 5, 15)
 ```
 
 
@@ -102,8 +125,14 @@ pipeline. Make your mind on those first and stick to it.
 Highest coherence values: `r optimal_k`
 
 ```{r}
-selected_models <- lda_models |>
-  filter(K %in% optimal_k)
+ptm <- proc.time()
+selected_models <- lda_models |> filter(K %in% optimal_k) |>
+  mutate(
+    lda = future_map2(K, S, \(k, s) {
+      LDA(convert(dtm, to = "tm"), k = k, control = list(seed = s))
+    }, .options = furrr_options(seed = NULL))
+  )
+proc.time() - ptm
 selected_models
 ```
 
@@ -121,11 +150,11 @@ selected_models <- selected_models |>
   mutate(
     # Beta matrix
     beta = map(
-      topic_model, \(x) tidy(x, matrix = "beta")
+      lda, \(x) tidy(x, matrix = "beta")
     ),
     # Theta matrix (gamma)
     theta = map(
-      topic_model, \(x) {
+      lda, \(x) {
         tidy(x, matrix = "gamma") |> 
           rename(theta = gamma)
       }
@@ -134,21 +163,119 @@ selected_models <- selected_models |>
 selected_models
 ```
 
-This is all good. Next parts look ugly but hopefully they work. We take a look 
+Let's try to calculate how much there is similarity vs difference in topics between 
+different models.
+
+> TODO: Set probabilities of all but the top 10-40 terms to zero and calculate 
+cosine similarity between all topic pairs.
+
+```{r}
+# selected_models <- selected_models |> filter(K==5)
+selected_models <- selected_models |> mutate(model_id = paste0(K, "_", S))
+idx <- combn(unique(selected_models$model_id), 2)  # Unique pairs of K
+
+beta <- selected_models |> select(K, model_id, beta)
+
+topic_pairs <- list()
+for (i in 1:ncol(idx)) {
+  sel <- beta |> filter(model_id %in% idx[, i])  # Two rows at a time
+  
+  # Combine pair of rows to same row
+  topic_pairs[[i]] <- tibble_row(
+    K1 = sel[[1,"K"]], model1 = sel[[1,"model_id"]], beta1 = sel[[1,"beta"]],
+    K2 = sel[[2,"K"]], model2 = sel[[2,"model_id"]], beta2 = sel[[2,"beta"]]
+    )
+  
+}
+topic_pairs <- bind_rows(topic_pairs)
+
+topic_pairs <- topic_pairs |>
+  mutate(
+    
+    topics1 = map(beta1, \(b1) {
+      b1 |>
+        pivot_wider(values_from = beta, names_from = topic) |>
+        select(-term)
+    }),
+    
+    topics2 = map(beta2, \(b2) {
+      b2 |>
+        pivot_wider(values_from = beta, names_from = topic) |>
+        select(-term)
+    }),
+    
+    r = map2(topics1, topics2, \(x1, x2) {
+      cor(x1, x2)
+    })#,
+    
+    # cossim = map2(topics1, topics2, \(x1, x2) {
+    #   cosine(x1, x2)
+    # })
+  )
+topic_pairs
+```
+
+```{r, fig.width=14, fig.height=6}
+topic_pairs |> select(K1, K2, r) |>
+  mutate(similarity = map(r, \(x) {
+    x |>
+      as_tibble(rownames = "topic1") |>
+      pivot_longer(!topic1, names_to = "topic2", values_to = "r") |>
+      summarise(similarity = sum(r > 0.8)/n(), .by = topic1)
+  })) |>
+  select(-r) |>
+  unnest(similarity) |>
+  summarise(mean_similarity = mean(similarity), .by = c(K1, topic1)) |>
+  mutate(topic1 = as.factor(as.integer(topic1))) |>
+  ggplot() +
+  geom_col(aes(x = topic1, y = mean_similarity)) +
+  facet_grid(~K1, scales = "free_x")
+```
+
+
+```{r}
+# similarity <- list()
+# for (i in 1:nrow(topic_pairs)) {
+#   similarity[[i]] <- topic_pairs$r[[i]] |>
+#     as_tibble(rownames = "topic1") |>
+#     pivot_longer(!topic1, names_to = "topic2", values_to = "r") |>
+#     summarise(similarity = sum(r > 0.9)/n(), .by = topic1)  
+# }
+# bind_rows(similarity) |>
+#   summarise(mean_similarity = mean(similarity), .by = topic1)
+```
+
+
+```{r, fig.height=21, fig.width=14}
+# topic_congruence <- list()
+# for (i in 1:nrow(topic_pairs)) {
+#   topic_congruence[[i]] <- topic_pairs$r[[i]] |>
+#   as_tibble(rownames = "model1") |>
+#   pivot_longer(cols = !model1, names_to = "model2", values_to = "r") |>
+#   ggplot(aes(x = model1, y = model2, fill = r, label = round(r, 2))) +
+#   geom_tile(show.legend = FALSE) +
+#   geom_text() +
+#   scale_fill_gradient2(low = "blue", mid = "white", high = "red")  
+# }
+# plot_grid(plotlist = topic_congruence)
+```
+
+
+Next parts look ugly but hopefully they work. We take a look 
 at correlation between topics from different models to see if different models 
 catch up same things. 
 
 ```{r}
-topic_congruence <- list()
-for (i in selected_models$K) {
-  topic_congruence[[paste0("model-", i)]] <- selected_models |>
-  select(K, beta) |>
-  unnest(beta) |>
-  filter(K==i) |>
-  pivot_wider(values_from = beta, names_from = topic) |>
-  select(-term, -K)
-}
-topic_congruence
+# topic_congruence <- list()
+# for (i in selected_models$K) {
+#   topic_congruence[[paste0("model-", i)]] <- selected_models |>
+#   select(K, beta) |>
+#   unnest(beta) |>
+#   filter(K==i) |>
+#   pivot_wider(values_from = beta, names_from = topic) |>
+#   select(-term, -K)
+# }
+# topic_congruence
 ```
 
 Compare all possible pairs of models: 
@@ -158,35 +285,41 @@ Compare all possible pairs of models:
 ```
 
 ```{r}
-topic_congruence2 <- list()
-for (idx_col in 1:ncol(combn(selected_models$K, 2))) {
-  idx <- combn(selected_models$K, 2)[, idx_col]
-  correlation <- cor(topic_congruence[[paste0("model-", idx[1])]], topic_congruence[[paste0("model-", idx[2])]])
-  topic_congruence2[[paste0("model-", idx[1], "-", idx[2])]] <- correlation |> 
-    as_tibble(rownames = "topic1") |>
-    pivot_longer(!topic1, names_to = "topic2", values_to = "r")
-}
-topic_congruence2 <- bind_rows(topic_congruence2, .id = "model-K")
-topic_congruence2
+# topic_congruence2 <- list()
+# for (idx_col in 1:ncol(combn(selected_models$K, 2))) {
+#   idx <- combn(selected_models$K, 2)[, idx_col]
+#   correlation <- cor(topic_congruence[[paste0("model-", idx[1])]], topic_congruence[[paste0("model-", idx[2])]])
+#   topic_congruence2[[paste0("model-", idx[1], "-", idx[2])]] <- correlation |> 
+#     as_tibble(rownames = "topic1") |>
+#     pivot_longer(!topic1, names_to = "topic2", values_to = "r")
+# }
+# topic_congruence2 <- bind_rows(topic_congruence2, .id = "model-K")
+# topic_congruence2
 ```
 
 ```{r, fig.width=14, fig.height=21}
-topic_congruence2 |>
-  mutate(`model-K`= factor(`model-K`),
-         topic1 = factor(as.integer(topic1)),
-         topic2 = factor(as.integer(topic2)),
-         r = round(r, 2)) |>
-  ggplot(aes(x = topic1, y = topic2, fill = r, label = r)) +
-  geom_tile(show.legend = FALSE) +
-  geom_text() +
-  theme(axis.text.x = element_text(angle = 90)) +
-  labs(title = "Topic congruence between different models") +
-  scale_fill_viridis_c(option = "A") +
-  facet_wrap(~`model-K`, scales = "free", ncol = 2)
+# topic_congruence2 |>
+#   mutate(`model-K`= factor(`model-K`),
+#          topic1 = factor(as.integer(topic1)),
+#          topic2 = factor(as.integer(topic2)),
+#          r = round(r, 2)) |>
+#   ggplot(aes(x = topic1, y = topic2, fill = r, label = r)) +
+#   geom_tile(show.legend = FALSE) +
+#   geom_text() +
+#   theme(axis.text.x = element_text(angle = 90)) +
+#   labs(title = "Topic congruence between different models") +
+#   scale_fill_viridis_c(option = "A") +
+#   facet_wrap(~`model-K`, scales = "free", ncol = 2)
 ```
 
-```{r, fig.width=14, fig.height=7}
-selected_models |>
+```{r}
+final_models <- selected_models |>
+  slice_max(mean_coherence, n =1, by = K)
+```
+
+
+```{r, fig.width=12, fig.height=4}
+final_models |>
   select(K, theta) |>
   unnest(theta) |>
   mutate(topic = factor(as.integer(topic))) |>
@@ -195,40 +328,52 @@ selected_models |>
   ggplot() +
   geom_col(aes(x = topic, y = total_theta)) +
   labs(title = "Topic prevalence") +
-  facet_wrap(~K, scales = "free", ncol = 3)
+  facet_wrap(~K, scales = "free")
 ```
 
 Theta value is probability of document belonging to or comprising of certain 
 topics. Histogram over topic probabilities shows how common it is for specific 
 topic to comprise the whole document (height of a column at theta 1.0).
 
-```{r, fig.width=14, fig.height=21}
-selected_models |>
+```{r, fig.width=14, fig.height=7}
+final_models |>
   select(K, theta) |>
   unnest(theta) |>
-  ggplot(aes(x = theta)) +
-  geom_histogram(binwidth = 0.1) +
+  ggplot(aes(x = theta, fill = K)) +
+  geom_histogram(binwidth = 0.1, show.legend = FALSE) +
   labs(title = "Topic histograms") +
   theme(axis.text.x = element_text(angle = 90)) +
   facet_wrap(K~topic, scales = "free_y")
 ```
 
 
+```{r, fig.height=4, fig.width=12}
+final_models |>
+  select(K, theta) |>
+  unnest(theta) |>
+  slice_max(theta, n = 1, by = c(K, document)) |>
+  mutate(topic = factor(as.integer(topic))) |>
+  ggplot(aes(x = topic, y = theta, group = topic)) +
+  geom_boxplot(show.legend = FALSE) +
+  labs(title = "Distributions of largest topics per document") +
+  facet_wrap(~K, scales = "free")
+```
 
 
-```{r, fig.height=7, fig.width=14}
-selected_models |>
+
+```{r, fig.height=4, fig.width=12}
+final_models |>
   select(K, theta) |>
   unnest(theta) |>
   mutate(topic = factor(as.integer(topic))) |>
   ggplot(aes(x = topic, y = theta, group = topic)) +
   geom_boxplot(show.legend = FALSE) +
   labs(title = "Topic distributions per document") +
-  facet_wrap(~K, scales = "free", ncol = 3)
+  facet_wrap(~K, scales = "free")
 ```
 
-```{r, fig.width=14, fig.height=42}
-selected_models |>
+```{r, fig.width=14, fig.height=21}
+final_models |>
   select(K, beta) |>
   unnest(beta) |>
   slice_max(beta, n = 25, by = c(K, topic)) |>
@@ -239,11 +384,12 @@ selected_models |>
          K = factor(K),
          topic = factor(topic),
          term = reorder_within(term, beta, topic)) |>
-  ggplot(aes(x = beta, y = term, fill = K)) +
+  ggplot(aes(x = beta, y = term, fill = K, colour = is_unique)) +
   geom_col(show.legend = FALSE) +
   labs(title = "25 terms with highest probability per topic") +
   scale_y_reordered() +
-  facet_wrap(K ~ topic, scales = "free", ncol = 5)
+  scale_color_manual(values = c(NA, "red")) +
+  facet_wrap(K ~ topic, scales = "free")
 ```
 
 
