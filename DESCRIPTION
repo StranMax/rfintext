@@ -17,16 +17,16 @@ BugReports: https://github.com/StranMax/rfintext/issues
 Config/Needs/website: rmarkdown
 Suggests: 
     caret,
-    combinat,
     cowplot,
     devtools,
     forcats,
+    purrr,
     furrr,
     future,
     ggplot2,
     ggwordcloud,
     kableExtra,
-    quanteda,
+    quanteda (== 3.3.1),
     readr,
     sf,
     stats,

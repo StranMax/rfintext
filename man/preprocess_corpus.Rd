@@ -10,8 +10,6 @@ preprocess_corpus(df, doc)
 \item{df}{Data frame in tidytext format one token per document per line}
 
 \item{doc}{column with document id}
-
-\item{term}{column with terms}
 }
 \value{
 cleaned data frame
