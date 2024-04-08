@@ -90,7 +90,6 @@ filter_upostag <- function(df, upostag) {
 #'
 #' @param df Data frame in tidytext format one token per document per line
 #' @param doc column with document id
-#' @param term column with terms
 #'
 #' @return cleaned data frame
 #' @export
