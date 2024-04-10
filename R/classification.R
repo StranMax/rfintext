@@ -25,13 +25,15 @@ split_train_test <- function(data, classes, id, ratio = 0.7) {
 #' @return list of xgb.DMatrices for training and testing
 #' @export
 #'
+#' @importFrom dplyr .data
+#'
 #' @examples
 get_train_test_data <- function(x, y, trainNames) {
 
-  trainX <- x |> quanteda::dfm_subset(docname_ %in% trainNames) |> as.matrix()
+  trainX <- x |> quanteda::dfm_subset(.data$docname_ %in% trainNames) |> as.matrix()
   trainY <- y[y$kunta %in% trainNames, ]$luokka |> as.integer() - 1
 
-  testX <- x |> quanteda::dfm_subset(!docname_ %in% trainNames) |> as.matrix()
+  testX <- x |> quanteda::dfm_subset(!.data$docname_ %in% trainNames) |> as.matrix()
   testY <- y[!y$kunta %in% trainNames, ]$luokka |> as.integer() - 1
 
   xgb_train <-  xgboost::xgb.DMatrix(data = trainX, label = trainY)

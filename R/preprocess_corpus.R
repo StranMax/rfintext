@@ -101,7 +101,7 @@ filter_upostag <- function(df, upostag) {
 #'
 preprocess_corpus <- function(df, doc) {
   df |>
-    dplyr::filter(UPOSTAG %in% c("NOUN", "VERB", "ADJ")) |>
+    dplyr::filter(.data$UPOSTAG %in% c("NOUN", "VERB", "ADJ")) |>
     # remove_numbers(term = .data$FORM) |>
     dplyr::filter(!stringr::str_detect(.data$FORM, "[0-9]")) |>
     # remove_foreign() |>

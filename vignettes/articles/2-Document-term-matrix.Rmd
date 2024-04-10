@@ -27,7 +27,7 @@ quanteda_options(print_dfm_max_ndoc = 20, print_dfm_max_nfeat = 20)
 ## Bag-of-Words representation
 
 Pre processing `aspol` corpus and calculating document term count (*dtc*) using 
-bag-of-words representation. Single term per document per row.
+bag-of-words representation (single word as a basic unit). Single term per document per row.
 
 ```{r, message=FALSE, R.options = list(width = 10000, pillar.print_max = 20, pillar.print_min = 20)}
 bow <- aspol |>

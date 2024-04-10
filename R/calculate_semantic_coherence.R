@@ -21,10 +21,10 @@
 #'  dplyr::count(kunta, LEMMA) |>
 #'  tidytext::cast_dfm(kunta, LEMMA, n)
 #'
-#'  calculate_semantic_coherence(dtm = dtm, K_values = seq(5, 10, by = 5),
-#'                               n_seeds = 1, seed = 1234, verbose = TRUE)
+#'  progressr::with_progressor({calculate_semantic_coherence(dtm = dtm, K_values = seq(5, 10, by = 5),
+#'                               n_seeds = 1, seed = 1234)})
 #'}
-calculate_semantic_coherence <- function(dtm, K_values, n_seeds, seed, verbose = FALSE) {
+calculate_semantic_coherence <- function(dtm, K_values, n_seeds, seed) {
 
   future::plan(future::multisession, workers = future::availableCores(logical = FALSE) - 1)
 
@@ -33,14 +33,15 @@ calculate_semantic_coherence <- function(dtm, K_values, n_seeds, seed, verbose =
 
   grid_search <- tidyr::expand_grid(K = K_values, S = random_seeds)
 
-  if (verbose) cat("Started processing ", nrow(grid_search), " models at time: ", Sys.time())
+  p <- progressr::progressor(steps = nrow(grid_search))
 
-  ptm <- proc.time()
+  # ptm <- proc.time()
   lda_models <- grid_search |>
     dplyr::mutate(
       # LDA models
       lda = furrr::future_map2(
         .data$K, .data$S, \(k, s)  {
+          p()
           topicmodels::LDA(dtm, k = k, control = list(seed = s))
         },
         .options = furrr::furrr_options(seed = NULL)
@@ -52,7 +53,7 @@ calculate_semantic_coherence <- function(dtm, K_values, n_seeds, seed, verbose =
         }
       )
     )
-  if (verbose) cat("Processing time: ", proc.time() - ptm)
+  # proc.time() - ptm
 
   lda_models
 }

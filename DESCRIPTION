@@ -37,7 +37,8 @@ Suggests:
     tidytext,
     topicdoc,
     topicmodels,
-    xgboost
+    xgboost,
+    progressr
 Imports: 
     dplyr
 Config/testthat/edition: 3

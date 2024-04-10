@@ -24,6 +24,7 @@ tibble with LDA models and semantic coherence
 Title
 }
 \examples{
+\dontrun{
 dtm <- aspol |>
 preprocess_corpus(kunta) |>
  dplyr::count(kunta, LEMMA) |>
@@ -31,4 +32,5 @@ preprocess_corpus(kunta) |>
 
  calculate_semantic_coherence(dtm = dtm, K_values = seq(5, 10, by = 5),
                               n_seeds = 1, seed = 1234, verbose = TRUE)
+}
 }
