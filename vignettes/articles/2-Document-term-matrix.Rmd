@@ -72,13 +72,13 @@ count(ngram, bigram, sort = TRUE)
 count(ngram, trigram, sort = TRUE)
 ```
 
-```{r}
+```{r, message=FALSE, R.options = list(width = 10000)}
 ngram |>
   count(kunta, bigram, name = "n") |>
   cast_dfm(document = kunta, term = bigram, value = n)
 ```
 
-```{r}
+```{r, message=FALSE, R.options = list(width = 10000)}
 ngram |>
   count(kunta, trigram, name = "n") |>
   cast_dfm(document = kunta, term = trigram, value = n)

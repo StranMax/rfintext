@@ -44,14 +44,17 @@ y
 ```{r, warning=FALSE}
 # optimal_k <- c(5, 15, 18, 21)
 # optimal_k <- c(5, 8, 11, 14, 19)
-optimal_k <- c(5, 7, 10, 15, 21)  # Visually selected based on mean topic coherence (see article 3)
+# optimal_k <- c(5, 7, 10, 15, 21)  # Visually selected based on mean topic coherence (see article 3)
+optimal_params <- tibble(K = 13, S = 664224)
 ptm <- proc.time()
-lda_models <- tibble(K = optimal_k) |>
+lda_models <- optimal_params |>
   mutate(
     # LDA model
-    topic_model = future_map(  
-      K, ~LDA(convert(dtm, to = "tm"), k = ., control = list(seed = 1234)),
-      .options = furrr_options(seed = NULL)
+    topic_model = map2(  # use future_map2() if multiple models  
+      K, S, \(k, s) {
+        LDA(dtm, k = k, control = list(seed = S))
+      }#,
+      # .options = furrr_options(seed = NULL)
     ),
     # Beta matrix
     beta = map(
@@ -90,14 +93,14 @@ t_distributions <- lda_models |>
   unnest(theta) |>
   nest(data = c(theta, luokka)) |>
   mutate(
-    null_dist = future_map(data, \(df) {
+    null_dist = map(data, \(df) {  # future_map() if multiple models
       # t-distribution under null hypothesis
       df |>
         specify(theta ~ luokka) |>
         hypothesize(null = "independence") |>
         generate(reps = 100000, type = "permute") |>
         calculate("diff in means", order = c("kasvava", "taantuva"))
-    }, .options = furrr_options(seed = TRUE)),
+    }),#, .options = furrr_options(seed = TRUE)),
     # t-value for estimation
     t_val = map_dbl(data, \(df) {
       df |>

@@ -26,7 +26,7 @@ lapply(pkgs, library, character.only = TRUE)
 # devtools::install_github("StranMax/rfintext")
 #
 # pkgs <- c(
-#   "devtools",
+#   # "devtools",
 #   "tidyverse",
 #   "tidytext",
 #   "rfintext",
@@ -34,45 +34,24 @@ lapply(pkgs, library, character.only = TRUE)
 #   "topicdoc",
 #   "quanteda",
 #   "future",
-#   "furrr"
+#   "furrr",
+#   "progressr"
 # )
 # uninst <- pkgs[!pkgs %in% installed.packages()]
 # if (length(uninst) > 0) install.packages(uninst)
 # lapply(pkgs, library, character.only = TRUE, quietly = TRUE)
-#
-# # plan(multicore, workers = availableCores(logical = FALSE) - 1)
-# plan(multisession, workers = availableCores(logical = FALSE) - 1)
 #
 # bow <- aspol |>
 #   preprocess_corpus(kunta) |>
 #   count(kunta, LEMMA) |>
 #   cast_dfm(kunta, LEMMA, n)
 #
-# set.seed(342024)
-# random_seeds <- sample.int(9999999, 10)  # 3476154 5039353 8550496 7292293 5500417 7137547 6622604 9458765 3952778 8167640
+# with_progress({
+#   lda_simulation <- calculate_semantic_coherence(bow, K_values = 3:30, n_seeds = 50, seed = 1042024)
+# })
 #
-# sink("log_lda_simulation_aspol.txt")
-# ptm <- proc.time()
-# lda_models <- expand_grid(K = 3:30, S = random_seeds) |>
-#   mutate(
-#     # LDA models
-#     lda = future_map2(
-#       K, S, \(k, s)  {
-#         LDA(convert(bow, to = "tm"), k = k, control = list(seed = s))
-#       },
-#       .options = furrr_options(seed = NULL)
-#     ),
-#     # Model coherence
-#     mean_coherence = future_map_dbl(
-#       lda, \(x) {
-#         mean(topic_coherence(x, bow))
-#       }
-#     )
-#   )
-# proc.time() - ptm
-# sink()
-# saveRDS(lda_models, "lda_models_aspol.rds")
+# saveRDS(lda_simulation, "lda_simulation_aspol.rds")
 
-lda_models <- readRDS("C:/Users/maxs/Documents/data/lda_simulation_aspol/lda_models_aspol.rds")
+lda_models <- readRDS("C:/Users/maxs/Desktop/cpouta_volume_50_1/lda_simulation_aspol.rds")
 lda_models <- lda_models |> select(-lda)  # Over 100Mb in size with lda included
 usethis::use_data(lda_models, overwrite = TRUE)

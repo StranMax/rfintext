@@ -45,14 +45,16 @@ dtm <- aspol |>
 ```
 
 ```{r}
-optimal_k <- c(5, 7, 10, 15, 21)  # Visually selected based on mean topic coherence (see article 3)
+# optimal_k <- c(5, 7, 10, 15, 21)  # Visually selected based on mean topic coherence (see article 3)
+optimal_params <- tibble(K = 13, S = 664224)
 ptm <- proc.time()
-lda_models <- tibble(K = optimal_k) |>
+lda_models <- optimal_params |>
   mutate(
     # LDA models
-    topic_model = future_map(  
-      K, ~LDA(convert(dtm, to = "tm"), k = ., control = list(seed = 1234)),  # LDA does not support quanteda dfm-format
-      .options = furrr_options(seed = NULL)
+    topic_model = map2(  # use furrr::future_map2() if multiple models  
+      K, S, \(k, s) {
+        LDA(dtm, k = ., control = list(seed = s))
+        }# , .options = furrr_options(seed = NULL)  # use with furrr::future_map2()
     ),
     # Theta matrix (gamma)
     theta = map(

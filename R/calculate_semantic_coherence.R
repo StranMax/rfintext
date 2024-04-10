@@ -26,7 +26,8 @@
 #'}
 calculate_semantic_coherence <- function(dtm, K_values, n_seeds, seed) {
 
-  future::plan(future::multisession, workers = future::availableCores(logical = FALSE) - 1)
+  oplan <- future::plan(future::multisession, workers = future::availableCores(logical = FALSE) - 1)
+  on.exit(plan(oplan), add = TRUE)  # Clean after your self, restore default plan
 
   if (!is.na(seed)) set.seed(seed)
   random_seeds <- sample.int(9999999, n_seeds)
