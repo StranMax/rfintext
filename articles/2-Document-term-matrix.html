@@ -96,8 +96,8 @@ ngrams, namely bigram and trigram.</p>
 <h2 id="bag-of-words-representation">Bag-of-Words representation<a class="anchor" aria-label="anchor" href="#bag-of-words-representation"></a>
 </h2>
 <p>Pre processing <code>aspol</code> corpus and calculating document
-term count (<em>dtc</em>) using bag-of-words representation. Single term
-per document per row.</p>
+term count (<em>dtc</em>) using bag-of-words representation (single word
+as a basic unit). Single term per document per row.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">bow</span> <span class="op">&lt;-</span> <span class="va">aspol</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/preprocess_corpus.html">preprocess_corpus</a></span><span class="op">(</span><span class="va">kunta</span><span class="op">)</span> <span class="op">|&gt;</span></span>

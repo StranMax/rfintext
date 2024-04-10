@@ -46,6 +46,9 @@
     <loc>https://stranmax.github.io/rfintext/reference/calculate_doc_freq.html</loc>
   </url>
   <url>
+    <loc>https://stranmax.github.io/rfintext/reference/calculate_semantic_coherence.html</loc>
+  </url>
+  <url>
     <loc>https://stranmax.github.io/rfintext/reference/compute_error.html</loc>
   </url>
   <url>
@@ -68,6 +71,9 @@
   </url>
   <url>
     <loc>https://stranmax.github.io/rfintext/reference/kuntalista.html</loc>
+  </url>
+  <url>
+    <loc>https://stranmax.github.io/rfintext/reference/lda_models.html</loc>
   </url>
   <url>
     <loc>https://stranmax.github.io/rfintext/reference/mod.html</loc>
