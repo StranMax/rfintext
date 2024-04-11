@@ -132,17 +132,30 @@
 <code class="sourceCode R"><span><span class="va">dtm</span> <span class="op">&lt;-</span> <span class="va">aspol</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/preprocess_corpus.html">preprocess_corpus</a></span><span class="op">(</span><span class="va">kunta</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/corpus_to_dtm.html">corpus_to_dtm</a></span><span class="op">(</span><span class="va">kunta</span>, <span class="va">LEMMA</span><span class="op">)</span></span></code></pre></div>
+<p>Use 13 topics, and a few random seeds.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">optimal_params</span> <span class="op">&lt;-</span> <span class="va">lda_models</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">K</span> <span class="op">==</span> <span class="fl">13</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/slice.html" class="external-link">slice_min</a></span><span class="op">(</span><span class="va">mean_coherence</span>, n <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
+<span><span class="va">optimal_params</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 5 × 3</span></span></span>
+<span><span class="co">#&gt;       K       S mean_coherence</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>    13  <span style="text-decoration: underline;">664</span>224          -<span style="color: #BB0000;">12.6</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span>    13 7<span style="text-decoration: underline;">303</span>841          -<span style="color: #BB0000;">12.4</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span>    13 9<span style="text-decoration: underline;">553</span>471          -<span style="color: #BB0000;">12.4</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span>    13 3<span style="text-decoration: underline;">146</span>759          -<span style="color: #BB0000;">12.3</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span>    13 3<span style="text-decoration: underline;">923</span>134          -<span style="color: #BB0000;">12.2</span></span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># optimal_k &lt;- c(5, 7, 10, 15, 21)  # Visually selected based on mean topic coherence (see article 3)</span></span>
-<span><span class="va">optimal_params</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span>K <span class="op">=</span> <span class="fl">13</span>, S <span class="op">=</span> <span class="fl">664224</span><span class="op">)</span></span>
 <span><span class="va">ptm</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/proc.time.html" class="external-link">proc.time</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">lda_models</span> <span class="op">&lt;-</span> <span class="va">optimal_params</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
 <span>    <span class="co"># LDA models</span></span>
-<span>    topic_model <span class="op">=</span> <span class="fu"><a href="https://purrr.tidyverse.org/reference/map2.html" class="external-link">map2</a></span><span class="op">(</span>  <span class="co"># use furrr::future_map2() if multiple models  </span></span>
+<span>    topic_model <span class="op">=</span> <span class="fu"><a href="https://furrr.futureverse.org/reference/future_map2.html" class="external-link">future_map2</a></span><span class="op">(</span></span>
 <span>      <span class="va">K</span>, <span class="va">S</span>, \<span class="op">(</span><span class="va">k</span>, <span class="va">s</span><span class="op">)</span> <span class="op">{</span></span>
 <span>        <span class="fu"><a href="https://rdrr.io/pkg/topicmodels/man/lda.html" class="external-link">LDA</a></span><span class="op">(</span><span class="va">dtm</span>, k <span class="op">=</span> <span class="va">k</span>, control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>seed <span class="op">=</span> <span class="va">s</span><span class="op">)</span><span class="op">)</span></span>
-<span>        <span class="op">}</span><span class="co"># , .options = furrr_options(seed = NULL)  # use with furrr::future_map2()</span></span>
+<span>        <span class="op">}</span>, .options <span class="op">=</span> <span class="fu"><a href="https://furrr.futureverse.org/reference/furrr_options.html" class="external-link">furrr_options</a></span><span class="op">(</span>seed <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span>  <span class="co"># use with furrr::future_map2()</span></span>
 <span>    <span class="op">)</span>,</span>
 <span>    <span class="co"># Theta matrix (gamma)</span></span>
 <span>    theta <span class="op">=</span> <span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map</a></span><span class="op">(</span></span>
@@ -156,18 +169,22 @@
 <span>  <span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/proc.time.html" class="external-link">proc.time</a></span><span class="op">(</span><span class="op">)</span> <span class="op">-</span> <span class="va">ptm</span></span>
 <span><span class="co">#&gt;    user  system elapsed </span></span>
-<span><span class="co">#&gt;  25.347   0.001  25.348</span></span>
+<span><span class="co">#&gt;   2.906   0.054  73.208</span></span>
 <span><span class="va">lda_models</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 4</span></span></span>
-<span><span class="co">#&gt;       K      S topic_model theta     </span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>    13 <span style="text-decoration: underline;">664</span>224 <span style="color: #949494;">&lt;LDA_VEM&gt;</span>   <span style="color: #949494;">&lt;dfm[,13]&gt;</span></span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 5 × 5</span></span></span>
+<span><span class="co">#&gt;       K       S mean_coherence topic_model theta     </span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>    13  <span style="text-decoration: underline;">664</span>224          -<span style="color: #BB0000;">12.6</span> <span style="color: #949494;">&lt;LDA_VEM&gt;</span>   <span style="color: #949494;">&lt;dfm[,13]&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span>    13 7<span style="text-decoration: underline;">303</span>841          -<span style="color: #BB0000;">12.4</span> <span style="color: #949494;">&lt;LDA_VEM&gt;</span>   <span style="color: #949494;">&lt;dfm[,13]&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span>    13 9<span style="text-decoration: underline;">553</span>471          -<span style="color: #BB0000;">12.4</span> <span style="color: #949494;">&lt;LDA_VEM&gt;</span>   <span style="color: #949494;">&lt;dfm[,13]&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span>    13 3<span style="text-decoration: underline;">146</span>759          -<span style="color: #BB0000;">12.3</span> <span style="color: #949494;">&lt;LDA_VEM&gt;</span>   <span style="color: #949494;">&lt;dfm[,13]&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span>    13 3<span style="text-decoration: underline;">923</span>134          -<span style="color: #BB0000;">12.2</span> <span style="color: #949494;">&lt;LDA_VEM&gt;</span>   <span style="color: #949494;">&lt;dfm[,13]&gt;</span></span></span></code></pre></div>
 <p>Divide data set to training and test parts:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">trainidx</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/caret/man/createDataPartition.html" class="external-link">createDataPartition</a></span><span class="op">(</span><span class="va">y</span><span class="op">$</span><span class="va">suht_muutos_2010_2022</span>, p <span class="op">=</span> <span class="fl">.7</span>,</span>
 <span>                                list <span class="op">=</span> <span class="cn">FALSE</span>, </span>
 <span>                                times <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">lda_models</span> <span class="op">&lt;-</span> <span class="va">lda_models</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
 <span>    train <span class="op">=</span> <span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map</a></span><span class="op">(</span><span class="va">theta</span>, \<span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">{</span></span>
@@ -178,11 +195,15 @@
 <span>    <span class="op">}</span><span class="op">)</span></span>
 <span>  <span class="op">)</span></span>
 <span><span class="va">lda_models</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 6</span></span></span>
-<span><span class="co">#&gt;       K      S topic_model theta      train      test      </span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>    13 <span style="text-decoration: underline;">664</span>224 <span style="color: #949494;">&lt;LDA_VEM&gt;</span>   <span style="color: #949494;">&lt;dfm[,13]&gt;</span> <span style="color: #949494;">&lt;dfm[,13]&gt;</span> <span style="color: #949494;">&lt;dfm[,13]&gt;</span></span></span></code></pre></div>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 5 × 7</span></span></span>
+<span><span class="co">#&gt;       K       S mean_coherence topic_model theta      train      test      </span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>    13  <span style="text-decoration: underline;">664</span>224          -<span style="color: #BB0000;">12.6</span> <span style="color: #949494;">&lt;LDA_VEM&gt;</span>   <span style="color: #949494;">&lt;dfm[,13]&gt;</span> <span style="color: #949494;">&lt;dfm[,13]&gt;</span> <span style="color: #949494;">&lt;dfm[,13]&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span>    13 7<span style="text-decoration: underline;">303</span>841          -<span style="color: #BB0000;">12.4</span> <span style="color: #949494;">&lt;LDA_VEM&gt;</span>   <span style="color: #949494;">&lt;dfm[,13]&gt;</span> <span style="color: #949494;">&lt;dfm[,13]&gt;</span> <span style="color: #949494;">&lt;dfm[,13]&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span>    13 9<span style="text-decoration: underline;">553</span>471          -<span style="color: #BB0000;">12.4</span> <span style="color: #949494;">&lt;LDA_VEM&gt;</span>   <span style="color: #949494;">&lt;dfm[,13]&gt;</span> <span style="color: #949494;">&lt;dfm[,13]&gt;</span> <span style="color: #949494;">&lt;dfm[,13]&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span>    13 3<span style="text-decoration: underline;">146</span>759          -<span style="color: #BB0000;">12.3</span> <span style="color: #949494;">&lt;LDA_VEM&gt;</span>   <span style="color: #949494;">&lt;dfm[,13]&gt;</span> <span style="color: #949494;">&lt;dfm[,13]&gt;</span> <span style="color: #949494;">&lt;dfm[,13]&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span>    13 3<span style="text-decoration: underline;">923</span>134          -<span style="color: #BB0000;">12.2</span> <span style="color: #949494;">&lt;LDA_VEM&gt;</span>   <span style="color: #949494;">&lt;dfm[,13]&gt;</span> <span style="color: #949494;">&lt;dfm[,13]&gt;</span> <span style="color: #949494;">&lt;dfm[,13]&gt;</span></span></span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">lda_models</span> <span class="op">&lt;-</span> <span class="va">lda_models</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
 <span>    xgb_train <span class="op">=</span> <span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map</a></span><span class="op">(</span><span class="va">train</span>, \<span class="op">(</span><span class="va">train</span><span class="op">)</span> <span class="op">{</span></span>
@@ -193,13 +214,17 @@
 <span>    <span class="op">}</span><span class="op">)</span></span>
 <span>  <span class="op">)</span></span>
 <span><span class="va">lda_models</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 8</span></span></span>
-<span><span class="co">#&gt;       K      S topic_model theta      train      test       xgb_train      </span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>         </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>    13 <span style="text-decoration: underline;">664</span>224 <span style="color: #949494;">&lt;LDA_VEM&gt;</span>   <span style="color: #949494;">&lt;dfm[,13]&gt;</span> <span style="color: #949494;">&lt;dfm[,13]&gt;</span> <span style="color: #949494;">&lt;dfm[,13]&gt;</span> <span style="color: #949494;">&lt;xgb.DMtr[,13]&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 1 more variable: xgb_test &lt;list&gt;</span></span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 5 × 9</span></span></span>
+<span><span class="co">#&gt;       K       S mean_coherence topic_model theta      train      test      </span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>    13  <span style="text-decoration: underline;">664</span>224          -<span style="color: #BB0000;">12.6</span> <span style="color: #949494;">&lt;LDA_VEM&gt;</span>   <span style="color: #949494;">&lt;dfm[,13]&gt;</span> <span style="color: #949494;">&lt;dfm[,13]&gt;</span> <span style="color: #949494;">&lt;dfm[,13]&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span>    13 7<span style="text-decoration: underline;">303</span>841          -<span style="color: #BB0000;">12.4</span> <span style="color: #949494;">&lt;LDA_VEM&gt;</span>   <span style="color: #949494;">&lt;dfm[,13]&gt;</span> <span style="color: #949494;">&lt;dfm[,13]&gt;</span> <span style="color: #949494;">&lt;dfm[,13]&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span>    13 9<span style="text-decoration: underline;">553</span>471          -<span style="color: #BB0000;">12.4</span> <span style="color: #949494;">&lt;LDA_VEM&gt;</span>   <span style="color: #949494;">&lt;dfm[,13]&gt;</span> <span style="color: #949494;">&lt;dfm[,13]&gt;</span> <span style="color: #949494;">&lt;dfm[,13]&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span>    13 3<span style="text-decoration: underline;">146</span>759          -<span style="color: #BB0000;">12.3</span> <span style="color: #949494;">&lt;LDA_VEM&gt;</span>   <span style="color: #949494;">&lt;dfm[,13]&gt;</span> <span style="color: #949494;">&lt;dfm[,13]&gt;</span> <span style="color: #949494;">&lt;dfm[,13]&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span>    13 3<span style="text-decoration: underline;">923</span>134          -<span style="color: #BB0000;">12.2</span> <span style="color: #949494;">&lt;LDA_VEM&gt;</span>   <span style="color: #949494;">&lt;dfm[,13]&gt;</span> <span style="color: #949494;">&lt;dfm[,13]&gt;</span> <span style="color: #949494;">&lt;dfm[,13]&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 2 more variables: xgb_train &lt;list&gt;, xgb_test &lt;list&gt;</span></span></span></code></pre></div>
 <p>Define set of parameters for hyper parameter tuning:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">gs</span> <span class="op">&lt;-</span> <span class="fu">tidyr</span><span class="fu">::</span><span class="fu"><a href="https://tidyr.tidyverse.org/reference/expand_grid.html" class="external-link">expand_grid</a></span><span class="op">(</span></span>
 <span>  booster <span class="op">=</span> <span class="st">"gbtree"</span>,</span>
 <span>  eta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0.01</span>, <span class="fl">0.1</span>, by <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span>,</span>
@@ -238,54 +263,59 @@
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">20</span> gbtree   0.01         2     0      1                 0.5       30 binary:logistic                 2</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 466 more rows</span></span></span></code></pre></div>
 <p>Add combination of lda-models to hyper parameter set:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">xgb_models</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://tidyr.tidyverse.org/reference/expand_grid.html" class="external-link">expand_grid</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">lda_models</span>, <span class="va">K</span><span class="op">)</span>, <span class="va">gs</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">left_join</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">lda_models</span>, <span class="va">K</span>, data <span class="op">=</span> <span class="va">xgb_train</span>, test_data <span class="op">=</span> <span class="va">xgb_test</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Joining with `by = join_by(K)`</span></span>
+<span><span class="co">#&gt; Warning in left_join(expand_grid(select(lda_models, K), gs), select(lda_models, : Detected an unexpected many-to-many relationship between `x` and `y`.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Row 1 of `x` matches multiple rows in `y`.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Row 1 of `y` matches multiple rows in `x`.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> If a many-to-many relationship is expected, set `relationship =</span></span>
+<span><span class="co">#&gt;   "many-to-many"` to silence this warning.</span></span>
 <span><span class="va">xgb_models</span> </span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 486 × 12</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 12,150 × 12</span></span></span>
 <span><span class="co">#&gt;        K booster   eta max_depth gamma subsample colsample_bylevel nrounds</span></span>
-<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span>    13 gbtree   0.01         2     0      0.5               0.5        5</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span>    13 gbtree   0.01         2     0      0.5               0.5       30</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span>    13 gbtree   0.01         2     0      0.5               0.5       55</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span>    13 gbtree   0.01         2     0      0.5               0.75       5</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span>    13 gbtree   0.01         2     0      0.5               0.75      30</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span>    13 gbtree   0.01         2     0      0.5               0.75      55</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span>    13 gbtree   0.01         2     0      0.5               1          5</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span>    13 gbtree   0.01         2     0      0.5               1         30</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span>    13 gbtree   0.01         2     0      0.5               1         55</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span>    13 gbtree   0.01         2     0      0.75              0.5        5</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 476 more rows</span></span></span>
+<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span>    13 gbtree   0.01         2     0       0.5               0.5       5</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span>    13 gbtree   0.01         2     0       0.5               0.5       5</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span>    13 gbtree   0.01         2     0       0.5               0.5       5</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span>    13 gbtree   0.01         2     0       0.5               0.5       5</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span>    13 gbtree   0.01         2     0       0.5               0.5       5</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span>    13 gbtree   0.01         2     0       0.5               0.5      30</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span>    13 gbtree   0.01         2     0       0.5               0.5      30</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span>    13 gbtree   0.01         2     0       0.5               0.5      30</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span>    13 gbtree   0.01         2     0       0.5               0.5      30</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span>    13 gbtree   0.01         2     0       0.5               0.5      30</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 12,140 more rows</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 4 more variables: objective &lt;chr&gt;, num_parallel_tree &lt;dbl&gt;, data &lt;list&gt;,</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#   test_data &lt;list&gt;</span></span></span></code></pre></div>
 <p>Now we are ready to train models:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ptm</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/proc.time.html" class="external-link">proc.time</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">xgb_models</span> <span class="op">&lt;-</span> <span class="va">xgb_models</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>model <span class="op">=</span> <span class="fu"><a href="https://purrr.tidyverse.org/reference/pmap.html" class="external-link">pmap</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">xgb_models</span>, <span class="op">-</span><span class="va">K</span>, <span class="op">-</span><span class="va">test_data</span><span class="op">)</span>, <span class="va">xgb.train</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>model <span class="op">=</span> <span class="fu"><a href="https://purrr.tidyverse.org/reference/pmap.html" class="external-link">pmap</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">xgb_models</span>, <span class="op">-</span><span class="va">K</span>, <span class="op">-</span><span class="va">test_data</span><span class="op">)</span>, <span class="va">xgb.train</span><span class="op">)</span><span class="op">)</span>  <span class="co"># future_pmap does not work here!</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/proc.time.html" class="external-link">proc.time</a></span><span class="op">(</span><span class="op">)</span> <span class="op">-</span> <span class="va">ptm</span></span>
 <span><span class="co">#&gt;    user  system elapsed </span></span>
-<span><span class="co">#&gt;  14.674   1.027   4.710</span></span>
+<span><span class="co">#&gt; 400.959  27.708 131.972</span></span>
 <span><span class="va">xgb_models</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 486 × 13</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 12,150 × 13</span></span></span>
 <span><span class="co">#&gt;        K booster   eta max_depth gamma subsample colsample_bylevel nrounds</span></span>
-<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span>    13 gbtree   0.01         2     0      0.5               0.5        5</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span>    13 gbtree   0.01         2     0      0.5               0.5       30</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span>    13 gbtree   0.01         2     0      0.5               0.5       55</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span>    13 gbtree   0.01         2     0      0.5               0.75       5</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span>    13 gbtree   0.01         2     0      0.5               0.75      30</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span>    13 gbtree   0.01         2     0      0.5               0.75      55</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span>    13 gbtree   0.01         2     0      0.5               1          5</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span>    13 gbtree   0.01         2     0      0.5               1         30</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span>    13 gbtree   0.01         2     0      0.5               1         55</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span>    13 gbtree   0.01         2     0      0.75              0.5        5</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 476 more rows</span></span></span>
+<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span>    13 gbtree   0.01         2     0       0.5               0.5       5</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span>    13 gbtree   0.01         2     0       0.5               0.5       5</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span>    13 gbtree   0.01         2     0       0.5               0.5       5</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span>    13 gbtree   0.01         2     0       0.5               0.5       5</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span>    13 gbtree   0.01         2     0       0.5               0.5       5</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span>    13 gbtree   0.01         2     0       0.5               0.5      30</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span>    13 gbtree   0.01         2     0       0.5               0.5      30</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span>    13 gbtree   0.01         2     0       0.5               0.5      30</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span>    13 gbtree   0.01         2     0       0.5               0.5      30</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span>    13 gbtree   0.01         2     0       0.5               0.5      30</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 12,140 more rows</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 5 more variables: objective &lt;chr&gt;, num_parallel_tree &lt;dbl&gt;, data &lt;list&gt;,</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#   test_data &lt;list&gt;, model &lt;list&gt;</span></span></span></code></pre></div>
 <p>Calculate errors for all models:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">xgb_models</span> <span class="op">&lt;-</span> <span class="va">xgb_models</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
 <span>    error <span class="op">=</span> <span class="fu"><a href="https://purrr.tidyverse.org/reference/map2.html" class="external-link">map2_dbl</a></span><span class="op">(</span><span class="va">model</span>, <span class="va">test_data</span>, \<span class="op">(</span><span class="va">model</span>, <span class="va">test_data</span><span class="op">)</span> <span class="op">{</span></span>
@@ -296,57 +326,57 @@
 <span>    <span class="op">}</span><span class="op">)</span></span>
 <span>  <span class="op">)</span></span>
 <span><span class="va">xgb_models</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 486 × 14</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 12,150 × 14</span></span></span>
 <span><span class="co">#&gt;        K booster   eta max_depth gamma subsample colsample_bylevel nrounds</span></span>
-<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span>    13 gbtree   0.01         2     0      0.5               0.5        5</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span>    13 gbtree   0.01         2     0      0.5               0.5       30</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span>    13 gbtree   0.01         2     0      0.5               0.5       55</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span>    13 gbtree   0.01         2     0      0.5               0.75       5</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span>    13 gbtree   0.01         2     0      0.5               0.75      30</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span>    13 gbtree   0.01         2     0      0.5               0.75      55</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span>    13 gbtree   0.01         2     0      0.5               1          5</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span>    13 gbtree   0.01         2     0      0.5               1         30</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span>    13 gbtree   0.01         2     0      0.5               1         55</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span>    13 gbtree   0.01         2     0      0.75              0.5        5</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 476 more rows</span></span></span>
+<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span>    13 gbtree   0.01         2     0       0.5               0.5       5</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span>    13 gbtree   0.01         2     0       0.5               0.5       5</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span>    13 gbtree   0.01         2     0       0.5               0.5       5</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span>    13 gbtree   0.01         2     0       0.5               0.5       5</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span>    13 gbtree   0.01         2     0       0.5               0.5       5</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span>    13 gbtree   0.01         2     0       0.5               0.5      30</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span>    13 gbtree   0.01         2     0       0.5               0.5      30</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span>    13 gbtree   0.01         2     0       0.5               0.5      30</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span>    13 gbtree   0.01         2     0       0.5               0.5      30</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span>    13 gbtree   0.01         2     0       0.5               0.5      30</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 12,140 more rows</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 6 more variables: objective &lt;chr&gt;, num_parallel_tree &lt;dbl&gt;, data &lt;list&gt;,</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#   test_data &lt;list&gt;, model &lt;list&gt;, error &lt;dbl&gt;</span></span></span></code></pre></div>
-<p>Smallest errors appear to be 0.1111111</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">xgb_models</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html" class="external-link">arrange</a></span><span class="op">(</span><span class="va">error</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 486 × 14</span></span></span>
-<span><span class="co">#&gt;        K booster   eta max_depth gamma subsample colsample_bylevel nrounds</span></span>
-<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span>    13 gbtree   0.01         2     0      0.5               1         30</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span>    13 gbtree   0.01         2     0      0.5               1         55</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span>    13 gbtree   0.01         2     0      0.75              0.75      30</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span>    13 gbtree   0.01         2     0      0.75              0.75      55</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span>    13 gbtree   0.01         3     0      0.5               0.75       5</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span>    13 gbtree   0.01         3     0      0.5               0.75      30</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span>    13 gbtree   0.01         3     0      0.75              0.5        5</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span>    13 gbtree   0.01         3     0      0.75              0.5       55</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span>    13 gbtree   0.01         3     2      0.75              0.5       30</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span>    13 gbtree   0.01         3     4      0.5               1         30</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 476 more rows</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 6 more variables: objective &lt;chr&gt;, num_parallel_tree &lt;dbl&gt;, data &lt;list&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   test_data &lt;list&gt;, model &lt;list&gt;, error &lt;dbl&gt;</span></span></span></code></pre></div>
+<p>Smallest errors appear to be 0.0555556</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">xgb_models</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">error</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_boxplot.html" class="external-link">geom_boxplot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/coord_flip.html" class="external-link">coord_flip</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">K</span>, ncol <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></code></pre></div>
-<p><img src="4-Model-validation_files/figure-html/unnamed-chunk-14-1.png" width="1344"></p>
+<code class="sourceCode R"><span><span class="va">xgb_models</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html" class="external-link">arrange</a></span><span class="op">(</span><span class="va">error</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 12,150 × 14</span></span></span>
+<span><span class="co">#&gt;        K booster   eta max_depth gamma subsample colsample_bylevel nrounds</span></span>
+<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span>    13 gbtree   0.01         4     0      0.5               0.5        5</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span>    13 gbtree   0.01         6     0      0.5               1          5</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span>    13 gbtree   0.01         7     0      1                 0.5        5</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span>    13 gbtree   0.01         6     2      1                 0.75       5</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span>    13 gbtree   0.01         2     2      1                 0.75       5</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span>    13 gbtree   0.01         4     0      0.75              0.5        5</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span>    13 gbtree   0.01         6     2      0.5               0.75       5</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span>    13 gbtree   0.01         2     0      0.5               1         55</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span>    13 gbtree   0.01         2     0      0.75              0.5       30</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span>    13 gbtree   0.01         2     0      0.75              0.5       55</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 12,140 more rows</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 6 more variables: objective &lt;chr&gt;, num_parallel_tree &lt;dbl&gt;, data &lt;list&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   test_data &lt;list&gt;, model &lt;list&gt;, error &lt;dbl&gt;</span></span></span></code></pre></div>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">xgb_models</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">error</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_boxplot.html" class="external-link">geom_boxplot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/coord_flip.html" class="external-link">coord_flip</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">max_depth</span>, ncol <span class="op">=</span> <span class="fl">6</span><span class="op">)</span></span></code></pre></div>
-<p><img src="4-Model-validation_files/figure-html/unnamed-chunk-15-1.png" width="700"></p>
-<p>Feature importance:</p>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">K</span>, ncol <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></code></pre></div>
+<p><img src="4-Model-validation_files/figure-html/unnamed-chunk-15-1.png" width="1344"></p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">xgb_models</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">error</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_boxplot.html" class="external-link">geom_boxplot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/coord_flip.html" class="external-link">coord_flip</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">max_depth</span>, ncol <span class="op">=</span> <span class="fl">6</span><span class="op">)</span></span></code></pre></div>
+<p><img src="4-Model-validation_files/figure-html/unnamed-chunk-16-1.png" width="700"></p>
+<p>Feature importance:</p>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">xgb_models</span> <span class="op">&lt;-</span> <span class="va">xgb_models</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
 <span>    feat_importance <span class="op">=</span> <span class="fu"><a href="https://purrr.tidyverse.org/reference/map2.html" class="external-link">map2</a></span><span class="op">(</span><span class="va">data</span>, <span class="va">model</span>, \<span class="op">(</span><span class="va">data</span>, <span class="va">model</span><span class="op">)</span>  <span class="op">{</span></span>
@@ -355,23 +385,23 @@
 <span>    <span class="op">}</span><span class="op">)</span></span>
 <span>  <span class="op">)</span></span>
 <span><span class="va">xgb_models</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 486 × 15</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 12,150 × 15</span></span></span>
 <span><span class="co">#&gt;        K booster   eta max_depth gamma subsample colsample_bylevel nrounds</span></span>
-<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span>    13 gbtree   0.01         2     0      0.5               0.5        5</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span>    13 gbtree   0.01         2     0      0.5               0.5       30</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span>    13 gbtree   0.01         2     0      0.5               0.5       55</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span>    13 gbtree   0.01         2     0      0.5               0.75       5</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span>    13 gbtree   0.01         2     0      0.5               0.75      30</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span>    13 gbtree   0.01         2     0      0.5               0.75      55</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span>    13 gbtree   0.01         2     0      0.5               1          5</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span>    13 gbtree   0.01         2     0      0.5               1         30</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span>    13 gbtree   0.01         2     0      0.5               1         55</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span>    13 gbtree   0.01         2     0      0.75              0.5        5</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 476 more rows</span></span></span>
+<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span>    13 gbtree   0.01         2     0       0.5               0.5       5</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span>    13 gbtree   0.01         2     0       0.5               0.5       5</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span>    13 gbtree   0.01         2     0       0.5               0.5       5</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span>    13 gbtree   0.01         2     0       0.5               0.5       5</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span>    13 gbtree   0.01         2     0       0.5               0.5       5</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span>    13 gbtree   0.01         2     0       0.5               0.5      30</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span>    13 gbtree   0.01         2     0       0.5               0.5      30</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span>    13 gbtree   0.01         2     0       0.5               0.5      30</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span>    13 gbtree   0.01         2     0       0.5               0.5      30</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span>    13 gbtree   0.01         2     0       0.5               0.5      30</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 12,140 more rows</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 7 more variables: objective &lt;chr&gt;, num_parallel_tree &lt;dbl&gt;, data &lt;list&gt;,</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#   test_data &lt;list&gt;, model &lt;list&gt;, error &lt;dbl&gt;, feat_importance &lt;list&gt;</span></span></span></code></pre></div>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">xgb_models</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">K</span>, <span class="va">feat_importance</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://tidyr.tidyverse.org/reference/unnest.html" class="external-link">unnest</a></span><span class="op">(</span><span class="va">feat_importance</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -380,7 +410,7 @@
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_boxplot.html" class="external-link">geom_boxplot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Feature importance"</span>, x <span class="op">=</span> <span class="st">"Feature (topic)"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">K</span>, scales <span class="op">=</span> <span class="st">"free_x"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="4-Model-validation_files/figure-html/unnamed-chunk-17-1.png" width="1344"></p>
+<p><img src="4-Model-validation_files/figure-html/unnamed-chunk-18-1.png" width="1344"></p>
   </main>
 </div>
 
