@@ -57,12 +57,12 @@ with different topic sizes and random seeds.
 rfintext::lda_models
 ```
 
-Below is the code used to run the models.
+Below is example code snippet used to run multiple models.
 
 > Note! Following will take some time on normal computer. On cloud computing 
-environment with 40 core machine with 177 Gb of RAM this took less than one hour. 
+environment with machine on 40 cores and 177 Gb RAM calculating 1400 models 
+with K = 3:35 and with 50 different random seeds on every K took less than one hour. 
 If running locally adjust number of K and S values accordingly.
-
 
 ```{r, warning=FALSE, message=FALSE}
 # set.seed(342024)
@@ -103,7 +103,7 @@ p
 ```
 
 Visually selecting potentially best k value/values. Coherence decline seems to 
-stop and even slightly increase when k is over 10. Let's pick value 15 for k
+stop and even slightly increase when k is over 10. Let's pick value 13 for k
 since there is also less variation.
 
 ```{r}
@@ -135,30 +135,22 @@ Highest coherence values: `r optimal_k`
 ```{r}
 optimal_params <- lda_models |>
   filter(K == 13) |>
-  slice_min(mean_coherence, n = 1)
+  slice_min(mean_coherence, n = 5)
 optimal_params
 ```
 
-```{r}
+Train models with optimal k and some different random seeds. 
+
+```{r, warning=FALSE, message=FALSE}
+ptm <- proc.time()
 selected_models <- optimal_params |>
-  mutate(lda = map2(K, S, \(k, s) {
-    LDA(dtm, k = k, control = list(seed = s))
-    }))
+  mutate(
+    lda = future_map2(K, S, \(k, s) {
+      LDA(dtm, k = k, control = list(seed = s))
+    }, .options = furrr_options(seed = NULL))
+  )
+proc.time() - ptm
 selected_models
-```
-
-If multiple models:
-
-```{r}
-# ptm <- proc.time()
-# selected_models <- optimal_params |>
-#   mutate(
-#     lda = future_map2(K, S, \(k, s) {
-#       LDA(convert(dtm, to = "tm"), k = k, control = list(seed = s))
-#     }, .options = furrr_options(seed = NULL))
-#   )
-# proc.time() - ptm
-# selected_models
 ```
 
 Extract beta and theta matrices with probabilities for terms per topic and 
@@ -188,89 +180,89 @@ selected_models <- selected_models |>
 selected_models
 ```
 
-Let's try to calculate how much there is similarity vs difference in topics between 
-different models.
+Let's try to calculate how much there is similarity in topics between 
+different models. Similarity of certain tpoics between different models could 
+indicate more reliable topics.
 
 > TODO: Set probabilities of all but the top 10-40 terms to zero and calculate 
 cosine similarity between all topic pairs.
 
-> Note. Only one model, skip following:
 
 ```{r}
 # selected_models <- selected_models |> filter(K==5)
-# selected_models <- selected_models |> mutate(model_id = paste0(K, "_", S))
-# idx <- combn(unique(selected_models$model_id), 2)  # Unique pairs of K
-# 
-# beta <- selected_models |> select(K, model_id, beta)
-# 
-# topic_pairs <- list()
-# for (i in 1:ncol(idx)) {
-#   sel <- beta |> filter(model_id %in% idx[, i])  # Two rows at a time
-#   
-#   # Combine pair of rows to same row
-#   topic_pairs[[i]] <- tibble_row(
-#     K1 = sel[[1,"K"]], model1 = sel[[1,"model_id"]], beta1 = sel[[1,"beta"]],
-#     K2 = sel[[2,"K"]], model2 = sel[[2,"model_id"]], beta2 = sel[[2,"beta"]]
-#     )
-#   
-# }
-# topic_pairs <- bind_rows(topic_pairs)
-# 
-# topic_pairs <- topic_pairs |>
-#   mutate(
-#     
-#     topics1 = map(beta1, \(b1) {
-#       b1 |>
-#         pivot_wider(values_from = beta, names_from = topic) |>
-#         select(-term)
-#     }),
-#     
-#     topics2 = map(beta2, \(b2) {
-#       b2 |>
-#         pivot_wider(values_from = beta, names_from = topic) |>
-#         select(-term)
-#     }),
-#     
-#     r = map2(topics1, topics2, \(x1, x2) {
-#       cor(x1, x2)
-#     })#,
-#     
-#     # cossim = map2(topics1, topics2, \(x1, x2) {
-#     #   cosine(x1, x2)
-#     # })
-#   )
-# topic_pairs
+selected_models <- selected_models |> mutate(model_id = paste0(K, "_", S))
+idx <- combn(unique(selected_models$model_id), 2)  # Unique pairs of K
+
+beta <- selected_models |> select(K, model_id, beta)
+
+topic_pairs <- list()
+for (i in 1:ncol(idx)) {
+  sel <- beta |> filter(model_id %in% idx[, i])  # Two rows at a time
+
+  # Combine pair of rows to same row
+  topic_pairs[[i]] <- tibble_row(
+    K1 = sel[[1,"K"]], model1 = sel[[1,"model_id"]], beta1 = sel[[1,"beta"]],
+    K2 = sel[[2,"K"]], model2 = sel[[2,"model_id"]], beta2 = sel[[2,"beta"]]
+    )
+
+}
+topic_pairs <- bind_rows(topic_pairs)
+
+topic_pairs <- topic_pairs |>
+  mutate(
+
+    topics1 = map(beta1, \(b1) {
+      b1 |>
+        pivot_wider(values_from = beta, names_from = topic) |>
+        select(-term)
+    }),
+
+    topics2 = map(beta2, \(b2) {
+      b2 |>
+        pivot_wider(values_from = beta, names_from = topic) |>
+        select(-term)
+    }),
+
+    r = map2(topics1, topics2, \(x1, x2) {
+      cor(x1, x2)
+    })#,
+
+    # cossim = map2(topics1, topics2, \(x1, x2) {
+    #   cosine(x1, x2)
+    # })
+  )
+topic_pairs
 ```
 
 ```{r, fig.width=14, fig.height=6}
-# topic_pairs |> select(K1, K2, r) |>
-#   mutate(similarity = map(r, \(x) {
-#     x |>
-#       as_tibble(rownames = "topic1") |>
-#       pivot_longer(!topic1, names_to = "topic2", values_to = "r") |>
-#       summarise(similarity = sum(r > 0.8)/n(), .by = topic1)
-#   })) |>
-#   select(-r) |>
-#   unnest(similarity) |>
-#   summarise(mean_similarity = mean(similarity), .by = c(K1, topic1)) |>
-#   mutate(topic1 = as.factor(as.integer(topic1))) |>
-#   ggplot() +
-#   geom_col(aes(x = topic1, y = mean_similarity)) +
-#   facet_grid(~K1, scales = "free_x")
+topic_pairs |> select(K1, K2, r) |>
+  mutate(similarity = map(r, \(x) {
+    x |>
+      as_tibble(rownames = "topic1") |>
+      pivot_longer(!topic1, names_to = "topic2", values_to = "r") |>
+      summarise(similarity = sum(r > 0.9)/n(), .by = topic1)  # Threshold 0.9 for similarity. Reasonable?
+  })) |>
+  select(-r) |>
+  unnest(similarity) |>
+  summarise(mean_similarity = mean(similarity), .by = c(K1, topic1)) |>
+  mutate(topic1 = as.factor(as.integer(topic1)),
+         mean_similarity_by_ntopics = mean_similarity*K1) |>  # TODO: similarity depends somehow on number of topics
+  ggplot() +
+  geom_col(aes(x = topic1, y = mean_similarity)) +
+  facet_grid(~K1, scales = "free_x")
 ```
 
 
-```{r}
-# similarity <- list()
-# for (i in 1:nrow(topic_pairs)) {
-#   similarity[[i]] <- topic_pairs$r[[i]] |>
-#     as_tibble(rownames = "topic1") |>
-#     pivot_longer(!topic1, names_to = "topic2", values_to = "r") |>
-#     summarise(similarity = sum(r > 0.9)/n(), .by = topic1)  
-# }
-# bind_rows(similarity) |>
-#   summarise(mean_similarity = mean(similarity), .by = topic1)
-```
+Above we calculated correlation between topics of one model and another model 
+for all model topic pairs. Threshold for similarity was set to more than 0.9. 
+Figure would suggest that topics 4, 5, 10 and 12 could be particularly solid 
+choices. 
+
+> TODO:  
+Set probabilities of all but 10-40 most probable terms to 0.  
+Calculate cosine similarity between all topic-model pairs.  
+Define similarity with threshold 0.5-0.7  
+Summarise total similarity of different topics.
 
 
 ```{r, fig.height=21, fig.width=14}
@@ -288,6 +280,7 @@ cosine similarity between all topic pairs.
 ```
 
 
+This is old work!  
 Next parts look ugly but hopefully they work. We take a look 
 at correlation between topics from different models to see if different models 
 catch up same things. 
@@ -339,12 +332,15 @@ Compare all possible pairs of models:
 #   facet_wrap(~`model-K`, scales = "free", ncol = 2)
 ```
 
+Here we choose the final model(s)
+
 ```{r}
-# final_models <- selected_models |>
-#   slice_max(mean_coherence, n = 1, by = K)
-final_models <- selected_models
+final_models <- selected_models |>
+  slice_max(mean_coherence, n = 1, by = K)
+# final_models <- selected_models
 ```
 
+How common are different topics over all?
 
 ```{r, fig.width=12, fig.height=4}
 final_models |>
@@ -359,9 +355,7 @@ final_models |>
   facet_wrap(~K, scales = "free")
 ```
 
-Theta value is probability of document belonging to or comprising of certain 
-topics. Histogram over topic probabilities shows how common it is for specific 
-topic to comprise the whole document (height of a column at theta 1.0).
+Topics 1, 2, 3, 5 and 12 are most common. Rarest is topic 10.
 
 ```{r, fig.width=14, fig.height=7}
 # final_models |>
@@ -374,6 +368,7 @@ topic to comprise the whole document (height of a column at theta 1.0).
 #   facet_wrap(K~topic, scales = "free_y")
 ```
 
+What is the share of the largest topic for document?
 
 ```{r, fig.height=4, fig.width=12}
 final_models |>
@@ -387,7 +382,10 @@ final_models |>
   facet_wrap(~K, scales = "free")
 ```
 
-
+It seems that especially topics 4, 5, 9, 10 and 13 are sort of main topics which 
+define whole document where as for example topics 3, 8 and 13 seem to cover only 
+half of the document. There are a few exceptions, For example Kuusamo document 
+consists of almost exclusively topic 3. 
 
 ```{r, fig.height=4, fig.width=12}
 # final_models |>
@@ -399,6 +397,8 @@ final_models |>
 #   labs(title = "Topic distributions per document") +
 #   facet_wrap(~K, scales = "free")
 ```
+
+Here we take a look on topics and what they are.
 
 ```{r, fig.width=14, fig.height=21}
 final_models |>

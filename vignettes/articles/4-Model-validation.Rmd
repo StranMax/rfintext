@@ -44,17 +44,26 @@ dtm <- aspol |>
   corpus_to_dtm(kunta, LEMMA)
 ```
 
+Use 13 topics, and a few random seeds.
+
 ```{r}
+optimal_params <- lda_models |>
+  filter(K == 13) |>
+  slice_min(mean_coherence, n = 5)
+optimal_params
+```
+
+
+```{r, warning=FALSE, message=FALSE}
 # optimal_k <- c(5, 7, 10, 15, 21)  # Visually selected based on mean topic coherence (see article 3)
-optimal_params <- tibble(K = 13, S = 664224)
 ptm <- proc.time()
 lda_models <- optimal_params |>
   mutate(
     # LDA models
-    topic_model = map2(  # use furrr::future_map2() if multiple models  
+    topic_model = future_map2(
       K, S, \(k, s) {
         LDA(dtm, k = k, control = list(seed = s))
-        }# , .options = furrr_options(seed = NULL)  # use with furrr::future_map2()
+        }, .options = furrr_options(seed = NULL)  # use with furrr::future_map2()
     ),
     # Theta matrix (gamma)
     theta = map(
@@ -136,7 +145,7 @@ Now we are ready to train models:
 ```{r}
 ptm <- proc.time()
 xgb_models <- xgb_models |>
-  mutate(model = pmap(select(xgb_models, -K, -test_data), xgb.train))
+  mutate(model = pmap(select(xgb_models, -K, -test_data), xgb.train))  # future_pmap does not work here!
 proc.time() - ptm
 xgb_models
 ```

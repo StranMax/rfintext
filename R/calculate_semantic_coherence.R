@@ -7,7 +7,6 @@
 #' @param K_values vector for k values
 #' @param n_seeds number of different random initializations for every k value
 #' @param seed if seeds should be reproducible
-#' @param verbose print extra imformation ot processing time
 #'
 #' @return tibble with LDA models and semantic coherence
 #' @export
@@ -21,13 +20,16 @@
 #'  dplyr::count(kunta, LEMMA) |>
 #'  tidytext::cast_dfm(kunta, LEMMA, n)
 #'
+#'  future::plan(future::multisession, workers = future::availableCores(logical = FALSE) - 1)
+#'
 #'  progressr::with_progressor({calculate_semantic_coherence(dtm = dtm, K_values = seq(5, 10, by = 5),
 #'                               n_seeds = 1, seed = 1234)})
 #'}
 calculate_semantic_coherence <- function(dtm, K_values, n_seeds, seed) {
 
-  oplan <- future::plan(future::multisession, workers = future::availableCores(logical = FALSE) - 1)
-  on.exit(plan(oplan), add = TRUE)  # Clean after your self, restore default plan
+  # Better to leave plan() settings for end user. See Example usage
+  # oplan <- future::plan(future::multisession, workers = future::availableCores(logical = FALSE) - 1)
+  # on.exit(plan(oplan), add = TRUE)  # Clean after your self, restore default plan
 
   if (!is.na(seed)) set.seed(seed)
   random_seeds <- sample.int(9999999, n_seeds)

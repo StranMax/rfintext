@@ -4,7 +4,7 @@
 \alias{calculate_semantic_coherence}
 \title{Title}
 \usage{
-calculate_semantic_coherence(dtm, K_values, n_seeds, seed, verbose = FALSE)
+calculate_semantic_coherence(dtm, K_values, n_seeds, seed)
 }
 \arguments{
 \item{dtm}{document term matrix (quanteda::dfm or tm::tm)}
@@ -14,8 +14,6 @@ calculate_semantic_coherence(dtm, K_values, n_seeds, seed, verbose = FALSE)
 \item{n_seeds}{number of different random initializations for every k value}
 
 \item{seed}{if seeds should be reproducible}
-
-\item{verbose}{print extra imformation ot processing time}
 }
 \value{
 tibble with LDA models and semantic coherence
@@ -30,7 +28,9 @@ preprocess_corpus(kunta) |>
  dplyr::count(kunta, LEMMA) |>
  tidytext::cast_dfm(kunta, LEMMA, n)
 
- calculate_semantic_coherence(dtm = dtm, K_values = seq(5, 10, by = 5),
-                              n_seeds = 1, seed = 1234, verbose = TRUE)
+ future::plan(future::multisession, workers = future::availableCores(logical = FALSE) - 1)
+
+ progressr::with_progressor({calculate_semantic_coherence(dtm = dtm, K_values = seq(5, 10, by = 5),
+                              n_seeds = 1, seed = 1234)})
 }
 }
