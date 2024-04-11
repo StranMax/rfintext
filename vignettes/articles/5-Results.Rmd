@@ -44,7 +44,7 @@ y
 ```{r}
 optimal_params <- lda_models |>
   filter(K == 13) |>
-  slice_min(mean_coherence, n = 5)
+  slice_max(mean_coherence, n = 1)
 optimal_params
 ```
 
@@ -55,7 +55,7 @@ optimal_params
 # optimal_k <- c(5, 7, 10, 15, 21)  # Visually selected based on mean topic coherence (see article 3)
 ptm <- proc.time()
 lda_models <- optimal_params |>
-  slice_max(mean_coherence, n = 1) |>
+  # slice_max(mean_coherence, n = 1) |>
   mutate(
     # LDA model
     topic_model = future_map2(

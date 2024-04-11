@@ -49,7 +49,7 @@ Use 13 topics, and a few random seeds.
 ```{r}
 optimal_params <- lda_models |>
   filter(K == 13) |>
-  slice_min(mean_coherence, n = 5)
+  slice_max(mean_coherence, n = 1)
 optimal_params
 ```
 
@@ -114,13 +114,15 @@ lda_models <- lda_models |>
 lda_models
 ```
 
-Define set of parameters for hyper parameter tuning:
+Define set of parameters for hyper parameter tuning: 
+Only small subset of possible values defined here to cut down processing time 
+for package website.
 
 ```{r, R.options=list(width=10000, pillar.print_max = 20, pillar.print_min = 20)}
 gs <- tidyr::expand_grid(
   booster = "gbtree",
-  eta = seq(0.01, 0.1, by = 0.2),
-  max_depth = seq(2, 7, by = 1),
+  eta = seq(0.01, 0.1, by = 0.3),
+  max_depth = seq(2, 6, by = 1),
   gamma = seq(0, 4, by = 2),
   subsample = seq(0.5, 1, by = 0.25),
   colsample_bylevel = seq(0.5, 1, by = 0.25),

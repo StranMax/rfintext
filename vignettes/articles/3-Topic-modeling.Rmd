@@ -135,7 +135,7 @@ Highest coherence values: `r optimal_k`
 ```{r}
 optimal_params <- lda_models |>
   filter(K == 13) |>
-  slice_min(mean_coherence, n = 5)
+  slice_max(mean_coherence, n = 5)
 optimal_params
 ```
 
