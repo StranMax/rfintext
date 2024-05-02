@@ -1,5 +1,5 @@
 pandoc: 3.1.11
-pkgdown: 2.0.7
+pkgdown: 2.0.9
 pkgdown_sha: ~
 articles:
   0-Preprocessing-PDF-docs: 0-Preprocessing-PDF-docs.html
@@ -9,7 +9,7 @@ articles:
   3-Topic-modeling: 3-Topic-modeling.html
   4-Model-validation: 4-Model-validation.html
   5-Results: 5-Results.html
-last_built: 2024-04-11T10:22Z
+last_built: 2024-05-02T04:33Z
 urls:
   reference: https://stranmax.github.io/rfintext/reference
   article: https://stranmax.github.io/rfintext/articles

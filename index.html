@@ -5,16 +5,14 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<meta name="description" content="This package contains all text mining tasks deployed
-    as part of research on finnish housing policy documents.  ">
+<meta name="description" content="This package contains all text mining tasks deployed as part of research on finnish housing policy documents.">
 <title>Text mining projects of finnish documents • rfintext</title>
 <script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
-<!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Text mining projects of finnish documents">
-<meta property="og:description" content="This package contains all text mining tasks deployed
-    as part of research on finnish housing policy documents.  ">
+<!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.11/clipboard.min.js" integrity="sha512-7O5pXpc0oCRrxk8RUfDYFgn0nO1t+jLuIOQdOMRp4APB7uZ4vSjspzp5y6YDtDs4VzUSTbWzBFZ/LKJhnyFOKw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Text mining projects of finnish documents">
+<meta property="og:description" content="This package contains all text mining tasks deployed as part of research on finnish housing policy documents.">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
@@ -24,7 +22,7 @@
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
     
 
-    <nav class="navbar fixed-top navbar-light navbar-expand-lg bg-light"><div class="container">
+    <nav class="navbar fixed-top navbar-light navbar-expand-lg bg-light" data-bs-theme="light"><div class="container">
     
     <a class="navbar-brand me-2" href="index.html">rfintext</a>
 
@@ -76,14 +74,17 @@
 </h1></div>
 <!-- badges: start -->
 <!-- badges: end -->
-<p>Main purpose for this package is:<br>
-* To share text mining data sets easily.<br>
-* Provide a few simple pre processing functions. Nothing special only wrappers around dplyr functionality.<br>
-* Document all the work done.</p>
+<p>Main purpose for this package is to:<br>
+* Share text mining data sets easily.<br>
+* Provide a few simple pre processing functions. Nothing special only wrappers around dplyr and other tidyverse functions.<br>
+* Document all the steps for reproducible data analysis.</p>
 <blockquote>
-<p>NOTE! It is strongly recommended to use dplyr functions directly provided by other packages directly since all the helper functions provided here are highly likely to change many times before I decide how they should look like and function.</p>
+<p>NOTE! It is strongly recommended to use functions directly from other packages since all the helper functions provided here are highly likely to change many times before I decide how they should look like and function.</p>
 </blockquote>
-<p>This package contains data set <code>aspol</code> created from Finnish housing policy documents. Other data sets might be added later. Currently all the functionalities are tested with aspol data set only.</p>
+<p>This package contains following data sets:<br>
+- <code>aspol</code>: Finnish housing policy documents.<br>
+- <code>strategia</code>: Strategy documents of Finnish municipalities.<br>
+Other data sets might be added later. Currently all the functionalities are tested on <code>aspol</code> data set only.</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
@@ -94,8 +95,12 @@
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/StranMax/rfintext" class="external-link">rfintext</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org" class="external-link">tidyverse</a></span><span class="op">)</span></span></code></pre></div>
-<p>Number of documents currently 68</p>
-<p>Example from dataset, sentence nro 43 from Espoo document:</p>
+</div>
+<div class="section level2">
+<h2 id="data">Data<a class="anchor" aria-label="anchor" href="#data"></a>
+</h2>
+<p>Number of documents in <code>aspol</code> data set 68</p>
+<p>Sentence nro 43 from Espoo document:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">aspol</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">kunta</span> <span class="op">==</span> <span class="st">"Espoo"</span>, <span class="va">sent</span> <span class="op">==</span> <span class="fl">43</span><span class="op">)</span></span>
 <span><span class="co">#&gt; # A tibble: 26 × 13</span></span>
@@ -127,6 +132,7 @@
 <span><span class="co">#&gt; 24 Espoo    43 24    liittyvät             liittyä               VERB    _       Case=Nom|Degree=Pos|Number=Plur|PartForm=Pres|VerbForm=Part|Voice=Act  25    acl       _     "_"                  espoo_2023.conllu</span></span>
 <span><span class="co">#&gt; 25 Espoo    43 25    kysymykset            kysymys               NOUN    _       Case=Nom|Number=Plur                                                   12    conj      _     "SpaceAfter=No"      espoo_2023.conllu</span></span>
 <span><span class="co">#&gt; 26 Espoo    43 26    .                     .                     PUNCT   _       _                                                                      12    punct     _     "SpacesAfter=\\r\\n" espoo_2023.conllu</span></span></code></pre></div>
+<p>Top 20 words:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">aspol</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">UPOSTAG</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"NOUN"</span>, <span class="st">"VERB"</span>, <span class="st">"ADJ"</span>, <span class="st">"ADV"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -155,6 +161,7 @@
 <span><span class="co">#&gt; 19 määrä           NOUN     1092</span></span>
 <span><span class="co">#&gt; 20 asunto#tuotanto NOUN      921</span></span>
 <span><span class="co">#&gt; # ℹ 20,160 more rows</span></span></code></pre></div>
+<p>Power of lemmatization, number of different word forms with same lemma:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">aspol</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">group_by</span><span class="op">(</span><span class="va">LEMMA</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -174,6 +181,7 @@
 <span><span class="co">#&gt;  9 se                   63</span></span>
 <span><span class="co">#&gt; 10 tavoite              61</span></span>
 <span><span class="co">#&gt; # ℹ 34,925 more rows</span></span></code></pre></div>
+<p>10 most common word forms with lemma “asunto”:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">aspol</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">LEMMA</span> <span class="op">==</span> <span class="st">"asunto"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -191,36 +199,28 @@
 <span><span class="co">#&gt;  8 asunnoista Case=Ela|Number=Plur   171</span></span>
 <span><span class="co">#&gt;  9 asunto     Case=Nom|Number=Sing   123</span></span>
 <span><span class="co">#&gt; 10 Asunnot    Case=Nom|Number=Plur    98</span></span>
-<span><span class="co">#&gt; 11 asunnoissa Case=Ine|Number=Plur    72</span></span>
-<span><span class="co">#&gt; 12 asuntoihin Case=Ill|Number=Plur    63</span></span>
-<span><span class="co">#&gt; 13 asuntoon   Case=Ill|Number=Sing    59</span></span>
-<span><span class="co">#&gt; 14 Asunto-    Case=Nom|Number=Sing    41</span></span>
-<span><span class="co">#&gt; 15 Asunnon    Case=Gen|Number=Sing    40</span></span>
-<span><span class="co">#&gt; 16 Asuntoja   Case=Par|Number=Plur    39</span></span>
-<span><span class="co">#&gt; 17 asunnossa  Case=Ine|Number=Sing    37</span></span>
-<span><span class="co">#&gt; 18 Asunto     Case=Nom|Number=Sing    30</span></span>
-<span><span class="co">#&gt; 19 asunnosta  Case=Ela|Number=Sing    26</span></span>
-<span><span class="co">#&gt; 20 asunnoiksi Case=Tra|Number=Plur    23</span></span>
-<span><span class="co">#&gt; # ℹ 61 more rows</span></span></code></pre></div>
+<span><span class="co">#&gt; # ℹ 71 more rows</span></span></code></pre></div>
+<p>Word forms with most different classes:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">aspol</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">group_by</span><span class="op">(</span><span class="va">FORM</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">summarise</span><span class="op">(</span>perusmuoto <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">UPOSTAG</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">arrange</span><span class="op">(</span><span class="fu">desc</span><span class="op">(</span><span class="va">perusmuoto</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="fu">summarise</span><span class="op">(</span>unique_sanaluokat <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">UPOSTAG</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">arrange</span><span class="op">(</span><span class="fu">desc</span><span class="op">(</span><span class="va">unique_sanaluokat</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; # A tibble: 69,686 × 2</span></span>
-<span><span class="co">#&gt;    FORM  perusmuoto</span></span>
-<span><span class="co">#&gt;    &lt;chr&gt;      &lt;int&gt;</span></span>
-<span><span class="co">#&gt;  1 .              9</span></span>
-<span><span class="co">#&gt;  2 /              9</span></span>
-<span><span class="co">#&gt;  3 o              9</span></span>
-<span><span class="co">#&gt;  4 -              6</span></span>
-<span><span class="co">#&gt;  5 @              6</span></span>
-<span><span class="co">#&gt;  6 Yli            6</span></span>
-<span><span class="co">#&gt;  7 –              6</span></span>
-<span><span class="co">#&gt;  8 !              5</span></span>
-<span><span class="co">#&gt;  9 %              5</span></span>
-<span><span class="co">#&gt; 10 )              5</span></span>
+<span><span class="co">#&gt;    FORM  unique_sanaluokat</span></span>
+<span><span class="co">#&gt;    &lt;chr&gt;             &lt;int&gt;</span></span>
+<span><span class="co">#&gt;  1 .                     9</span></span>
+<span><span class="co">#&gt;  2 /                     9</span></span>
+<span><span class="co">#&gt;  3 o                     9</span></span>
+<span><span class="co">#&gt;  4 -                     6</span></span>
+<span><span class="co">#&gt;  5 @                     6</span></span>
+<span><span class="co">#&gt;  6 Yli                   6</span></span>
+<span><span class="co">#&gt;  7 –                     6</span></span>
+<span><span class="co">#&gt;  8 !                     5</span></span>
+<span><span class="co">#&gt;  9 %                     5</span></span>
+<span><span class="co">#&gt; 10 )                     5</span></span>
 <span><span class="co">#&gt; # ℹ 69,676 more rows</span></span></code></pre></div>
+<p>Different word forms, word classes and inflections for single lemma “olla”:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">aspol</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">LEMMA</span> <span class="op">==</span> <span class="st">"olla"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -289,13 +289,11 @@
 
 
     <footer><div class="pkgdown-footer-left">
-  <p></p>
-<p>Developed by Max Strandén.</p>
+  <p>Developed by Max Strandén.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.9.</p>
 </div>
 
     </footer>
