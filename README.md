@@ -6,20 +6,22 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
-Main purpose for this package is:  
-\* To share text mining data sets easily.  
+Main purpose for this package is to:  
+\* Share text mining data sets easily.  
 \* Provide a few simple pre processing functions. Nothing special only
-wrappers around dplyr functionality.  
-\* Document all the work done.
+wrappers around dplyr and other tidyverse functions.  
+\* Document all the steps for reproducible data analysis.
 
-> NOTE! It is strongly recommended to use dplyr functions directly
-> provided by other packages directly since all the helper functions
-> provided here are highly likely to change many times before I decide
-> how they should look like and function.
+> NOTE! It is strongly recommended to use functions directly from other
+> packages since all the helper functions provided here are highly
+> likely to change many times before I decide how they should look like
+> and function.
 
-This package contains data set `aspol` created from Finnish housing
-policy documents. Other data sets might be added later. Currently all
-the functionalities are tested with aspol data set only.
+This package contains following data sets:  
+- `aspol`: Finnish housing policy documents.  
+- `strategia`: Strategy documents of Finnish municipalities.  
+Other data sets might be added later. Currently all the functionalities
+are tested on `aspol` data set only.
 
 ## Installation
 
@@ -35,9 +37,11 @@ library(rfintext)
 library(tidyverse)
 ```
 
-Number of documents currently 68
+## Data
 
-Example from dataset, sentence nro 43 from Espoo document:
+Number of documents in `aspol` data set 68
+
+Sentence nro 43 from Espoo document:
 
 ``` r
 aspol |> filter(kunta == "Espoo", sent == 43)
@@ -72,6 +76,8 @@ aspol |> filter(kunta == "Espoo", sent == 43)
 #> 26 Espoo    43 26    .                     .                     PUNCT   _       _                                                                      12    punct     _     "SpacesAfter=\\r\\n" espoo_2023.conllu
 ```
 
+Top 20 words:
+
 ``` r
 aspol |>
   dplyr::filter(UPOSTAG %in% c("NOUN", "VERB", "ADJ", "ADV")) |>
@@ -102,6 +108,8 @@ aspol |>
 #> # ℹ 20,160 more rows
 ```
 
+Power of lemmatization, number of different word forms with same lemma:
+
 ``` r
 aspol |>
   group_by(LEMMA) |>
@@ -123,6 +131,8 @@ aspol |>
 #> # ℹ 34,925 more rows
 ```
 
+10 most common word forms with lemma “asunto”:
+
 ``` r
 aspol |>
   filter(LEMMA == "asunto") |>
@@ -140,39 +150,34 @@ aspol |>
 #>  8 asunnoista Case=Ela|Number=Plur   171
 #>  9 asunto     Case=Nom|Number=Sing   123
 #> 10 Asunnot    Case=Nom|Number=Plur    98
-#> 11 asunnoissa Case=Ine|Number=Plur    72
-#> 12 asuntoihin Case=Ill|Number=Plur    63
-#> 13 asuntoon   Case=Ill|Number=Sing    59
-#> 14 Asunto-    Case=Nom|Number=Sing    41
-#> 15 Asunnon    Case=Gen|Number=Sing    40
-#> 16 Asuntoja   Case=Par|Number=Plur    39
-#> 17 asunnossa  Case=Ine|Number=Sing    37
-#> 18 Asunto     Case=Nom|Number=Sing    30
-#> 19 asunnosta  Case=Ela|Number=Sing    26
-#> 20 asunnoiksi Case=Tra|Number=Plur    23
-#> # ℹ 61 more rows
+#> # ℹ 71 more rows
 ```
+
+Word forms with most different classes:
 
 ``` r
 aspol |>
   group_by(FORM) |>
-  summarise(perusmuoto = length(unique(UPOSTAG))) |>
-  arrange(desc(perusmuoto))
+  summarise(unique_sanaluokat = length(unique(UPOSTAG))) |>
+  arrange(desc(unique_sanaluokat))
 #> # A tibble: 69,686 × 2
-#>    FORM  perusmuoto
-#>    <chr>      <int>
-#>  1 .              9
-#>  2 /              9
-#>  3 o              9
-#>  4 -              6
-#>  5 @              6
-#>  6 Yli            6
-#>  7 –              6
-#>  8 !              5
-#>  9 %              5
-#> 10 )              5
+#>    FORM  unique_sanaluokat
+#>    <chr>             <int>
+#>  1 .                     9
+#>  2 /                     9
+#>  3 o                     9
+#>  4 -                     6
+#>  5 @                     6
+#>  6 Yli                   6
+#>  7 –                     6
+#>  8 !                     5
+#>  9 %                     5
+#> 10 )                     5
 #> # ℹ 69,676 more rows
 ```
+
+Different word forms, word classes and inflections for single lemma
+“olla”:
 
 ``` r
 aspol |>
