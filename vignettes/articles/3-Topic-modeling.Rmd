@@ -254,10 +254,10 @@ topic_pairs |> select(K1, K2, r) |>
   unnest(similarity) |>
   summarise(mean_similarity = mean(similarity), .by = c(K1, topic1)) |>
   mutate(topic1 = as.factor(as.integer(topic1)),
-         mean_similarity_by_ntopics = mean_similarity*K1) |>  # TODO: similarity depends somehow on number of topics
+         mean_similarity_by_ntopics = ((mean_similarity*K1)/(1/optimal_k))/optimal_k) |>  # TODO: similarity depends somehow on number of topics
   ggplot() +
-  geom_col(aes(x = topic1, y = mean_similarity)) +
-  geom_hline(yintercept = 1/optimal_k,linetype='dashed', color=c('red')) +
+  geom_col(aes(x = topic1, y = mean_similarity_by_ntopics)) +
+  # geom_hline(yintercept = 1/optimal_k,linetype='dashed', color=c('red')) +
   facet_grid(~K1, scales = "free_x")
 ```
 
