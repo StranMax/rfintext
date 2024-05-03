@@ -47,7 +47,7 @@ calculate_semantic_coherence <- function(dtm, K_values, n_seeds, seed) {
           p()
           topicmodels::LDA(dtm, k = k, control = list(seed = s))
         },
-        .options = furrr::furrr_options(seed = NULL)
+        .options = furrr::furrr_options(seed = NULL)  # We WANT to use same seed here for all workers
       ),
       # Model coherence
       mean_coherence = furrr::future_map_dbl(

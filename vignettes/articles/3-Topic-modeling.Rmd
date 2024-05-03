@@ -9,7 +9,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-Topic modeling with latent Dirichlet allocation (LDA).
+# Topic modeling with latent Dirichlet allocation (LDA).
 
 ```{r setup, message=FALSE, warning=FALSE}
 library(rfintext)
@@ -34,7 +34,7 @@ plan(multisession, workers = availableCores(logical = FALSE) - 1)  # Utilize mul
 quanteda_options(print_dfm_max_ndoc = 20, print_dfm_max_nfeat = 20)
 ```
 
-You know already how to pre process and convert to document term matrix: 
+## Data
 
 ```{r, message=FALSE, R.options = list(width = 10000)}
 dtm <- aspol |>
@@ -43,6 +43,8 @@ dtm <- aspol |>
   cast_dfm(kunta, LEMMA, n)  # n is default name from dplyr::count()
 dtm
 ```
+
+## Topic model
 
 Let's get straight to business. Unsupervised classification with LDA:
 
@@ -93,39 +95,45 @@ If running locally adjust number of K and S values accordingly.
 
 ```{r}
 p <- lda_models |>
-  ggplot(aes(x = K, y = mean_coherence, group = S, colour = as.factor(S), fill = as.factor(S))) +
-  geom_line(show.legend = FALSE) +
-  geom_point(show.legend = FALSE) +
-  scale_color_discrete() +
+  ggplot(aes(x = as.factor(K), y = mean_coherence)) +
+  geom_boxplot() +
   labs(subtitle = "LDA model coherence with different topic numbers", 
        x = "k (number of topics)", y = "Mean coherence")
 p
 ```
 
-Visually selecting potentially best k value/values. Coherence decline seems to 
-stop and even slightly increase when k is over 10. Let's pick value 13 for k
-since there is also less variation.
-
-```{r}
-lda_models |> summarise(variation = var(mean_coherence), .by = K) |> arrange(variation)
-```
+Visually selecting potentially best k value/values. Let's pick value 18 for k.
 
 
 ```{r}
 # optimal_k <- c(5, 9, 11, 15, 20)
 # optimal_k <- c(5, 7, 10, 15, 21)
 # optimal_k <- c(3, 5, 15)
-optimal_k <- 13
+optimal_k <- 18
+```
+
+```{r}
+q <- lda_models |>
+  filter(K %in% optimal_k) |>
+  pull(mean_coherence) |>
+  quantile()
+q25 <- q["25%"]
 ```
 
 
 ```{r}
 p +
-  geom_vline(xintercept = optimal_k, linetype='dashed', color=c('red')) +
-  lapply(optimal_k, function(x) {geom_text(aes(x=x+1, label=x, y=-5), colour="red", angle=90)}) +
+  # geom_vline(xintercept = optimal_k, linetype='dashed', color=c('red')) +
+  geom_hline(yintercept = q25, linetype='dashed', color=c('red')) +
+  # lapply(optimal_k, function(x) {geom_text(aes(x=x+1, label=x, y=-5), colour="red", angle=90)}) +
   labs(subtitle = "Optimal k values",
        x = "k (number of topics)", y = "Mean coherence")
 ```
+
+Above we can see that lowest quantile with K=18 is higher than any other from K 
+7 and above. Lower quantile of coherence score (horizontal dashed line) is even 
+higher than for example highest quantile with K=10. There is some variation but 
+to lesser degree than with k values below 10.
 
 > NOTE! Coherence scores can change even for smallest adjustments to pre processing 
 pipeline. Make your mind on those first and stick to it.
@@ -134,7 +142,7 @@ Highest coherence values: `r optimal_k`
 
 ```{r}
 optimal_params <- lda_models |>
-  filter(K == 13) |>
+  filter(K %in% optimal_k) |>
   slice_max(mean_coherence, n = 5)
 optimal_params
 ```
@@ -181,7 +189,7 @@ selected_models
 ```
 
 Let's try to calculate how much there is similarity in topics between 
-different models. Similarity of certain tpoics between different models could 
+different models. Similarity of certain topics between different models could 
 indicate more reliable topics.
 
 > TODO: Set probabilities of all but the top 10-40 terms to zero and calculate 
@@ -249,14 +257,17 @@ topic_pairs |> select(K1, K2, r) |>
          mean_similarity_by_ntopics = mean_similarity*K1) |>  # TODO: similarity depends somehow on number of topics
   ggplot() +
   geom_col(aes(x = topic1, y = mean_similarity)) +
+  geom_hline(yintercept = 1/optimal_k,linetype='dashed', color=c('red')) +
   facet_grid(~K1, scales = "free_x")
 ```
 
-
 Above we calculated correlation between topics of one model and another model 
 for all model topic pairs. Threshold for similarity was set to more than 0.9. 
-Figure would suggest that topics 4, 5, 10 and 12 could be particularly solid 
-choices. 
+Expected value if there is one matching topic for every model is 1 divided by 
+number of topics (red dashed line). Topics 1 and 3 seems to appear in all models. 
+In other hand topics 8 and 13 seem to be rather unique between models. This should 
+be calculated with all 50 different models with same k value to get a better picture 
+of what's going on.
 
 > TODO:  
 Set probabilities of all but 10-40 most probable terms to 0.  
@@ -332,7 +343,7 @@ Compare all possible pairs of models:
 #   facet_wrap(~`model-K`, scales = "free", ncol = 2)
 ```
 
-Here we choose the final model(s)
+Here we choose the final model(s) by largest coherence score.
 
 ```{r}
 final_models <- selected_models |>
@@ -355,7 +366,7 @@ final_models |>
   facet_wrap(~K, scales = "free")
 ```
 
-Topics 1, 2, 3, 5 and 12 are most common. Rarest is topic 10.
+Topics 5 is most common by a large margin. Rarest are topics 1 and 7.
 
 ```{r, fig.width=14, fig.height=7}
 # final_models |>
@@ -368,7 +379,7 @@ Topics 1, 2, 3, 5 and 12 are most common. Rarest is topic 10.
 #   facet_wrap(K~topic, scales = "free_y")
 ```
 
-What is the share of the largest topic for document?
+What is the share of the largest topic per document?
 
 ```{r, fig.height=4, fig.width=12}
 final_models |>
@@ -382,10 +393,8 @@ final_models |>
   facet_wrap(~K, scales = "free")
 ```
 
-It seems that especially topics 4, 5, 9, 10 and 13 are sort of main topics which 
-define whole document where as for example topics 3, 8 and 13 seem to cover only 
-half of the document. There are a few exceptions, For example Kuusamo document 
-consists of almost exclusively topic 3. 
+This figure gives a good idea of main topics which cover a large part or the whole 
+of a document. Topics 1, 7, 12, 15 and 18 cover only large part of document. 
 
 ```{r, fig.height=4, fig.width=12}
 # final_models |>
@@ -398,7 +407,8 @@ consists of almost exclusively topic 3.
 #   facet_wrap(~K, scales = "free")
 ```
 
-Here we take a look on topics and what they are.
+Here we take a look on topics and what they are. Remainder: most common topic was 
+5, rarest 1 and 7. Main topics were 1, 7, 12, 15 and 18.
 
 ```{r, fig.width=14, fig.height=21}
 final_models |>
@@ -418,6 +428,8 @@ final_models |>
   scale_y_reordered() +
   facet_wrap(K ~ topic, scales = "free")
 ```
+
+Same as above but only unique terms for topic.
 
 ```{r, fig.width=14, fig.height=21}
 final_models |>
