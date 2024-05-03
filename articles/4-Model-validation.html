@@ -165,7 +165,7 @@
 <span>  <span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/proc.time.html" class="external-link">proc.time</a></span><span class="op">(</span><span class="op">)</span> <span class="op">-</span> <span class="va">ptm</span></span>
 <span><span class="co">#&gt;    user  system elapsed </span></span>
-<span><span class="co">#&gt;   1.596   0.049  45.061</span></span>
+<span><span class="co">#&gt;   1.259   0.046  45.006</span></span>
 <span><span class="va">lda_models</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 5</span></span></span>
 <span><span class="co">#&gt;       K       S mean_coherence topic_model theta     </span></span>
@@ -277,7 +277,7 @@ package website.</p>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>model <span class="op">=</span> <span class="fu"><a href="https://purrr.tidyverse.org/reference/pmap.html" class="external-link">pmap</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">xgb_models</span>, <span class="op">-</span><span class="va">K</span>, <span class="op">-</span><span class="va">test_data</span><span class="op">)</span>, <span class="va">xgb.train</span><span class="op">)</span><span class="op">)</span>  <span class="co"># future_pmap does not work here!</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/proc.time.html" class="external-link">proc.time</a></span><span class="op">(</span><span class="op">)</span> <span class="op">-</span> <span class="va">ptm</span></span>
 <span><span class="co">#&gt;    user  system elapsed </span></span>
-<span><span class="co">#&gt;  12.868   0.736   4.142</span></span>
+<span><span class="co">#&gt;  12.847   0.831   4.102</span></span>
 <span><span class="va">xgb_models</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 405 × 13</span></span></span>
 <span><span class="co">#&gt;        K booster   eta max_depth gamma subsample colsample_bylevel nrounds</span></span>
