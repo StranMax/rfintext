@@ -43,7 +43,7 @@ y
 
 ```{r}
 optimal_params <- lda_models |>
-  filter(K == 13) |>
+  filter(K == 18) |>
   slice_max(mean_coherence, n = 1)
 optimal_params
 ```
